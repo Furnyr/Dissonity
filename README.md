@@ -36,7 +36,7 @@ The [Node.js](https://nodejs.org/) project is found inside the `node` folder. Th
 
 The Unity C# code is found inside the `unity` folder.
 - `BridgeLibrary.jslib`: Must be placed inside Assets/Plugins. You can extend the code as needed using TypeScript inside the Node.js project.
-- `DynamicSDKBridge.cs`: Must be assigned to a GameObject called **exactly** `DynamicSDKBridge` inside the scene to receive data from the .jslib plugin.
+- `DynamicSDKBridge.cs`: Must be assigned to a GameObject named **exactly** `DynamicSDKBridge` inside the scene to receive data from the .jslib plugin.
 - `DiscordClasses.cs`: Used as a base for Discord data types.
 - `BridgeClasses.cs`: Contains classes used to parse the data received from the SDK over the .jslib plugin.
 - `StaticSDKBridge.cs`: Used to interact with the Discord client inside your project. Example:
