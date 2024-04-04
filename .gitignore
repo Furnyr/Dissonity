@@ -1,0 +1,6 @@
+node/src/client/**/*.js
+node/src/server/**/*.js
+node/.env
+node/node_modules
+node/build
+node/_unity_structures

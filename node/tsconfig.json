@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "removeComments": true,
+    "strict": true,
+    "useDefineForClassFields": false,
+    "outDir": "./build/server"
+  },
+  "include": ["src/server"],
+  "exclude": ["node_modules"]
+}
