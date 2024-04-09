@@ -17,11 +17,15 @@ app.use(express.static(path.join(__dirname, "../client"), {
       res.appendHeader("Content-Encoding", "gzip");
     }
 
-    if (path.endsWith(".wasm.gz") || path.endsWith(".wasm")) {
+    if (path.endsWith(".br")) {
+      res.appendHeader("Content-Encoding", "br");
+    }
+
+    if (path.endsWith(".wasm.gz") || path.endsWith(".wasm.br") || path.endsWith(".wasm")) {
       res.appendHeader("Content-Type", "application/wasm");
     }
 
-    if (path.endsWith(".js.gz") || path.endsWith(".js")) {
+    if (path.endsWith(".js.gz") || path.endsWith(".js.br") || path.endsWith(".js")) {
       res.appendHeader("Content-Type", "application/javascript");
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "unity-embedded-app-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Open source base project to use Unity with the Discord's Embedded App SDK to create activities!",
   "scripts": {
     "unity": "node ./src/scripts/build_bridge_lib.js",
