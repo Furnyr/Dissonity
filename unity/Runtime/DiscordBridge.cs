@@ -45,7 +45,7 @@ namespace Dissonity
             var unityVersion = Config.version.Split(".");
             var npmVersion = version.Split(".");
 
-            //? Major version don't match
+            //? Major version doesn't match
             if (unityVersion[0] != npmVersion[0]) {
                 throw new Exception($"[Dissonity]: Detected major version unmatch. NPM package is v{version} while Unity package is v{Config.version}. Please make sure both packages have the same major version.");
             }
