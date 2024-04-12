@@ -1,8 +1,0 @@
-{
-  "scripts": {
-      "unity": "node ./src/scripts/build_bridge_lib.js",
-      "build": "pnpm tsc && node ./src/scripts/build.js",
-      "execute": "node build/server/index.js",
-      "start": "pnpm build && pnpm execute"
-    }
-}

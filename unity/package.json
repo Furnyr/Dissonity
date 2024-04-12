@@ -1,0 +1,14 @@
+{
+    "name": "com.furnyr.dissonity",
+    "version": "1.0.0",
+    "unity": "2022.2",
+    "displayName": "Dissonity",
+    "description": "Dissonity allows you to easily create a Discord activity using Unity and a configured Node.js app",
+    "keywords": [
+        "discord"
+    ],
+    "author": {
+        "name": "Furnyr",
+        "url": "https://github.com/Furnyr"
+    }
+}

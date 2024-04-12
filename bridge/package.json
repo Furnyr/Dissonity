@@ -1,0 +1,14 @@
+{
+  "name": "dissonity-bridge",
+  "version": "1.0.0",
+  "description": "TypeScript version of the JavaScript plugin for the Dissonity Unity package",
+  "scripts": {
+    "build": "pnpm tsc"
+  },
+  "author": "Furnyr",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.4"
+  },
+  "private": true
+}
