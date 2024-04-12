@@ -67,7 +67,7 @@ app.post("/api/token", async (req, res) => {
 });
 ```
 
-That's all the configuration you need inside Node.js! Now, in your Unity project install the [Dissonity Unity package](https://github.com/Furnyr/Dissonity/tree/master/unity).
+That's all the configuration you need inside Node.js! Now, in your Unity project install the [Dissonity Unity package](https://github.com/Furnyr/Dissonity/tree/master/unity#readme).
 
 > As a note, there's an already configured Node.js project in the GitHub repository.
 
@@ -75,5 +75,5 @@ That's all the configuration you need inside Node.js! Now, in your Unity project
 
 - [GitHub](https://github.com/Furnyr/Dissonity)
 - [NPM Package Source](https://github.com/Furnyr/Dissonity/tree/master/npm)
-- [Unity Package](https://github.com/Furnyr/Dissonity/tree/master/unity)
+- [Unity Package](https://github.com/Furnyr/Dissonity/tree/master/unity#readme)
 - [Unity Package Documentation](https://github.com/Furnyr/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
