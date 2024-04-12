@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "colyseus": "pnpm schema-codegen src/server/utils/structures.ts --csharp --output _unity_colyseus/",
+    "build": "pnpm tsc --project tsconfig.emit.json && node ./src/scripts/build.js",
+    "execute": "node build/server/index.js",
+    "start": "pnpm build && pnpm execute"
+  }
+}

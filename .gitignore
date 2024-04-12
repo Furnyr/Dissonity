@@ -1,6 +1,6 @@
-node/src/client/**/*.js
-node/src/server/**/*.js
-node/.env
-node/node_modules
-node/build
-node/_unity_structures
+node_modules
+.env
+build
+examples/node_project/src/client/**/*.js
+examples/node_project/src/server/**/*.js
+examples/node_project/_unity_colyseus
