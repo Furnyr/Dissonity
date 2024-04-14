@@ -102,6 +102,12 @@ namespace Dissonity
         public string locale;
     }
 
+    [Serializable]
+    public class ConfigData
+    {
+        public bool use_interactive_pip;
+    }
+
     // This payload is not exactly like the one returned by the SDK,
     // but the canceled field is very useful to handle this sequence.
     [Serializable]

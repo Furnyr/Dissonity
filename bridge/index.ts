@@ -3,20 +3,20 @@ import type { MessageData, DiscordSDKEvents, MessageChildCommand } from "../npm/
 
 
 // SDKBrige, { event: data } Child(JSlib => C#)
-// IFrameBrige, ... Child(JSlib) => Parent
+// IFrameBridge, ... Child(JSlib) => Parent
 
 declare const unityInstance: { SendMessage: (gameObject: string, method: string, value: any) => void };
-declare const _IFrameBrige: (data: MessageData) => void;
+declare const _IFrameBridge: (data: MessageData) => void;
 declare const UTF8ToString: (str: any) => string;
 
 var BridgeLibrary = {
     // Must be called inside Unity
     InitializeIFrameBridge: function (): void {
-        window.addEventListener("message", _IFrameBrige);
+        window.addEventListener("message", _IFrameBridge);
     },
 
     // Must be IMPORTED inside Unity
-    IFrameBrige: function ({ data: messageData }: MessageEvent<MessageData>) {
+    IFrameBridge: function ({ data: messageData }: MessageEvent<MessageData>) {
 
         switch (messageData.command as MessageChildCommand) {
             case "DISPATCH": {
@@ -186,6 +186,14 @@ var BridgeLibrary = {
 
                 // SDK Bridge
                 unityInstance.SendMessage("DiscordBridge", "ReceiveLocale", JSON.stringify(messageData.data));
+
+                break;
+            }
+
+            case "SET_CONFIG": {
+
+                // SDK Bridge
+                unityInstance.SendMessage("DiscordBridge", "ReceiveSetConfig", JSON.stringify(messageData.data));
 
                 break;
             }
@@ -461,6 +469,18 @@ var BridgeLibrary = {
 
         window.parent.postMessage({
             command: "GET_LOCALE"
+        });
+    },
+
+    RequestSetConfig: function (useInteractivePip: string) {
+
+        useInteractivePip = UTF8ToString(useInteractivePip);
+
+        window.parent.postMessage({
+            command: "SET_CONFIG",
+            args: {
+                use_interactive_pip: (useInteractivePip == "True")
+            }
         });
     },
 

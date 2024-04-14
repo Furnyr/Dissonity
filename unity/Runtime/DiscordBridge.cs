@@ -372,5 +372,19 @@ namespace Dissonity
             _GetLocaleEvent = null;
         }
 
+        public void ReceiveSetConfig (string stringData) {
+
+            // Parse string
+            ConfigData data = JsonUtility.FromJson<ConfigData>(stringData);
+
+            // Send data to subscriptions
+            if (_SetConfigEvent != null) {
+                _SetConfigEvent(data);
+            }
+
+            //¡ Clear delegates
+            _SetConfigEvent = null;
+        }
+
     }
 }

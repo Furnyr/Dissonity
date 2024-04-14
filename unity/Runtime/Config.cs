@@ -3,6 +3,6 @@ namespace Dissonity
 {
     public static class Config
     {
-        public readonly static string version = "1.0.0";
+        public readonly static string version = "1.1.0";
     }
 }

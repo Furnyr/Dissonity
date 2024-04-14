@@ -305,6 +305,20 @@ Used to obtain the current user's locale. `<LocaleData>.locale` is a string.
 
 ##
 
+## `SetConfig`
+
+Set whether or not the PIP (picture-in-picture) is interactive. `<ConfigData>.use_interactive_pip` is a bool.
+
+- Arguments:
+
+- - [Boolean] : Use interactive PIP
+
+(No required scopes)
+
+- Returns: Task\<ConfigData\>
+
+##
+
 ## `WaitForLoad`
 
 Used to wait until the npm package is ready. You don't really need this since the npm package will process the sent requests once it loads. You could use this method to prevent the player from seeing the scene before you load assets that use SDK data, for example.

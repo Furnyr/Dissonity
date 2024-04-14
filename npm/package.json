@@ -1,6 +1,6 @@
 {
   "name": "dissonity",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Extension of the Discord Embedded App SDK that allows you to create activities alongside the Dissonity Unity package",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -27,7 +27,6 @@
     "@discord/embedded-app-sdk": "1.0.0"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
     "@types/node": "^20.12.5",
     "tsup": "^8.0.2",
     "typescript": "^5.4.4"
