@@ -80,6 +80,7 @@ namespace Dissonity
         public delegate void GetPlatformBehaviorsDelegate (PlatformBehaviorsData data);
         public delegate void SetActivityDelegate (Activity activity);
         public delegate void GetLocaleDelegate (LocaleData data);
+        public delegate void SetConfigDelegate (ConfigData data);
         public delegate void ImageUploadDelegate (ImageUploadData data);
 
 
@@ -109,6 +110,7 @@ namespace Dissonity
         internal static GetPlatformBehaviorsDelegate _GetPlatformBehaviorsEvent;
         internal static SetActivityDelegate _SetActivityEvent;
         internal static GetLocaleDelegate _GetLocaleEvent;
+        internal static SetConfigDelegate _SetConfigEvent;
         internal static ImageUploadDelegate _ImageUploadEvent;
 
         //# JAVASCRIPT PLUGIN - - - - 
@@ -117,7 +119,7 @@ namespace Dissonity
             private static extern void InitializeIFrameBridge();
 
             [DllImport("__Internal")]
-            private static extern void IFrameBrige();   // MUST be imported, it's called internally
+            private static extern void IFrameBridge();   // MUST be imported, it's called internally
 
             [DllImport("__Internal")]
             private static extern string Subscribe(string ev);
@@ -175,6 +177,9 @@ namespace Dissonity
         
             [DllImport("__Internal")]
             private static extern string RequestLocale();
+
+            [DllImport("__Internal")]
+            private static extern string RequestSetConfig(string useInteractivePip); // string representation of bool
 
             [DllImport("__Internal")]
             private static extern void PingLoad();
@@ -697,6 +702,23 @@ namespace Dissonity
             return tcs.Task;
         }
 
+        public static Task<ConfigData> SetConfig (bool useInteractivePip) {
+
+            var tcs = new TaskCompletionSource<ConfigData>();
+
+            _SetConfig(useInteractivePip, (data) => {
+                tcs.TrySetResult(data);
+            });
+
+            #if UNITY_EDITOR
+
+                // If this is run inside the editor, there's no way to test it
+                UnityEngine.Debug.LogWarning("Called SetConfig inside editor, unexpected behaviour will occur");
+            #endif
+
+            return tcs.Task;
+        }
+
 
         // Private wrap methods
         private static void _GetSDKInstanceId (GetStringDelegate del) {
@@ -849,6 +871,15 @@ namespace Dissonity
 
             #if UNITY_WEBGL && !UNITY_EDITOR
                 RequestLocale();
+            #endif
+        }
+
+        private static void _SetConfig (bool useInteractivePip, SetConfigDelegate del) {
+
+            _SetConfigEvent += del;
+
+            #if UNITY_WEBGL && !UNITY_EDITOR
+                RequestSetConfig(useInteractivePip.ToString());
             #endif
         }
     }

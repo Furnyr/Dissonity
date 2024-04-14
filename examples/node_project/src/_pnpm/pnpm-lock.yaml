@@ -11,9 +11,6 @@ dependencies:
   '@colyseus/ws-transport':
     specifier: ^0.15.1
     version: 0.15.1(@colyseus/schema@2.0.30)
-  '@discord/embedded-app-sdk':
-    specifier: ^1.0.0
-    version: 1.1.2
   colyseus:
     specifier: ^0.15.15
     version: 0.15.15(@colyseus/schema@2.0.30)(express@4.19.2)
@@ -21,8 +18,8 @@ dependencies:
     specifier: ^3.1.5
     version: 3.1.8
   dissonity:
-    specifier: ^1.0.0
-    version: 1.0.0
+    specifier: ^1.1.0
+    version: 1.1.0
   dotenv:
     specifier: ^16.0.3
     version: 16.4.5
@@ -347,20 +344,6 @@ packages:
 
   /@discord/embedded-app-sdk@1.0.0:
     resolution: {integrity: sha512-h8H1W1BXJaVozpeEBWXOsglrmDbbIlohd13IRMSuclg6mIPRPBs5RBdJcuYqg7ljXObIMh0/NGFw7RirXGR/Fg==}
-    dependencies:
-      '@types/lodash.transform': 4.6.9
-      '@types/uuid': 8.3.4
-      big-integer: 1.6.48
-      decimal.js-light: 2.5.0
-      eventemitter3: 4.0.7
-      lodash.transform: 4.6.0
-      rollup: 4.14.2
-      uuid: 8.3.2
-      zod: 3.22.4
-    dev: false
-
-  /@discord/embedded-app-sdk@1.1.2:
-    resolution: {integrity: sha512-7m3G0QOYq2T44krit4pUBrB35qhmo8Zthb+NNdEFIn5nW9CwMuvcVIjIqjvxK9Y8XYjhzfYkAVm0d9MzHv/3rQ==}
     dependencies:
       '@types/lodash.transform': 4.6.9
       '@types/uuid': 8.3.4
@@ -1412,8 +1395,8 @@ packages:
       path-type: 4.0.0
     dev: false
 
-  /dissonity@1.0.0:
-    resolution: {integrity: sha512-ICz9s/ZP1yT3W82AvFw5yeVH27ITurq0n0wVeY+XpdEF/tqWjO4rj5ODXxlGSL7KFj/L6qfs+VYpf2ahNI42kg==}
+  /dissonity@1.1.0:
+    resolution: {integrity: sha512-9VSJZrQ4OV4ePePYgsVNx6ANOvR8OWlHPhOAfPIUh4MuMfe5ZXwv9dDyfFgtx2jyC6F0Uwrxz4hNCelss5DCNA==}
     dependencies:
       '@discord/embedded-app-sdk': 1.0.0
     dev: false
@@ -1906,7 +1889,7 @@ packages:
     resolution: {integrity: sha512-DEi+/JjXT84mmFYhSmv+SX14v+3Z7vuCIYAMwtdPCTXHMSLhWqSYqWAMXDUQZuV7yaJv2d84AYnkCFNooLKBsA==}
     engines: {node: '>=12.0.0'}
     dependencies:
-      qs: 6.12.0
+      qs: 6.12.1
       request-compose: 2.1.6
       request-oauth: 1.0.1
     optionalDependencies:
@@ -2776,8 +2759,8 @@ packages:
       side-channel: 1.0.6
     dev: false
 
-  /qs@6.12.0:
-    resolution: {integrity: sha512-trVZiI6RMOkO476zLGaBIzszOdFPnCCXHPG9kn0yuS1uz6xdVxPfZdB3vUig9pxPFDM9BRAgz/YUIVQ1/vuiUg==}
+  /qs@6.12.1:
+    resolution: {integrity: sha512-zWmv4RSuB9r2mYQw3zxQuHWeU+42aKi1wWig/j4ele4ygELZ7PEO6MM7rim9oAQH2A5MWfsAVf/jPvTPgCbvUQ==}
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.6
@@ -2885,7 +2868,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       oauth-sign: 0.9.0
-      qs: 6.12.0
+      qs: 6.12.1
       uuid: 8.3.2
     dev: false
 

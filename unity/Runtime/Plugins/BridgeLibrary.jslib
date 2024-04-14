@@ -1,9 +1,9 @@
 
 var BridgeLibrary = {
     InitializeIFrameBridge: function () {
-        window.addEventListener("message", _IFrameBrige);
+        window.addEventListener("message", _IFrameBridge);
     },
-    IFrameBrige: function ({ data: messageData }) {
+    IFrameBridge: function ({ data: messageData }) {
         switch (messageData.command) {
             case "DISPATCH": {
                 if (!messageData.event)
@@ -107,6 +107,10 @@ var BridgeLibrary = {
             }
             case "GET_LOCALE": {
                 unityInstance.SendMessage("DiscordBridge", "ReceiveLocale", JSON.stringify(messageData.data));
+                break;
+            }
+            case "SET_CONFIG": {
+                unityInstance.SendMessage("DiscordBridge", "ReceiveSetConfig", JSON.stringify(messageData.data));
                 break;
             }
             case "LOADED": {
@@ -310,6 +314,15 @@ var BridgeLibrary = {
     RequestLocale: function () {
         window.parent.postMessage({
             command: "GET_LOCALE"
+        });
+    },
+    RequestSetConfig: function (useInteractivePip) {
+        useInteractivePip = UTF8ToString(useInteractivePip);
+        window.parent.postMessage({
+            command: "SET_CONFIG",
+            args: {
+                use_interactive_pip: (useInteractivePip == "True")
+            }
         });
     },
     PingLoad: function () {

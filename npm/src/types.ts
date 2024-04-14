@@ -17,7 +17,7 @@ export type ScopeArgument = Parameters<DiscordSDK["commands"]["authorize"]>[0]["
 // Represents the commands sent to the parent iframe or the child iframe
 export type MessageChildCommand = "LOADED" | "DISPATCH" | "GET_INSTANCE_ID" | "SET_ACTIVITY" | "GET_CHANNEL_ID" | "GET_GUILD_ID" | "GET_USER" | "GET_USER_ID"
   | "GET_INSTANCE_PARTICIPANTS" | "HARDWARE_ACCELERATION" | "GET_CHANNEL" | "GET_CHANNEL_PERMISSIONS" | "GET_ENTITLEMENTS" | "GET_PLATFORM_BEHAVIORS"
-  | "GET_SKUS" | "IMAGE_UPLOAD" | "EXTERNAL_LINK" | "INVITE_DIALOG" | "SHARE_MOMENT_DIALOG" | "SET_ORIENTATION_LOCK_STATE" | "START_PURCHASE" | "GET_LOCALE";
+  | "GET_SKUS" | "IMAGE_UPLOAD" | "EXTERNAL_LINK" | "INVITE_DIALOG" | "SHARE_MOMENT_DIALOG" | "SET_ORIENTATION_LOCK_STATE" | "START_PURCHASE" | "GET_LOCALE" | "SET_CONFIG";
 
 export type MessageParentCommand = Exclude<MessageChildCommand, "DISPATCH" | "LOADED"> | "SUBSCRIBE" | "UNSUBSCRIBE" | "PING_LOAD";
 

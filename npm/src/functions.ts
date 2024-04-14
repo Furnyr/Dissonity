@@ -3,7 +3,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents } from "./types";
 
-const PACKAGE_VERSION = "1.0.0";
+const PACKAGE_VERSION = "1.1.0";
 
 
 //* Stringifies JSON with BigInts
@@ -353,6 +353,18 @@ export async function setupSdk(options: ConfigOptions) {
                     console.error("Dissonity NPM: Error attempting to get the user locale. You may need the 'identify' scope.")
                 }
 
+                break;
+            }
+
+            case "SET_CONFIG": {
+
+                //? No field
+                if (!args.use_interactive_pip) {
+                    throw new Error("No 'use interactive pip' provided for SET_CONFIG");
+                }
+
+                const data = await discordSdk!.commands.setConfig(args);
+                getChildIframe().contentWindow?.postMessage({ nonce, command, data, args }, "*");
                 break;
             }
 
