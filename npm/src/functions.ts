@@ -3,7 +3,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents } from "./types";
 
-const PACKAGE_VERSION = "1.1.0";
+const PACKAGE_VERSION = "1.1.1";
 
 
 //* Stringifies JSON with BigInts
