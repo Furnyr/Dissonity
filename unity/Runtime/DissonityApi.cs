@@ -265,7 +265,7 @@ namespace Dissonity
             if (soft) return;
 
             #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("ACTIYIVY_LAYOUT_MODE_UPDATE");
+                Subscribe("ACTIVITY_LAYOUT_MODE_UPDATE");
             #endif
         }
 
@@ -355,7 +355,7 @@ namespace Dissonity
             if (soft) return;
 
             #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("ACTIYIVY_LAYOUT_MODE_UPDATE");
+                Unsubscribe("ACTIVITY_LAYOUT_MODE_UPDATE");
             #endif
         }
 
