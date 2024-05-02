@@ -135,7 +135,7 @@ var BridgeLibrary = {
                 window.parent.postMessage({
                     command: "SUBSCRIBE",
                     event,
-                    args: {}
+                    args: { channel_id: "channel_id" }
                 });
                 break;
             }

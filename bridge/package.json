@@ -1,6 +1,6 @@
 {
   "name": "dissonity-bridge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript version of the JavaScript plugin for the Dissonity Unity package",
   "scripts": {
     "build": "pnpm tsc"
