@@ -689,7 +689,7 @@ namespace Dissonity
 
             #if UNITY_EDITOR
 
-                if (OverrideHardwareAcceleration == null) {
+                if (OverrideUserLocale == null) {
                     UnityEngine.Debug.LogWarning("Called GetUserLocale inside editor, use overrides to test it inside Unity");
                 }
 

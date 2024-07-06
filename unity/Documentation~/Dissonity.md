@@ -16,6 +16,22 @@ Creates a DiscordBridge object, it must be within all the scenes that need to in
 
 It also has a "Dont Destroy On Load" option. If you use it, you should only place the object in your first scene.
 
+## Overrides
+
+You can set override values through the API class to test them without needing to run the game inside Discord. The overrides will only work while in the Unity editor and not once the game is exported.
+
+All the current override values:
+
+```
+OverrideInstanceId
+OverrideUserId
+OverrideUserGlobal
+OverrideUsername 
+OverrideUserAvatar
+OverrideHardwareAcceleration
+OverrideUserLocale
+```
+
 ## Namespace: `Dissonity`
 
 - Classes representing Discord structures
