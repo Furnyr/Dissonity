@@ -4,6 +4,8 @@ import fetch from "cross-fetch";
 
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents } from "./types";
 
+// The package version is 1.2.x, but this minor change
+// only affects the NPM side and it's completely compatible with Dissonity Unity 1.1.x
 const PACKAGE_VERSION = "1.1.2";
 
 
@@ -52,7 +54,7 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
     });
 
     //\ Retrieve access token from the embedded app's server
-    const response = await fetch(options.tokenRoute, {
+    const response = await fetch(`/.proxy${options.tokenRoute}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
