@@ -19,7 +19,7 @@ public class MyScript : MonoBehaviour
 
         //\ Connect to matchmaking room
         // (This implementation can be improved, but this should do)
-        client = new ColyseusClient("wss://<your-app-id>.discordsays.com");
+        client = new ColyseusClient("wss://<your-app-id>.discordsays.com/.proxy");
         var matchmakingRoom = await client.Create<MatchmakingState>("matchmaking", new Dictionary<string, object>{{ "instanceId", instanceId }});
 
         // Listen for matchmaking room instructions

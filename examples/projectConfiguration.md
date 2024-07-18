@@ -10,9 +10,21 @@ If you're not using the example Node.js project, you need to know how to configu
 
 ## Steps inside Node.js
 
-1. If you haven't already, make sure the iframe where your build will be has the id `dissonity-child`
+1. The Unity build will be in a nested iframe. When writing the source of the child iframe, make sure you write `.proxy/` in front of it.
 
-2. Inside the build's index.html, in the canvas tag, set the style's width and height to `100vw` and `100vh` respectively:
+2. If you haven't already, make sure the iframe where your build will be has the id `dissonity-child`.
+
+3. Set the `scrolling` attribute to "no" inside the child iframe tag.
+
+It should look similar to this:
+
+```html
+<iframe id="dissonity-child" src=".proxy/nested/index.html" ... scrolling="no"></iframe>
+```
+
+##
+
+4. Inside the build's index.html, in the canvas tag, set the style's width and height to `100vw` and `100vh` respectively:
 
 ```html
 <canvas id="unity-canvas" style="width: 100vw; height: 100vh; ..."></canvas>
@@ -20,7 +32,7 @@ If you're not using the example Node.js project, you need to know how to configu
 
 ##
 
-3. Inside the build's index.html, save the unity instance created by `createUnityInstance` inside a variable named `unityInstance`:
+5. Inside the build's index.html, save the unity instance created by `createUnityInstance` inside a variable named `unityInstance`:
 
 ```js
 var unityInstance;
@@ -32,15 +44,7 @@ createUnityInstance(document.querySelector("#unity-canvas"), {...})
 
 ##
 
-4. Now, in the parent index.html, set the `scrolling` attribute to "no" inside the child iframe tag:
-
-```html
-<iframe id="dissonity-child" src="nested/index.html" ... scrolling="no"></iframe>
-```
-
-##
-
-5. In the parent index.html set the head's style tag to the following or something that achieves the same:
+6. In the parent index.html set the head's style tag to the following or something that achieves the same:
 
 ```css
 <style>
