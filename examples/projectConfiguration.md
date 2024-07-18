@@ -10,7 +10,7 @@ If you're not using the example Node.js project, you need to know how to configu
 
 ## Steps inside Node.js
 
-1. The Unity build will be in a nested iframe. When writing the source of the child iframe, make sure you write `./proxy` in front of it.
+1. The Unity build will be in a nested iframe. When writing the source of the child iframe, make sure you write `.proxy/` in front of it.
 
 2. If you haven't already, make sure the iframe where your build will be has the id `dissonity-child`.
 
@@ -19,7 +19,7 @@ If you're not using the example Node.js project, you need to know how to configu
 It should look similar to this:
 
 ```html
-<iframe id="dissonity-child" src="nested/index.html" ... scrolling="no"></iframe>
+<iframe id="dissonity-child" src=".proxy/nested/index.html" ... scrolling="no"></iframe>
 ```
 
 ##
