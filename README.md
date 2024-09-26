@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **Version 2** is now in testing/alpha phase! I'm looking for volunteer testers (Furnyr/Dissonity#11)
+
+---
+
 <div align="center">
 	<br />
 	<p>
