@@ -1,0 +1,33 @@
+using Dissonity;
+using Dissonity.Models;
+using Dissonity.Models.Builders;
+
+[DissonityConfig]
+public class DissonityUserConfiguration : SdkConfiguration<MyServerRequest, MyServerResponse>
+{
+    public override string ClientId => "your-client-id";
+
+    public override string[] OauthScopes => new string[] { OauthScope.Identify /*, your-oauth-scopes*/ };
+
+    // Path where your backend exchanges an access token
+    public override string TokenRequestPath => "/api/token";
+
+    // https://discord.com/developers/docs/activities/development-guides#disabling-logging
+    public override bool DisableConsoleLogOverride => true;
+
+    public override bool DisableDissonityInfoLogs => false;
+
+    // If you want to call PatchUrlMappings before initialization, use this setting
+    /*public override MappingBuilder[] Mappings => new MappingBuilder[] {
+        new MappingBuilder()
+        {
+            Prefix = "/foo",
+            Target = "foo.com"
+        }
+    };*/
+}
+
+// If you want to get or send data to your server while authenticating, define it here.
+// You can access the response object in the Api.Initialize return value.
+public class MyServerRequest : ServerTokenRequest {}
+public class MyServerResponse : ServerTokenResponse {}

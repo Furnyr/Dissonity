@@ -42,58 +42,6 @@ build({
 });
 
 
-//# NESTED HTML CONFIG - - - - -
-//? Unity build found
-if (!fs.existsSync("./src/client/nested/index.html") || !fs.existsSync("./src/client/nested/Build")) {
-  throw "[ ❌ ] No Unity build found inside src/client/nested";
-}
-
-//? Template data found
-if (fs.existsSync("./src/client/nested/TemplateData")) {
-  throw "[ ❌ ] This base project only supports the Unity 'WebGL Template' set to 'Minimal'";
-}
-
-let htmlString = fs.readFileSync("./src/client/nested/index.html").toString();
-
-//# RESOLUTION SET ALGORITHM - - - - -
-if (htmlString.includes("px; background:")) {
-
-  const startIndex = htmlString.indexOf("width:");
-  const endIndex = htmlString.indexOf("; background:");
-  const replaceSubstring = htmlString.substring(startIndex, endIndex);
-
-  htmlString = htmlString.replace(replaceSubstring, "width: 100vw; height: 100vh")
-}
-
-//# COLOR RESET ALGORITHM
-if (!htmlString.includes("background: #000000")) {
-
-  const startIndex = htmlString.indexOf("; background:");
-  const endIndex = startIndex + 21;
-  const replaceSubstring = htmlString.substring(startIndex, endIndex);
-
-  htmlString = htmlString.replace(replaceSubstring, "; background: #000000")
-}
-
-//? Unity instance
-const tab = "  ";
-if (!htmlString.includes("var unityInstance;")) {
-
-  // (Initialize var)
-  htmlString = htmlString.replace("createUnityInstance", `var unityInstance;\n`
-    + `${tab}${tab}${tab}createUnityInstance`);
-  
-  // (Set var)
-  htmlString = htmlString.replace("})", "}).then(instance => {\n"
-    + `${tab}${tab}${tab}${tab}unityInstance = instance;\n`
-    + `${tab}${tab}${tab}})`);
-}
-
-fs.writeFileSync("./src/client/nested/index.html", htmlString);
-
-console.log("Nested HTML configuration ready");
-
-
 //# OTHER FILES - - - - -
 // .env
 const envBuffer = fs.readFileSync("./.env");
@@ -103,25 +51,34 @@ fs.writeFileSync("./build/.env", envBuffer);
 const htmlBuffer = fs.readFileSync("./src/client/index.html");
 fs.writeFileSync("./build/client/index.html", htmlBuffer);
 
-// client/nested/index.html
-//? nested
-if (!fs.existsSync("./build/client/nested")) {
-  fs.mkdirSync("./build/client/nested");
+//? client files
+if (!fs.existsSync("./build/client/files")) {
+  fs.mkdirSync("./build/client/files");
 }
 
-const nestedHtmlBuffer = fs.readFileSync("./src/client/nested/index.html");
-fs.writeFileSync("./build/client/nested/index.html", nestedHtmlBuffer);
-
-// client/nested/Build
-//? nested/Build
-if (!fs.existsSync("./build/client/nested/Build")) {
-  fs.mkdirSync("./build/client/nested/Build");
+//? client build
+if (!fs.existsSync("./build/client/files/Build")) {
+  fs.mkdirSync("./build/client/files/Build");
 }
 
-for (const fileName of fs.readdirSync("./src/client/nested/Build")) {
+//? client scripts
+if (!fs.existsSync("./build/client/files/Scripts")) {
+  fs.mkdirSync("./build/client/files/Scripts");
+}
 
-  const fileBuffer = fs.readFileSync(`./src/client/nested/Build/${fileName}`);
-  fs.writeFileSync(`./build/client/nested/Build/${fileName}`, fileBuffer);
+const nestedHtmlBuffer = fs.readFileSync("./src/client/files/iframe_index.html");
+fs.writeFileSync("./build/client/files/iframe_index.html", nestedHtmlBuffer);
+
+const rpcBridgeBf = fs.readFileSync("./src/client/files/Scripts/rpc_bridge.js");
+fs.writeFileSync("./build/client/files/Scripts/rpc_bridge.js", rpcBridgeBf);
+
+const officialUtilsBf = fs.readFileSync("./src/client/files/Scripts/official_utils.js");
+fs.writeFileSync("./build/client/files/Scripts/official_utils.js", officialUtilsBf);
+
+for (const fileName of fs.readdirSync("./src/client/files/Build")) {
+
+  const fileBuffer = fs.readFileSync(`./src/client/files/Build/${fileName}`);
+  fs.writeFileSync(`./build/client/files/Build/${fileName}`, fileBuffer);
 }
 
 console.log("Other files have been included in the build folder");

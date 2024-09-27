@@ -1,0 +1,516 @@
+const HANDSHAKE_VERSION = 1;
+const HANDSHAKE_ENCODING = "json";
+const RESPONSE_TYPE = "code";
+const PROMPT = "none";
+const ERROR = "ERROR";
+const OPCODES = {
+    Handshake: 0,
+    Frame: 1,
+    Close: 2,
+    Hello: 3
+};
+const ALLOWED_ORIGINS = new Set([
+    window.location.origin,
+    "https://discord.com",
+    "https://discordapp.com",
+    "https://ptb.discord.com",
+    "https://ptb.discordapp.com",
+    "https://canary.discord.com",
+    "https://canary.discordapp.com",
+    "https://staging.discord.co",
+    "http://localhost:3333",
+    "https://pax.discord.com",
+    "null",
+]);
+const COMMANDS = {
+    Authorize: "AUTHORIZE",
+    Authenticate: "AUTHENTICATE"
+};
+const STATE_CODES = {
+    OutsideDiscord: -1,
+    Errored: 0,
+    Loading: 1,
+    Ready: 2,
+    Closed: 3
+};
+const _VARIABLE_SEPARATOR = "§";
+let currentState = STATE_CODES.Loading;
+let childIframe = undefined;
+let disableInfoLogs = "[[[ DISABLE_INFO_LOGS ]]]§";
+let unityReady = false;
+let clientId = "";
+let readyData = "";
+let authorizeData = "";
+let serverPayloadData = "";
+let authenticateData = "";
+let listeners = [];
+function SendToIframeBridge(message) {
+    function send() {
+        const sourceOrigin = window.location.origin;
+        childIframe.contentWindow?.postMessage(message, sourceOrigin);
+    }
+    if (childIframe) {
+        send();
+        return;
+    }
+    if (currentState == STATE_CODES.Errored)
+        return;
+    childIframe = document.getElementById("dissonity-child");
+    if (childIframe == null) {
+        currentState = STATE_CODES.Errored;
+        throw new Error("[Dissonity BridgeLib]: Child iframe not found");
+    }
+    send();
+}
+function Handshake() {
+    disableInfoLogs = ParseUserVariable(disableInfoLogs, "boolean");
+    AddListeners(BridgeReadyListener, IframeBridgeListener, NonFrameOpcode);
+    const query = RequestQuery();
+    if (!query || !query.frame_id) {
+        currentState = STATE_CODES.OutsideDiscord;
+        return;
+    }
+    const clientIdVariable = "[[[ CLIENT_ID ]]]§";
+    clientId = ParseUserVariable(clientIdVariable);
+    InternalSend([
+        OPCODES.Handshake,
+        {
+            v: HANDSHAKE_VERSION,
+            encoding: HANDSHAKE_ENCODING,
+            client_id: clientId,
+            frame_id: query.frame_id
+        }
+    ]);
+}
+function IframeBridgeListener(message) {
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    if (!message.data.iframeBridge)
+        return;
+    const { command, payload } = message.data;
+    if (currentState != STATE_CODES.Ready) {
+        switch (command) {
+            case "RequestQuery": {
+                const query = RequestQuery();
+                SendToIframeBridge({ method: "ReceiveQuery", payload: JSON.stringify(query) });
+                break;
+            }
+            case "RequestState": {
+                RequestState();
+                break;
+            }
+            case "RequestPatchUrlMappings": {
+                RequestPatchUrlMappings(payload);
+                break;
+            }
+            default: {
+                throw new Error("[Dissonity BridgeLib]: Invalid command while the RPC connection isn't established");
+            }
+        }
+        return;
+    }
+    switch (command) {
+        case "Send": {
+            Send(payload);
+            break;
+        }
+        case "RequestQuery": {
+            const query = RequestQuery();
+            SendToIframeBridge({ method: "ReceiveQuery", payload: JSON.stringify(query) });
+            break;
+        }
+        case "RequestState": {
+            RequestState();
+            break;
+        }
+        case "RequestPatchUrlMappings": {
+            RequestPatchUrlMappings(payload);
+            break;
+        }
+        case "StopListening": {
+            StopListening();
+            break;
+        }
+    }
+}
+function NonFrameOpcode(message) {
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    if (message.data.iframeBridge)
+        return;
+    const opcode = message.data?.[0];
+    if (opcode == OPCODES.Frame)
+        return;
+    switch (opcode) {
+        case OPCODES.Hello: {
+            break;
+        }
+        case OPCODES.Close: {
+            currentState = STATE_CODES.Closed;
+            StopListening();
+            if (unityReady) {
+                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
+            }
+            break;
+        }
+        case OPCODES.Handshake:
+            break;
+    }
+}
+function BridgeReadyListener(message) {
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    if (message.data.iframeBridge)
+        return;
+    const opcode = message.data?.[0];
+    if (opcode != OPCODES.Frame)
+        return;
+    RemoveListeners(BridgeReadyListener);
+    const payload = message.data?.[1]?.data;
+    if (!payload || !payload.v) {
+        currentState = STATE_CODES.Errored;
+        if (payload.evt == ERROR) {
+            if (unityReady) {
+                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
+                return;
+            }
+            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
+        }
+        throw new Error("[Dissonity BridgeLib]: Invalid message received");
+    }
+    const data = SerializePayload(message.data);
+    readyData = data;
+    if (!disableInfoLogs)
+        console.log("[Dissoniy BridgeLib]: Connected to the RPC!");
+    const disableLogOverrideVariable = "[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]§";
+    const disableLogOverride = ParseUserVariable(disableLogOverrideVariable, "boolean");
+    if (disableLogOverride == null) {
+        currentState = STATE_CODES.Errored;
+        throw new Error(`[Dissonity BridgeLib]: DISABLE_CONSOLE_LOG_OVERRIDE has an invalid value (${disableLogOverride}). Accepted values are (1/True) and (0/False)`);
+    }
+    if (!disableLogOverride) {
+        OverrideConsoleLogging();
+    }
+    const oauthScopesVariable = "[[[ OAUTH_SCOPES ]]]§";
+    const oauthScopes = ParseUserVariable(oauthScopesVariable, "string[]");
+    AddListeners(BridgeAuthorizeListener);
+    InternalSend([
+        OPCODES.Frame,
+        {
+            cmd: COMMANDS.Authorize,
+            nonce: GetNonce(),
+            args: {
+                client_id: clientId,
+                scope: oauthScopes,
+                response_type: RESPONSE_TYPE,
+                prompt: PROMPT,
+                state: ""
+            }
+        }
+    ]);
+}
+async function BridgeAuthorizeListener(message) {
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    if (message.data.iframeBridge)
+        return;
+    const opcode = message.data?.[0];
+    if (opcode != OPCODES.Frame)
+        return;
+    RemoveListeners(BridgeAuthorizeListener);
+    const payload = message.data?.[1]?.data;
+    if (!payload || !payload.code) {
+        currentState = STATE_CODES.Errored;
+        if (payload.evt == ERROR) {
+            if (unityReady) {
+                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
+                return;
+            }
+            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
+        }
+        throw new Error("[Dissonity BridgeLib]: Invalid message received");
+    }
+    const data = SerializePayload(message.data);
+    authorizeData = data;
+    if (!disableInfoLogs)
+        console.log("[Dissoniy BridgeLib]: Authorized!");
+    const mappingsVariable = "[[[ MAPPINGS ]]]§";
+    const patchUrlMappingsConfigVariable = "[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§";
+    const mappingsMap = ParseUserVariable(mappingsVariable, "map");
+    const patchUrlMappingsConfigMap = ParseUserVariable(patchUrlMappingsConfigVariable, "map");
+    const mappings = MapToMappingArray(mappingsMap);
+    const patchUrlMappingsConfig = MapToConfig(patchUrlMappingsConfigMap);
+    if (mappings.length > 0) {
+        if (!disableInfoLogs)
+            console.log(`[Dissoniy BridgeLib]: Patching (${mappings.length}) url mappings...`);
+        patchUrlMappings(mappings, patchUrlMappingsConfig);
+    }
+    const tokenRequestPathVariable = "[[[ TOKEN_REQUEST_PATH ]]]§";
+    const tokenRequestPath = ParseUserVariable(tokenRequestPathVariable, "string");
+    const serverRequestVariable = '[[[ SERVER_REQUEST ]]]§';
+    const serverRequest = ParseUserVariable(serverRequestVariable);
+    let body = {
+        code: payload.code
+    };
+    if (serverRequest != null) {
+        delete serverRequest.code;
+        body = {
+            code: payload.code,
+            ...serverRequest
+        };
+    }
+    const response = await fetch(`/.proxy${tokenRequestPath}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    });
+    const json = await response.json();
+    if (!json.token) {
+        throw new Error("[Dissonity]: The server JSON response didn't include a 'token' field");
+    }
+    serverPayloadData = JSON.stringify(json);
+    AddListeners(BridgeAuthenticateListener);
+    InternalSend([
+        OPCODES.Frame,
+        {
+            cmd: COMMANDS.Authenticate,
+            nonce: GetNonce(),
+            args: {
+                access_token: json.token
+            }
+        }
+    ]);
+}
+function BridgeAuthenticateListener(message) {
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    if (message.data.iframeBridge)
+        return;
+    const opcode = message.data?.[0];
+    if (opcode != OPCODES.Frame)
+        return;
+    RemoveListeners(BridgeAuthenticateListener);
+    const payload = message.data?.[1]?.data;
+    if (!payload || !payload.access_token) {
+        currentState = STATE_CODES.Errored;
+        if (payload.evt == ERROR) {
+            if (unityReady) {
+                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
+                return;
+            }
+            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
+        }
+        throw new Error("[Dissonity BridgeLib]: Invalid message received");
+    }
+    const data = SerializePayload(message.data);
+    authenticateData = data;
+    currentState = STATE_CODES.Ready;
+    if (!disableInfoLogs)
+        console.log("[Dissoniy BridgeLib]: Authenticated!");
+    if (unityReady) {
+        AddListeners(Bridge);
+        DispatchMultiEvent();
+    }
+}
+function Bridge(message) {
+    if (message.data.iframeBridge)
+        return;
+    if (!ALLOWED_ORIGINS.has(message.origin))
+        return;
+    const data = SerializePayload(message.data);
+    SendToIframeBridge({ method: "HandleMessage", payload: data });
+}
+function AddListeners(...args) {
+    for (const listener of args) {
+        window.addEventListener("message", listener);
+        listeners.push(listener);
+    }
+}
+function RemoveListeners(...args) {
+    for (const listener of args) {
+        window.removeEventListener("message", listener);
+        listeners.splice(listeners.indexOf(listener), 1);
+    }
+}
+function ParseUserVariable(variable, type = "string") {
+    const raw = variable.split("]]] ")[1].slice(0, -1);
+    if (type == "string")
+        return raw;
+    if (type == "boolean") {
+        if (/1|true/i.test(variable))
+            return true;
+        else if (/0|false/i.test(variable))
+            return false;
+        throw new Error("[Dissonity BridgeLib]: Invalid boolean string");
+    }
+    if (type == "string[]") {
+        return raw.split(",");
+    }
+    if (type == "json") {
+        try {
+            return JSON.parse(raw);
+        }
+        catch {
+            return null;
+        }
+    }
+    const map = new Map();
+    const array = raw.split(",");
+    if (array.length < 2)
+        return map;
+    let lastValue = "";
+    for (let i = 0; i < array.length; i++) {
+        if (i % 2 == 0) {
+            lastValue = array[i];
+            continue;
+        }
+        else {
+            const value = array[1];
+            if (value == "True")
+                map.set(lastValue, true);
+            else if (value == "False")
+                map.set(lastValue, false);
+            else
+                map.set(lastValue, value);
+            continue;
+        }
+    }
+    return map;
+}
+function MapToMappingArray(map) {
+    const array = [];
+    for (const [key, value] of map) {
+        array.push({
+            prefix: key,
+            target: value
+        });
+    }
+    return array;
+}
+function MapToConfig(map) {
+    return {
+        patchFetch: map.get("patchFetch"),
+        patchWebSocket: map.get("patchWebSocket"),
+        patchXhr: map.get("patchXhr"),
+        patchSrcAttributes: map.get("patchSrcAttributes")
+    };
+}
+function SerializePayload(messageData) {
+    const sendMessage = { data: messageData };
+    const messageStr = JSON.stringify(sendMessage, (_, value) => {
+        if (typeof value == "bigint")
+            return value.toString();
+        else
+            return value;
+    });
+    return messageStr;
+}
+function GetNonce() {
+    const uuid = new Array(36);
+    for (let i = 0; i < 36; i++) {
+        uuid[i] = Math.floor(Math.random() * 16);
+    }
+    uuid[14] = 4;
+    uuid[19] = uuid[19] &= ~(1 << 2);
+    uuid[19] = uuid[19] |= (1 << 3);
+    uuid[8] = uuid[13] = uuid[18] = uuid[23] = "-";
+    return uuid.map((x) => x.toString(16)).join("");
+}
+function OverrideConsoleLogging() {
+    const consoleLevels = ["log", "warn", "debug", "info", "error"];
+    const captureLog = (level, message) => {
+        InternalSend([OPCODES.Frame, {
+                cmd: "CAPTURE_LOG",
+                nonce: GetNonce(),
+                args: {
+                    level,
+                    message
+                }
+            }]);
+    };
+    consoleLevels.forEach((level) => {
+        const _consoleMethod = console[level];
+        const _console = console;
+        if (!_consoleMethod) {
+            return;
+        }
+        console[level] = function () {
+            const args = [].slice.call(arguments);
+            const message = "" + args.join(" ");
+            captureLog(level, message);
+            _consoleMethod.apply(_console, args);
+        };
+    });
+}
+function InternalSend(message) {
+    const source = window.parent.opener ?? window.parent;
+    const sourceOrigin = !!document.referrer ? document.referrer : "*";
+    source.postMessage(message, sourceOrigin);
+}
+function DispatchMultiEvent() {
+    const multiEventPayload = {
+        ready: readyData,
+        authorize: authorizeData,
+        authenticate: authenticateData,
+        response: serverPayloadData
+    };
+    SendToIframeBridge({ method: "ReceiveMultiEvent", payload: JSON.stringify(multiEventPayload) });
+    ClearData();
+}
+function ClearData() {
+    clientId = "";
+    readyData = "";
+    authorizeData = "";
+    serverPayloadData = "";
+    authenticateData = "";
+}
+function Send(stringifiedMessage) {
+    const message = JSON.parse(stringifiedMessage);
+    const source = window.parent.opener ?? window.parent;
+    const sourceOrigin = !!document.referrer ? document.referrer : "*";
+    source.postMessage(message, sourceOrigin);
+}
+function StopListening() {
+    for (const listener of listeners) {
+        window.removeEventListener("message", listener);
+    }
+}
+function RequestQuery() {
+    function getQueryData() {
+        const isParent = window.location.search.includes("?");
+        const queryStringKeyValue = (isParent)
+            ? window.location.search.replace("?", "").split("&")
+            : window.parent.location.search.replace("?", "").split("&");
+        const qsJsonObject = {};
+        if (queryStringKeyValue.length != 0) {
+            for (let i = 0; i < queryStringKeyValue.length; i++) {
+                qsJsonObject[queryStringKeyValue[i].split("=")[0]] = queryStringKeyValue[i].split("=")[1];
+            }
+        }
+        return qsJsonObject;
+    }
+    return getQueryData();
+}
+function RequestState() {
+    const sendMessage = {
+        code: currentState,
+    };
+    SendToIframeBridge({ method: "ReceiveState", payload: JSON.stringify(sendMessage) });
+    if (!unityReady) {
+        unityReady = true;
+        if (currentState == STATE_CODES.Ready) {
+            AddListeners(Bridge);
+            DispatchMultiEvent();
+        }
+    }
+}
+function RequestPatchUrlMappings(stringifiedMessage) {
+    const { mappings, config } = JSON.parse(stringifiedMessage);
+    if (mappings.length != 0) {
+        patchUrlMappings(mappings, config);
+    }
+    SendToIframeBridge({ method: "ReceivePatchUrlMappings", payload: "" });
+}
+document.addEventListener("DOMContentLoaded", Handshake);

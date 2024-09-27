@@ -1,0 +1,166 @@
+const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
+const PROXY_PREFIX = '/.proxy';
+function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false } = {}) {
+    if (typeof window === 'undefined')
+        return;
+    if (patchFetch) {
+        const fetchImpl = window.fetch;
+        window.fetch = function (input, init) {
+            if (input instanceof Request) {
+                const newUrl = attemptRemap({ url: absoluteURL(input.url), mappings });
+                const { url, ...newInit } = (init ?? {});
+                Object.keys(Request.prototype).forEach((value) => {
+                    if (value === 'url')
+                        return;
+                    try {
+                        newInit[value] = input[value];
+                    }
+                    catch (ex) {
+                        console.warn(`Remapping fetch request key "${value}" failed`, ex);
+                    }
+                });
+                return new Promise((resolve, reject) => {
+                    try {
+                        input.blob().then((blob) => {
+                            if (input.method.toUpperCase() !== 'HEAD' && input.method.toUpperCase() !== 'GET' && blob.size > 0) {
+                                newInit.body = blob;
+                            }
+                            resolve(fetchImpl(new Request(newUrl, newInit)));
+                        });
+                    }
+                    catch (ex) {
+                        reject(ex);
+                    }
+                });
+            }
+            const remapped = attemptRemap({ url: input instanceof URL ? input : absoluteURL(input), mappings });
+            return fetchImpl(remapped, init);
+        };
+    }
+    if (patchWebSocket) {
+        class WebSocketProxy extends WebSocket {
+            constructor(url, protocols) {
+                const remapped = attemptRemap({ url: url instanceof URL ? url : absoluteURL(url), mappings });
+                super(remapped, protocols);
+            }
+        }
+        window.WebSocket = WebSocketProxy;
+    }
+    if (patchXhr) {
+        const openImpl = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
+            const remapped = attemptRemap({ url: absoluteURL(url), mappings });
+            openImpl.apply(this, [method, remapped, async, username, password]);
+        };
+    }
+    if (patchSrcAttributes) {
+        const callback = function (mutationsList) {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+                    attemptSetNodeSrc(mutation.target, mappings);
+                }
+                else if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        attemptSetNodeSrc(node, mappings);
+                        recursivelyRemapChildNodes(node, mappings);
+                    });
+                }
+            }
+        };
+        const observer = new MutationObserver(callback);
+        const config = {
+            attributeFilter: ['src'],
+            childList: true,
+            subtree: true,
+        };
+        observer.observe(window.document, config);
+        window.document.querySelectorAll('[src]').forEach((node) => {
+            attemptSetNodeSrc(node, mappings);
+        });
+    }
+}
+function recursivelyRemapChildNodes(node, mappings) {
+    if (node.hasChildNodes()) {
+        node.childNodes.forEach((child) => {
+            attemptSetNodeSrc(child, mappings);
+            recursivelyRemapChildNodes(child, mappings);
+        });
+    }
+}
+function attemptSetNodeSrc(node, mappings) {
+    if (node instanceof HTMLElement && node.hasAttribute('src')) {
+        const url = absoluteURL(node.getAttribute('src') ?? '');
+        if (url.host === window.location.host)
+            return;
+        if (node.tagName.toLowerCase() === 'script') {
+            attemptRecreateScriptNode(node, { url, mappings });
+        }
+        else {
+            node.setAttribute('src', attemptRemap({ url, mappings }).toString());
+        }
+    }
+}
+function attemptRecreateScriptNode(node, { url, mappings }) {
+    const newUrl = attemptRemap({ url, mappings });
+    if (url.toString() !== newUrl.toString()) {
+        const newNode = document.createElement(node.tagName);
+        newNode.innerHTML = node.innerHTML;
+        for (const attr of node.attributes) {
+            newNode.setAttribute(attr.name, attr.value);
+        }
+        newNode.setAttribute('src', attemptRemap({ url, mappings }).toString());
+        node.after(newNode);
+        node.remove();
+    }
+}
+function attemptRemap({ url, mappings }) {
+    const newURL = new URL(url.toString());
+    if ((newURL.hostname.includes('discordsays.com') || newURL.hostname.includes('discordsez.com')) &&
+        !newURL.pathname.startsWith(PROXY_PREFIX)) {
+        newURL.pathname = PROXY_PREFIX + newURL.pathname;
+    }
+    for (const mapping of mappings) {
+        const mapped = matchAndRewriteURL({
+            originalURL: newURL,
+            prefix: mapping.prefix,
+            target: mapping.target,
+            prefixHost: window.location.host,
+        });
+        if (mapped != null && mapped?.toString() !== url.toString()) {
+            return mapped;
+        }
+    }
+    return newURL;
+}
+function absoluteURL(url, protocol = window.location.protocol, host = window.location.host) {
+    return new URL(url, `${protocol}//${host}`);
+}
+function matchAndRewriteURL({ originalURL, prefix, prefixHost, target }) {
+    const targetURL = new URL(`https://${target}`);
+    const targetRegEx = regexFromTarget(targetURL.host.replace(/%7B/g, '{').replace(/%7D/g, '}'));
+    const match = originalURL.toString().match(targetRegEx);
+    if (match == null)
+        return originalURL;
+    const newURL = new URL(originalURL.toString());
+    newURL.host = prefixHost;
+    newURL.pathname = prefix.replace(SUBSTITUTION_REGEX, (_, matchName) => {
+        const replaceValue = match.groups?.[matchName];
+        if (replaceValue == null)
+            throw new Error('Misconfigured route.');
+        return replaceValue;
+    });
+    newURL.pathname += newURL.pathname === '/' ? originalURL.pathname.slice(1) : originalURL.pathname;
+    if ((newURL.hostname.includes('discordsays.com') || newURL.hostname.includes('discordsez.com')) &&
+        !newURL.pathname.startsWith(PROXY_PREFIX)) {
+        newURL.pathname = PROXY_PREFIX + newURL.pathname;
+    }
+    newURL.pathname = newURL.pathname.replace(targetURL.pathname, '');
+    if (originalURL.pathname.endsWith('/') && !newURL.pathname.endsWith('/')) {
+        newURL.pathname += '/';
+    }
+    return newURL;
+}
+function regexFromTarget(target) {
+    const regexString = target.replace(SUBSTITUTION_REGEX, (match, name) => `(?<${name}>[\\w-]+)`);
+    return new RegExp(`${regexString}(/|$)`);
+}

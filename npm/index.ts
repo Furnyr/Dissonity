@@ -1,1 +1,0 @@
-export { setupSdk } from "./src/functions";

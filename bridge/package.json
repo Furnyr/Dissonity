@@ -1,7 +1,7 @@
 {
-  "name": "dissonity-bridge",
-  "version": "1.0.1",
-  "description": "TypeScript version of the JavaScript plugin for the Dissonity Unity package",
+  "name": "dissonity-bridge-lib",
+  "version": "2.0.0",
+  "description": "TypeScript source of the Dissonity v2 Bridge library (RpcBridge and IframeBridge)",
   "scripts": {
     "build": "pnpm tsc"
   },

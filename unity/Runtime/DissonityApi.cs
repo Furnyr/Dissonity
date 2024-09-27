@@ -1,886 +1,1700 @@
-/*
-    Class used by the users to interact with Dissonity.
-    If you have any problem open an issue at https://github.com/Furnyr/Dissonity
-*/
-
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Networking;
+using Newtonsoft.Json;
+using Dissonity.Events;
+using Dissonity.Bus;
+using Dissonity.Models.Interop;
+using Dissonity.Commands;
+using Dissonity.Commands.Responses;
+using Dissonity.Models;
+using Dissonity.Models.Builders;
+using Dissonity.Models.Mock;
+using System.Net;
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-    using System.Runtime.InteropServices;
-#endif
+//todo main tasks
+// User instance authentication
+// PriceUtils is not necessary yet
+// PermissionUtils is not necessary yet
+// Test patch url mappings
+// Test mock
+// Test real functionality
+// Test that everything users don't need to see is internal
+// Documentation
+// Logo and brand
+// GitHub repository stuff
 
 namespace Dissonity
 {
-    //* Not yet released features are not implemented in the API
-    public static class Api {
+    public static class Api
+    {
+        #nullable enable
 
         //# FIELDS - - - - -
-        public static bool bridgeInitialized = false;
-        public static bool npmLoaded = false;
-        #nullable enable
-            public static string? cachedInstanceId = null;
-            public static string? cachedChannelId = null;
-            public static string? cachedGuildId = null;
-            public static string? cachedUserId = null;
-        #nullable disable
+        internal static string? _clientId;
+        internal static string? _instanceId;
+        internal static string? _platform;
+        internal static string? _guildId;
+        internal static string? _channelId;
+        internal static string? _userId = null;
+        internal static string? _frameId;
+        internal static ISdkConfiguration? _configuration;
+        internal static string handshakeStringId = "handshake";
+
+        // Messages
+        internal static Dictionary<string, object> pendingCommands = new(); //TaskCompletionSource<TResponse>
+        internal static MessageBus messageBus = new();
+        internal static GameObject? bridge = null;
+        internal static HashSet<string> subscribedRpcSet = new();
+
+        // Shortcut
+        internal static bool isEditor = UnityEngine.Application.isEditor;
+
+        // Initialization
+        private static bool _initialized = false;
+        private static bool _ready = false;
+        private static bool _mock = false;
+        private static bool _disableMock = false;
+
+        // Constants
+        private const string ProxyDomain = "discordsays.com";
+
+        // RpcVersion and RpcEncoding (handshake, overall) is handled in the RpcBridge
 
 
-        //# DEBUG - - - - -
-        #nullable enable
-            public static string? OverrideInstanceId = null;
-            public static string? OverrideUserId = null;
-            public static string? OverrideUserGlobalName = null;
-            public static string? OverrideUsername = null;
-            public static string? OverrideUserAvatar = null;
-            public static bool? OverrideHardwareAcceleration = null;
-            public static string? OverrideUserLocale = null;
-        #nullable disable
+        //# PROPERTIES - - - - -
+        //todo update current user and current member if the scopes are available???
+        public static string ClientId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
 
-        // If this method is called inside the editor, it logs as normal,
-        // if it's called outside the editor, the log is prefixed with
-        // [Dissonity]: to make it easy to filter in a browser dev console.
-        public static void DissonityLog (object message) {
+                return _clientId!;
+            }
+        }
+        public static string? InstanceId
+        { 
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                UnityEngine.Debug.Log($"[Dissonity]: {message}");
-            #else
-                UnityEngine.Debug.Log(message);
-            #endif
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.InstanceId;
+
+                return _instanceId!;
+            }
+        }
+        public static string? Platform
+        {
+           get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return MockUtils.ToPlatformString(GameObject.FindObjectOfType<DiscordMock>().query.Platform);
+
+                return _platform!;
+            } 
+        }  
+        public static string? GuildId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.GuildId;
+
+                return _guildId!;
+            }
+        }
+        public static string? ChannelId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.ChannelId;
+
+                return _channelId!;
+            }
+        }
+        public static string? UserId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().currentPlayer.Participant.Id;
+
+                // Should never happen with the MultiEvent implementation, but I'll leave it just in case
+                if (!_configuration!.DisableDissonityInfoLogs && _userId == null)
+                {
+                    Utils.DissonityLogWarning("Tried to access the current user id before authenticating. You will receive null");
+                }
+
+                return _userId!;
+            }
+        }
+        public static string? FrameId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.FrameId;
+
+                return _frameId!;
+            }
+        }
+        public static bool Initialized
+        {
+            get
+            {
+                return _initialized;
+            }
+        }
+        public static ISdkConfiguration Configuration
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                return _configuration!;
+            }
+        }
+        public static bool IsMock => _mock;
+
+        /// <summary>
+        /// You can only access the Bridge field in mock mode.
+        /// </summary>
+        public static GameObject Bridge
+        {
+            get
+            {
+                if (!_mock || !isEditor) throw new InvalidOperationException("You can only access the Bridge field in mock mode");
+
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                return bridge!;
+            }
         }
 
-        public static void DissonityWarn (object message) {
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                UnityEngine.Debug.LogWarning($"[Dissonity]: {message}");
-            #else
-                UnityEngine.Debug.LogWarning(message);
-            #endif
+        //# JAVASCRIPT - - - - -
+#if UNITY_WEBGL
+        [DllImport("__Internal")]
+        private static extern void Listen();
+
+        [DllImport("__Internal")]
+        private static extern void StopListening();
+
+        [DllImport("__Internal")]
+        private static extern void Send(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void RequestState();
+
+        [DllImport("__Internal")]
+        private static extern void RequestQuery();
+
+        [DllImport("__Internal")]
+        private static extern void RequestPatchUrlMappings(string stringifiedMessage);
+#endif
+
+#if !UNITY_WEBGL
+        private static void Listen() {}
+        private static void StopListening() {}
+        private static void Send(string _) {}
+        private static void RequestState() {}
+        private static void RequestQuery() {}
+        private static void RequestPatchUrlMappings(string _) {}
+#endif
+
+        //# COMMANDS - - - - -
+        public static class Commands
+        {
+            /// <summary>
+            /// ❗ <b>Authentication and authorization are handled in the RpcBridge. These methods will remain internal without mock implementation.</b> ❗ <br/> <br/>
+            /// Authorize a new client with your app. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            internal static async Task<AuthorizeData> Authorize(params string[] scope)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (scope.Length == 0) throw new ArgumentException("You must specify valid scopes");
+
+                var response = await SendCommand<Authorize, AuthorizeResponse>(new (_clientId!, scope) {
+                    ResponseType = "code"
+                });
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// ❗ <b>Authentication and authorization are handled in the RpcBridge. These methods will remain internal without mock implementation.</b> ❗ <br/> <br/>
+            /// Authenticate an existing client with your app. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            internal static async Task<AuthenticateData> Authenticate(string accessToken)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                var response = await SendCommand<Authenticate, AuthenticateResponse>(new (accessToken));
+
+                if (_userId == null) _userId = response.Data.User.Id;
+            
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Forward logs to your own logger. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task CaptureLog(string consoleLevel, string message)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock) return;
+
+                await SendCommand<CaptureLog, NoResponse>(new CaptureLog(consoleLevel, message));
+            }
+
+
+            /// <summary>
+            /// Presents a modal dialog to allow enabling of hardware acceleration. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ⛔️ | iOS <br/>
+            /// ⛔️ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<EncourageHardwareAccelerationData> EncourageHardwareAcceleration()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<EncourageHardwareAccelerationResponse>();
+
+                    if (Platform == Models.Platform.Mobile)
+                    {
+                        mockResponse.Data.Enabled = false;
+
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Platform is mobile, not possible to encourage hardware acceleration");
+                    }
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<EncourageHardwareAcceleration, EncourageHardwareAccelerationResponse>(new());
+
+                return response.Data;                
+            }
+
+
+            /// <summary>
+            /// Returns information about the channel for a provided channel ID. <br/> <br/>
+            /// Scopes required: <c> guilds </c> (+ <c> dm_channels.read </c> for (G)DM channels.) <br/> <br/>
+            /// <c> dm_channels.read </c> requires approval from Discord. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetChannelData> GetChannel(string channelId)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetChannelResponse>(channelId);
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetChannel, GetChannelResponse>(new (channelId));
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Returns permissions for the current user in the currently connected channel. <br/> <br/>
+            /// Scopes required: <c> guilds.members.read </c> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetChannelPermissionsData> GetChannelPermissions()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetChannelPermissionsResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetChannelPermissions, GetChannelPermissionsResponse>(new ());
+
+                return response.Data;
+            }
+
+
+            //todo Developer preview, not released yet
+            /// <summary>
+            /// Not released yet! :p
+            /// </summary>
+            internal static void GetEntitlements() {}
+
+            /// <summary>
+            /// Not released yet! :p
+            /// </summary>
+            internal static void GetSkus() {}
+
+            /// <summary>
+            /// Not released yet! :p
+            /// </summary>
+            internal static void StartPurchase() {}
+
+
+            /// <summary>
+            /// Returns information about supported platform behaviors. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetPlatformBehaviorsData> GetPlatformBehaviors()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetPlatformBehaviorsResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetPlatformBehaviors, GetPlatformBehaviorsResponse>(new ());
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Allows for opening an external link from within the Discord client. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task OpenExternalLink(string url)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                {
+                    Utils.DissonityLog($"Open external link ({url}) sent");
+                    return;
+                }
+
+                await SendCommand<OpenExternalLink, NoResponse>(new (url));
+            }
+
+
+            /// <summary>
+            /// Presents a modal dialog with Channel Invite UI. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task OpenInviteDialog()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                {
+                    Utils.DissonityLog("Invite dialog sent");
+                    return;
+                }
+
+                await SendCommand<OpenInviteDialog, NoResponse>(new ());
+            }
+
+
+            /// <summary>
+            /// Presents a modal dialog to share media to a channel or direct message. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ⛔️ | iOS <br/>
+            /// ⛔️ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task OpenShareMomentDialog(string mediaUrl)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                {
+                    if (Platform == Models.Platform.Desktop) Utils.DissonityLog($"Share moment dialog with ({mediaUrl}) sent");
+                    else Utils.DissonityLog("Platform is mobile, not possible to open a share moment dialog");
+                    
+                    return;
+                }
+
+                await SendCommand<OpenShareMomentDialog, NoResponse>(new (mediaUrl));
+            }
+
+
+            /// <summary>
+            /// Modifies how your activity's rich presence is displayed in the Discord client. <br/> <br/>
+            /// Scopes required: <c> rpc.activities.write </c> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<Activity> SetActivity(ActivityBuilder activity)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<SetActivityResponse>(activity);
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<SetActivity, SetActivityResponse>(new (activity));
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Set whether or not the PIP (picture-in-picture) is interactive. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ⛔ | iOS <br/>
+            /// ⛔ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SetConfigData> SetConfig(bool useInteractivePip)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<SetConfigResponse>();
+
+                    if (Platform == Models.Platform.Mobile)
+                    {
+                        mockResponse.Data.UseInteractivePip = true;
+
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Platform is mobile, not possible to set PIP");
+                    }
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<SetConfig, SetConfigResponse>(new (useInteractivePip));
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Locks the application to specific orientations in each of the supported layout modes. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ⛔️ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task SetOrientationLockState(OrientationLockStateType lockState)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                {
+                    if (Platform == Models.Platform.Mobile) Utils.DissonityLog($"Set orientation lock state to ({lockState})");
+                    else Utils.DissonityLog("Platform is desktop, not possible to set orientation lock state");
+                    
+                    return;
+                }
+
+                await SendCommand<SetOrientationLockState, NoResponse>(new (lockState));
+            }
+
+
+            /// <summary>
+            /// Returns the current user's locale. <br/> <br/>
+            /// Scopes required: <c> identify </c> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<UserSettingsGetLocaleData> UserSettingsGetLocale()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<UserSettingsGetLocaleResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<UserSettingsGetLocale, UserSettingsGetLocaleResponse>(new ());
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Presents the file upload flow in the Discord client. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<InitiateImageUploadData> InitiateImageUpload()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<InitiateImageUploadResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<InitiateImageUpload, InitiateImageUploadResponse>(new ());
+
+                return response.Data;
+            }
+
+
+            /// <summary>
+            /// Returns all participants connected to the instance. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetInstanceConnectedParticipantsData> GetInstanceConnectedParticipants()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetInstanceConnectedParticipantsResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetInstanceConnectedParticipants, GetInstanceConnectedParticipantsResponse>(new ());
+
+                return response.Data;
+            }
         }
+
+        //# PROXY - - - - -
+        public static class Proxy
+        {
+            // POST - - - - -
+            /// <summary>
+            /// Sends an HTTPS post request with a JSON payload to the Discord proxy.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="OutsideDiscordException"></exception>
+            /// <exception cref="WebException"></exception>
+            /// <exception cref="JsonException"></exception>
+            public static Task<TJsonResponse> HttpsPostRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+
+                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+
+                //? Already starts with .proxy
+                if (path.StartsWith(".proxy/"))
+                {
+                    path = path.Replace(".proxy/", "");
+                }
+
+                path = path.StartsWith("/")
+                    ? path
+                    : $"/{path}";
+
+                string uri = $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+
+                var tcs = new TaskCompletionSource<TJsonResponse>();
+                
+                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPostRequest(uri, payload, tcs) );
+
+                return tcs.Task;
+            }
+
+
+            // GET - - - - -
+            /// <summary>
+            /// Sends an HTTPS get request to the Discord proxy.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="OutsideDiscordException"></exception>
+            /// <exception cref="WebException"></exception>
+            /// <exception cref="JsonException"></exception>
+            public static Task<TJsonResponse> HttpsGetRequest<TJsonResponse>(string path)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+
+                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+
+                //? Already starts with .proxy
+                if (path.StartsWith(".proxy/"))
+                {
+                    path = path.Replace(".proxy/", "");
+                }
+
+                path = path.StartsWith("/")
+                    ? path
+                    : $"/{path}";
+
+                string uri = $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+
+                var tcs = new TaskCompletionSource<TJsonResponse>();
+                
+                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendGetRequest(uri, tcs) );
+
+                return tcs.Task;
+            }
+
+
+            // PATCH - - - - -
+            /// <summary>
+            /// Sends an HTTPS patch request with a JSON payload to the Discord proxy.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="OutsideDiscordException"></exception>
+            /// <exception cref="WebException"></exception>
+            /// <exception cref="JsonException"></exception>
+            public static Task<TJsonResponse> HttpsPatchRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+
+                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+
+                //? Already starts with .proxy
+                if (path.StartsWith(".proxy/"))
+                {
+                    path = path.Replace(".proxy/", "");
+                }
+
+                path = path.StartsWith("/")
+                    ? path
+                    : $"/{path}";
+
+                string uri = $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+
+                var tcs = new TaskCompletionSource<TJsonResponse>();
+                
+                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPatchRequest(uri, payload, tcs) );
+
+                return tcs.Task;
+            }
+
+
+            // PUT - - - - -
+            /// <summary>
+            /// Sends an HTTPS put request with a JSON payload to the Discord proxy.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="OutsideDiscordException"></exception>
+            /// <exception cref="WebException"></exception>
+            /// <exception cref="JsonException"></exception>
+            public static Task<TJsonResponse> HttpsPutRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+
+                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+
+                //? Already starts with .proxy
+                if (path.StartsWith(".proxy/"))
+                {
+                    path = path.Replace(".proxy/", "");
+                }
+
+                path = path.StartsWith("/")
+                    ? path
+                    : $"/{path}";
+
+                string uri = $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+
+                var tcs = new TaskCompletionSource<TJsonResponse>();
+                
+                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPutRequest(uri, payload, tcs) );
+
+                return tcs.Task;
+            }
+
+
+            // DELETE - - - - -
+            /// <summary>
+            /// Sends an HTTPS delete request to the Discord proxy.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="OutsideDiscordException"></exception>
+            /// <exception cref="WebException"></exception>
+            /// <exception cref="JsonException"></exception>
+            public static Task<TJsonResponse> HttpsDeleteRequest<TJsonResponse>(string path)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+
+                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+
+                //? Already starts with .proxy
+                if (path.StartsWith(".proxy/"))
+                {
+                    path = path.Replace(".proxy/", "");
+                }
+
+                path = path.StartsWith("/")
+                    ? path
+                    : $"/{path}";
+
+                string uri = $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+
+                var tcs = new TaskCompletionSource<TJsonResponse>();
+                
+                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendDeleteRequest(uri, tcs) );
+
+                return tcs.Task;
+            }
+
+            private static IEnumerator SendPostRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs)
+            {
+                UnityWebRequest request = UnityWebRequest.Post(uri, JsonConvert.SerializeObject(payload), "application/json");
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError || request.result == UnityWebRequest.Result.DataProcessingError)
+                {
+                    tcs.TrySetException(new WebException("An error occurred in a request to the proxy"));
+                }
+
+                else
+                {
+                    string stringifiedData = request.downloadHandler.text;
+
+                    var data = JsonConvert.DeserializeObject<TJsonResponse>(stringifiedData);
+
+                    if (data == null) throw new JsonException("Couldn't parse server response as JSON");
+
+                    tcs.TrySetResult(data);
+                }
+            }
         
+            private static IEnumerator SendGetRequest<TJsonResponse>(string uri, TaskCompletionSource<TJsonResponse> tcs)
+            {
+                UnityWebRequest request = UnityWebRequest.Get(uri);
+                yield return request.SendWebRequest();
 
-        //# DELEGATES - - - - -
-        // Subscriptions
-        public delegate void VoiceStateUpdateDelegate (VoiceStateUpdateData data);
-        public delegate void SpeakingDelegate (SpeakingData data);
-        public delegate void ActivityLayoutModeUpdateDelegate (ActivityLayoutModeUpdateData data);
-        public delegate void OrientationUpdateDelegate (OrientationUpdateData data);
-        public delegate void CurrentUserUpdateDelegate (CurrentUserUpdateData data);
-        public delegate void EntitlementCreateDelegate (EntitlementCreateData data);
-        public delegate void ThermalStateUpdateDelegate (ThermalStateUpdateData data);
-        public delegate void InstanceParticipantsDelegate (InstanceParticipantsData data);
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError || request.result == UnityWebRequest.Result.DataProcessingError)
+                {
+                    tcs.TrySetException(new WebException("An error occurred in a request to the proxy"));
+                }
 
-        // Non-subscriptions
-        public delegate void GetStringDelegate (string str);
-        public delegate void GetUserDelegate (User user);
-        public delegate void HardwareAccelerationDelegate (HardwareAccelerationData data);
-        public delegate void GetChannelDelegate (Channel channel);
-        public delegate void GetChannelPermissionsDelegate (ChannelPermissionsData data);
-        public delegate void GetPlatformBehaviorsDelegate (PlatformBehaviorsData data);
-        public delegate void SetActivityDelegate (Activity activity);
-        public delegate void GetLocaleDelegate (LocaleData data);
-        public delegate void SetConfigDelegate (ConfigData data);
-        public delegate void ImageUploadDelegate (ImageUploadData data);
+                else
+                {
+                    string stringifiedData = request.downloadHandler.text;
 
+                    var data = JsonConvert.DeserializeObject<TJsonResponse>(stringifiedData);
 
-        //# EVENTS - - - - -
-        // Subscriptions
-        internal static VoiceStateUpdateDelegate _VoiceStateUpdateEvent;
-        internal static SpeakingDelegate _SpeakingStartEvent;
-        internal static SpeakingDelegate _SpeakingStopEvent;
-        internal static ActivityLayoutModeUpdateDelegate _ActivityLayoutModeUpdateEvent;
-        internal static OrientationUpdateDelegate _OrientationUpdateEvent;
-        internal static CurrentUserUpdateDelegate _CurrentUserUpdateEvent;
-        internal static EntitlementCreateDelegate _EntitlementCreateEvent;
-        internal static ThermalStateUpdateDelegate _ThermalStateUpdateEvent;
-        internal static InstanceParticipantsDelegate _ActivityInstanceParticipantsUpdateEvent;
+                    if (data == null) throw new JsonException("Couldn't parse server response as JSON");
 
-        // Non-subscriptions
-        internal static Action _LoadEvent;
-        internal static GetStringDelegate _GetInstanceIdEvent;
-        internal static GetStringDelegate _GetChannelIdEvent;
-        internal static GetStringDelegate _GetGuildIdEvent;
-        internal static GetStringDelegate _GetUserIdEvent;
-        internal static GetUserDelegate _GetUserEvent;
-        internal static InstanceParticipantsDelegate _GetInstanceParticipantsEvent;
-        internal static HardwareAccelerationDelegate _HardwareAccelerationEvent;
-        internal static GetChannelDelegate _GetChannelEvent;
-        internal static GetChannelPermissionsDelegate _GetChannelPermissionsEvent;
-        internal static GetPlatformBehaviorsDelegate _GetPlatformBehaviorsEvent;
-        internal static SetActivityDelegate _SetActivityEvent;
-        internal static GetLocaleDelegate _GetLocaleEvent;
-        internal static SetConfigDelegate _SetConfigEvent;
-        internal static ImageUploadDelegate _ImageUploadEvent;
-
-        //# JAVASCRIPT PLUGIN - - - - 
-        #if UNITY_WEBGL && !UNITY_EDITOR
-            [DllImport("__Internal")]
-            private static extern void InitializeIFrameBridge();
-
-            [DllImport("__Internal")]
-            private static extern void IFrameBridge();   // MUST be imported, it's called internally
-
-            [DllImport("__Internal")]
-            private static extern string Subscribe(string ev);
-
-            [DllImport("__Internal")]
-            private static extern string Unsubscribe(string ev);
-
-            [DllImport("__Internal")]
-            private static extern string RequestSetActivity(string stringifiedActivity);
-
-            [DllImport("__Internal")]
-            private static extern string RequestInstanceId();
-
-            [DllImport("__Internal")]
-            private static extern string RequestChannelId();
-
-            [DllImport("__Internal")]
-            private static extern string RequestGuildId();
-
-            [DllImport("__Internal")]
-            private static extern string RequestUserId();
-
-            [DllImport("__Internal")]
-            private static extern string RequestUser();
-
-            [DllImport("__Internal")]
-            private static extern string RequestInstanceParticipants();
-
-            [DllImport("__Internal")]
-            private static extern string RequestHardwareAcceleration();
-
-            [DllImport("__Internal")]
-            private static extern string RequestChannel(string channelId);
-
-            [DllImport("__Internal")]
-            private static extern string RequestChannelPermissions(string channelId);
-
-            [DllImport("__Internal")]
-            private static extern string RequestPlatformBehaviors();
-
-            [DllImport("__Internal")]
-            private static extern string RequestImageUpload();
-
-            [DllImport("__Internal")]
-            private static extern string RequestOpenExternalLink(string url);
-
-            [DllImport("__Internal")]
-            private static extern string RequestInviteDialog();
-
-            [DllImport("__Internal")]
-            private static extern string RequestShareMomentDialog(string mediaUrl);
-
-            [DllImport("__Internal")]
-            private static extern string RequestSetOrientationLockState(string lockState, string pictureInPictureLockState, string gridLockState);
+                    tcs.TrySetResult(data);
+                }
+            }
         
-            [DllImport("__Internal")]
-            private static extern string RequestLocale();
+            private static IEnumerator SendPatchRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs)
+            {
+                UnityWebRequest request = new UnityWebRequest(uri, "PATCH");
 
-            [DllImport("__Internal")]
-            private static extern string RequestSetConfig(string useInteractivePip); // string representation of bool
+                request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
 
-            [DllImport("__Internal")]
-            private static extern void PingLoad();
-        #endif
-    
+                yield return request.SendWebRequest();
 
-        //\ Initialize bridge
-        //! You don't need to call this, it's automatically called by the DiscordBridge.
-        public static void InitializeSDKBridge () {
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError || request.result == UnityWebRequest.Result.DataProcessingError)
+                {
+                    tcs.TrySetException(new WebException("An error occurred in a request to the proxy"));
+                }
 
-            if (bridgeInitialized) return;
+                else
+                {
+                    string stringifiedData = request.downloadHandler.text;
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                InitializeIFrameBridge();
-            #endif
+                    var data = JsonConvert.DeserializeObject<TJsonResponse>(stringifiedData);
+
+                    if (data == null) throw new JsonException("Couldn't parse server response as JSON");
+
+                    tcs.TrySetResult(data);
+                }
+            }
+        
+            private static IEnumerator SendPutRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs)
+            {
+                UnityWebRequest request = new UnityWebRequest(uri, "PUT");
+
+                request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError || request.result == UnityWebRequest.Result.DataProcessingError)
+                {
+                    tcs.TrySetException(new WebException("An error occurred in a request to the proxy"));
+                }
+
+                else
+                {
+                    string stringifiedData = request.downloadHandler.text;
+
+                    var data = JsonConvert.DeserializeObject<TJsonResponse>(stringifiedData);
+
+                    if (data == null) throw new JsonException("Couldn't parse server response as JSON");
+
+                    tcs.TrySetResult(data);
+                }
+            }
+        
+            private static IEnumerator SendDeleteRequest<TJsonResponse>(string uri, TaskCompletionSource<TJsonResponse> tcs)
+            {
+                UnityWebRequest request = new UnityWebRequest(uri, "DELETE");
+                request.downloadHandler = new DownloadHandlerBuffer();
+
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError || request.result == UnityWebRequest.Result.DataProcessingError)
+                {
+                    tcs.TrySetException(new WebException("An error occurred in a request to the proxy"));
+                }
+
+                else
+                {
+                    string stringifiedData = request.downloadHandler.text;
+
+                    var data = JsonConvert.DeserializeObject<TJsonResponse>(stringifiedData);
+
+                    if (data == null) throw new JsonException("Couldn't parse server response as JSON");
+
+                    tcs.TrySetResult(data);
+                }
+            }
         }
 
-        //\ Await until the npm package is loaded
-        public static Task WaitForLoad () {
+        //# SUBSCRIBE - - - -
+        public static class Subscribe
+        {
+            /// <summary>
+            /// Received when the number of instance participants changes. <br/> <br/>
+            /// No scopes required.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> ActivityInstanceParticipantsUpdate(Action<ActivityInstanceParticipantsUpdateData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<ActivityInstanceParticipantsUpdate, ActivityInstanceParticipantsUpdateData>(listener);
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when a user changes the layout mode in the Discord client. <br/> <br/>
+            /// No scopes required.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> ActivityLayoutModeUpdate(Action<ActivityLayoutModeUpdateData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<ActivityLayoutModeUpdate, ActivityLayoutModeUpdateData>(listener);
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when the current user object changes. <br/> <br/>
+            /// Scopes required: <c> identify </c> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> CurrentUserUpdate(Action<User> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<CurrentUserUpdate, User>(listener);
+
+                return reference;
+            }
+
+
+            //todo Currently not documented so scopes might be wrong... That's gonna take a while to get merged https://github.com/discord/discord-api-docs/pull/7130
+            /// <summary>
+            /// Received when the current guild member object changes. <br/> <br/>
+            /// Scopes required: <c> identify </c>, <c> guilds.members.read </c> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> CurrentGuildMemberUpdate(string guildId, Action<GuildMemberRpc> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(listener, new EventArguments{ GuildId = guildId });
+
+                return reference;
+            }
+
+
+            //todo Developer preview, not released yet
+            /// <summary>
+            /// Not released yet! :p
+            /// </summary>
+            internal static void EntitlementCreate() {}
+
+
+            /// <summary>
+            /// Non-subscription event sent when there is an error, including command responses. <br/> <br/>
+            /// No scopes required.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public static SubscriptionReference Error(Action<ErrorEventData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                //\ Create reader
+                var reader = new MessageBusReaderIndefinite((discordEvent) =>
+                {
+                    var castedEvent = discordEvent as ErrorEvent;
+
+                    if (castedEvent == null) return;
+
+                    listener(castedEvent.Data!);
+                });
+
+                //\ Create reference
+                var reference = new SubscriptionReference();
+                reference.SaveSubscriptionData(reader, DiscordEventType.Error);
+
+                //\ Save reader in message bus
+                messageBus.AddReader(DiscordEventType.Error, reader);
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when screen orientation changes. <br/> <br/>
+            /// No scopes required.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> OrientationUpdate(Action<OrientationUpdateData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<OrientationUpdate, OrientationUpdateData>(listener);
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when a user in a subscribed voice channel speaks. <br/> <br/>
+            /// Scopes required: <c> rpc.voice.read </c> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> SpeakingStart(string channelId, Action<SpeakingStartData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<SpeakingStart, SpeakingStartData>(listener, new EventArguments{ ChannelId = channelId });
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when a user in a subscribed voice channel stops speaking. <br/> <br/>
+            /// Scopes required: <c> rpc.voice.read </c> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> SpeakingStop(string channelId, Action<SpeakingStopData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<SpeakingStop, SpeakingStopData>(listener, new EventArguments{ ChannelId = channelId });
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when Android or iOS thermal states are surfaced to the Discord mobile app. <br/> <br/>
+            /// No scopes required
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> ThermalStateUpdate(Action<ThermalStateUpdateData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<ThermalStateUpdate, ThermalStateUpdateData>(listener);
+
+                return reference;
+            }
+
+
+            /// <summary>
+            /// Received when a user's voice state changes in a subscribed voice channel (mute, volume, etc). <br/> <br/>
+            /// Scopes required: <c> rpc.voice.read </c> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public async static Task<SubscriptionReference> VoiceStateUpdate(string channelId, Action<UserVoiceState> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+
+                var reference = await SubscribeCommandFactory<VoiceStateUpdate, UserVoiceState>(listener, new EventArguments{ ChannelId = channelId });
+
+                return reference;
+            }
+
+            // Private method used to simplify the subscription methods
+            private async static Task<SubscriptionReference> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null) where TEvent : DiscordEvent
+            {
+                string eventString = EventUtility.GetStringFromType(typeof(TEvent));
+
+                //\ Create reader
+                var reader = new MessageBusReaderIndefinite((discordEvent) =>
+                {
+                    var castedEvent = discordEvent as TEvent;
+
+                    if (castedEvent == null) return;
+
+                    listener((TEventData) castedEvent.Data!);
+                });
+
+                //\ Create reference
+                var reference = new SubscriptionReference();
+                reference.SaveSubscriptionData(reader, eventString);
+
+                //\ Save reader in message bus
+                messageBus.AddReader(eventString, reader);
+
+                //? Not subscribed to RPC
+                if (!_mock && !subscribedRpcSet.Contains(eventString))
+                {
+                    subscribedRpcSet.Add(eventString);
+
+                    //? Using args
+                    if (args != null)
+                    {
+                        await SendCommand<Dissonity.Commands.Subscribe, SubscribeResponse>(new (eventString) { Args = args });
+                    }
+
+                    else
+                    {
+                        await SendCommand<Dissonity.Commands.Subscribe, SubscribeResponse>(new (eventString));
+                    }
+
+                    // Awaiting the subscribe command so that if it errors, the exception is raised properly
+                }
+
+                return reference;
+            }
+        }
+
+        //# METHODS - - - - -
+        /// <summary>
+        /// Initializes Dissonity. You must call and await this method once before doing anything else.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="OutsideDiscordException"></exception>
+        /// <exception cref="JsonException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static Task<MultiEvent> Initialize()
+        {
+            if (_initialized) throw new InvalidOperationException("Already initialized");
+
+            _configuration = DissonityConfigAttribute.GetUserConfig();
+            _clientId = _configuration.ClientId;
+
+            //\ Create bridge instance
+            bridge = new GameObject("_DissonityBridge");
+            var bridgeComponent = bridge.AddComponent<DissonityBridge>();
+            GameObject.DontDestroyOnLoad(bridge);
+
+            //\ Prepare initialization task
+            var tcs = new TaskCompletionSource<MultiEvent>();
+
+            //? Not running inside Discord
+            if (isEditor)
+            {
+                if (_mock)
+                {
+                    //\ Query data
+                    var mock = GameObject.FindObjectOfType<DiscordMock>();
+
+                    //? No mock
+                    if (!mock)
+                    {
+                        throw new InvalidOperationException("Mock mode is enabled but there's no DiscordMock object. Make sure to create one to access mock data.");
+                    }
+
+                    _initialized = true;
+                    _ready = true;
+
+                    return Task.FromResult(new MockMultiEvent().ToMultiEvent());
+                }
+
+                else if (!_configuration.DisableDissonityInfoLogs)
+                {
+                    Utils.DissonityLogWarning("Running inside the Unity editor. You may debug using the Discord Mock object (Right click hierarchy > Dissonity > Discord Mock).");
+                }
+
+                throw new OutsideDiscordException();
+            }
+
+            // Mock is invalid here
+            _mock = false;
+            _disableMock = true;
+
+            Listen();
+
+            //\ Request query
+            bridgeComponent.queryAction += (query) =>
+            {
+                InitializeQuery(tcs, query);
+            };
+
+            RequestQuery();
+
+            return tcs.Task;
+        }
+
+        /// <summary>
+        /// Use this method to easily access external resources.
+        /// If you need to use it before initialization, consider using <c> Mappings </c> and <c> PatchUrlMappingsConfig </c> from the <c> DissonityConfig </c> instead. <br/> <br/>
+        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static Task PatchUrlMappings(MappingBuilder[] mappings, PatchUrlMappingsConfigBuilder config)
+        {
+            if (_initialized) throw new InvalidOperationException("Tried to use a method without initialization");
 
             var tcs = new TaskCompletionSource<bool>();
 
-            //? Already loaded
-            if (npmLoaded) {
+            if (_mock)
+            {
+                if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Mock patch url mappings called via API method");
 
                 tcs.TrySetResult(true);
                 return tcs.Task;
             }
 
-            //\ Add listener
-            _LoadEvent += () => {
-
-                npmLoaded = true;
+            bridge!.GetComponent<DissonityBridge>().patchUrlMappingsAction += () =>
+            {
                 tcs.TrySetResult(true);
             };
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                PingLoad();
-            #endif
+            var payload = new PatchUrlMappings()
+            {
+                Mappings = mappings,
+                Config = config
+            };
+
+            RequestPatchUrlMappings(JsonConvert.SerializeObject(payload));
 
             return tcs.Task;
         }
 
 
-        //# SUBSCRIBE METHODS - - - - -
-        public static void SubVoiceStateUpdate (VoiceStateUpdateDelegate del, bool soft = false) {
-
-            _VoiceStateUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("VOICE_STATE_UPDATE");
-            #endif
-        }
-
-        public static void SubSpeakingStart (SpeakingDelegate del, bool soft = false) {
-
-            _SpeakingStartEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("SPEAKING_START");
-            #endif
-        }
-
-        public static void SubSpeakingStop (SpeakingDelegate del, bool soft = false) {
-
-            _SpeakingStopEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("SPEAKING_STOP");
-            #endif
-        }
-
-        public static void SubActivityLayoutModeUpdate (ActivityLayoutModeUpdateDelegate del, bool soft = false) {
-
-            _ActivityLayoutModeUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("ACTIVITY_LAYOUT_MODE_UPDATE");
-            #endif
-        }
-
-        public static void SubOrientationUpdate (OrientationUpdateDelegate del, bool soft = false) {
-
-            _OrientationUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("ORIENTATION_UPDATE");
-            #endif
-        }
-
-        public static void SubCurrentUserUpdate (CurrentUserUpdateDelegate del, bool soft = false) {
-
-            _CurrentUserUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("CURRENT_USER_UPDATE");
-            #endif
-        }
-
-        public static void SubThermalStateUpdate (ThermalStateUpdateDelegate del, bool soft = false) {
-
-            _ThermalStateUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("THERMAL_STATE_UPDATE");
-            #endif
-        }
-
-        public static void SubActivityInstanceParticipantsUpdate (InstanceParticipantsDelegate del, bool soft = false) {
-
-            _ActivityInstanceParticipantsUpdateEvent += del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Subscribe("ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE");
-            #endif
-        }
-
-
-        //# UNSUBSCRIBE METHODS - - - - -
-        public static void UnsubVoiceStateUpdate (VoiceStateUpdateDelegate del, bool soft = false) {
-
-            _VoiceStateUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("VOICE_STATE_UPDATE");
-            #endif
-        }
-
-        public static void UnsubSpeakingStart (SpeakingDelegate del, bool soft = false) {
-
-            _SpeakingStartEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("SPEAKING_START");
-            #endif
-        }
-
-        public static void UnsubSpeakingStop (SpeakingDelegate del, bool soft = false) {
-
-            _SpeakingStopEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("SPEAKING_STOP");
-            #endif
-        }
-
-        public static void UnsubActivityLayoutModeUpdate (ActivityLayoutModeUpdateDelegate del, bool soft = false) {
-
-            _ActivityLayoutModeUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("ACTIVITY_LAYOUT_MODE_UPDATE");
-            #endif
-        }
-
-        public static void UnsubOrientationUpdate (OrientationUpdateDelegate del, bool soft = false) {
-
-            _OrientationUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("ORIENTATION_UPDATE");
-            #endif
-        }
-
-        public static void UnsubCurrentUserUpdate (CurrentUserUpdateDelegate del, bool soft = false) {
-
-            _CurrentUserUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("CURRENT_USER_UPDATE");
-            #endif
-        }
-
-        public static void UnsubThermalStateUpdate (ThermalStateUpdateDelegate del, bool soft = false) {
-
-            _ThermalStateUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("THERMAL_STATE_UPDATE");
-            #endif
-        }
-
-        public static void UnsubActivityInstanceParticipantsUpdate (InstanceParticipantsDelegate del, bool soft = false) {
-
-            _ActivityInstanceParticipantsUpdateEvent -= del;
-
-            if (soft) return;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                Unsubscribe("ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE");
-            #endif
-        }
-
-
-        //# NON-SUBSCRIBE METHODS - - - - -
-        public static Task<string> GetSDKInstanceId () {
-
-            var tcs = new TaskCompletionSource<string>();
-
-            //? Cached
-            if (cachedInstanceId != null) {
-
-                tcs.TrySetResult(cachedInstanceId);
-                return tcs.Task;
-            }
-
-            _GetSDKInstanceId((id) => {
-
-                tcs.TrySetResult(id);
-            });
-
-            #if UNITY_EDITOR
-
-                tcs.TrySetResult(OverrideInstanceId ?? "ph_instance_id");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<string> GetChannelId () {
-
-            var tcs = new TaskCompletionSource<string>();
-
-            _GetChannelId((id) => {
-                tcs.TrySetResult(id);
-            });
-
-            #if UNITY_EDITOR
-                tcs.TrySetResult("ph_channel_id");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<string> GetGuildId () {
-
-            var tcs = new TaskCompletionSource<string>();
-
-            _GetGuildId((id) => {
-                tcs.TrySetResult(id);
-            });
-
-            #if UNITY_EDITOR
-                tcs.TrySetResult("ph_guild_id");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<string> GetUserId () {
-
-            var tcs = new TaskCompletionSource<string>();
-
-            _GetUserId((id) => {
-                tcs.TrySetResult(id);
-            });
-
-            #if UNITY_EDITOR
-
-                tcs.TrySetResult(OverrideUserId ?? "ph_user_id");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<User> GetUser () {
-
-            var tcs = new TaskCompletionSource<User>();
-
-            _GetUser((user) => {
-                tcs.TrySetResult(user);
-            });
-
-            #if UNITY_EDITOR
-
-                // Editor placeholder data
-                tcs.TrySetResult(new User {
-                    id =  OverrideUserId ?? "ph_user_id",
-                    global_name = OverrideUserGlobalName ?? "ph_user_global_name",
-                    username = OverrideUsername ?? "ph_user_name",
-                    avatar = OverrideUserAvatar ?? "ph_user_avatar"
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<InstanceParticipantsData> GetInstanceParticipants () {
-
-            var tcs = new TaskCompletionSource<InstanceParticipantsData>();
-
-            _GetInstanceParticipants((data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called GetInstanceParticipants inside editor, unexpected behaviour will occur");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task EncourageHardwareAcceleration () {
-
-            var tcs = new TaskCompletionSource<object>();
-
-            _EncourageHardwareAcceleration((data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                if (OverrideHardwareAcceleration == null) {
-                    UnityEngine.Debug.LogWarning("Called EncourageHardwareAcceleration inside editor, use overrides to test it inside Unity");
-                }
-
-                // Editor placeholder data
-                tcs.TrySetResult(new HardwareAccelerationData{
-                    enabled = OverrideHardwareAcceleration ?? false
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<Channel> GetChannel (string channelId) {
-
-            var tcs = new TaskCompletionSource<Channel>();
-
-            _GetChannel(channelId, (channel) => {
-                tcs.TrySetResult(channel);
-            });
-
-            #if UNITY_EDITOR
-
-                // Editor placeholder data
-                tcs.TrySetResult(new Channel{
-                    id =  "ph_channel_id",
-                    guild_id =  "ph_guild_name",
-                    name =  "ph_channel_name",
-                    topic =  "ph_channel_topic",
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<ChannelPermissionsData> GetChannelPermissions (string channelId) {
-
-            var tcs = new TaskCompletionSource<ChannelPermissionsData>();
-
-            _GetChannelPermissions(channelId, (data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                UnityEngine.Debug.LogWarning("Called GetChannelPermissions inside editor, unexpected behaviour will occur");
-
-                // Editor placeholder data
-                tcs.TrySetResult(new ChannelPermissionsData{
-                    permissions = "ph_channel_permissions"
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<PlatformBehaviorsData> GetPlatformBehaviors () {
-
-            var tcs = new TaskCompletionSource<PlatformBehaviorsData>();
-
-            _GetPlatformBehaviors((data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                // Editor placeholder data
-                tcs.TrySetResult(new PlatformBehaviorsData{
-                    iosKeyboardResizesView = false
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<ImageUploadData> InitiateImageUpload () {
-
-            var tcs = new TaskCompletionSource<ImageUploadData>();
-
-            _InitiateImageUpload((data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called InitiateImageUpload inside editor, unexpected behaviour will occur");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static void OpenExternalLink (string url) {
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestOpenExternalLink(url);
-            #else
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called OpenExternalLink inside editor, unexpected behaviour will occur");
-            #endif
-        }
-
-        public static void OpenInviteDialog () {
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestInviteDialog();
-            #else
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called OpenInviteDialog inside editor, unexpected behaviour will occur");
-            #endif
-        }
-
-        public static void OpenShareMomentDialog (string mediaUrl) {
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestShareMomentDialog(mediaUrl);
-            #else
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called OpenShareMomentDialog inside editor, unexpected behaviour will occur");
-            #endif
-        }
-
-        public static Task<Activity> SetActivity (ActivityBuilder activity) {
-
-            var tcs = new TaskCompletionSource<Activity>();
-
-            string jsonString = JsonUtility.ToJson(activity);
-
-            _SetActivity(jsonString, (data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called SetActivity inside editor");
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static void SetOrientationLockState (string lockState, string pictureInPictureLockState = "", string gridLockState = "") {
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestSetOrientationLockState(lockState, pictureInPictureLockState, gridLockState);
-            #else
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called SetOrientationLockState inside editor, unexpected behaviour will occur");
-            #endif
-        }
-
-        public static Task<LocaleData> GetUserLocale () {
-
-            var tcs = new TaskCompletionSource<LocaleData>();
-
-            _GetUserLocale((data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                if (OverrideUserLocale == null) {
-                    UnityEngine.Debug.LogWarning("Called GetUserLocale inside editor, use overrides to test it inside Unity");
-                }
-
-                // Editor placeholder data
-                tcs.TrySetResult(new LocaleData{
-                    locale = OverrideUserLocale ?? "en-US"
-                });
-            #endif
-
-            return tcs.Task;
-        }
-
-        public static Task<ConfigData> SetConfig (bool useInteractivePip) {
-
-            var tcs = new TaskCompletionSource<ConfigData>();
-
-            _SetConfig(useInteractivePip, (data) => {
-                tcs.TrySetResult(data);
-            });
-
-            #if UNITY_EDITOR
-
-                // If this is run inside the editor, there's no way to test it
-                UnityEngine.Debug.LogWarning("Called SetConfig inside editor, unexpected behaviour will occur");
-            #endif
-
-            return tcs.Task;
-        }
-
-
-        // Private wrap methods
-        private static void _GetSDKInstanceId (GetStringDelegate del) {
-
-            //? Not yet cached
-            if (cachedInstanceId == null) {
-
-                _GetInstanceIdEvent += del;
-
-                #if UNITY_WEBGL && !UNITY_EDITOR
-                    RequestInstanceId();
-                #endif
-            }
-
-            //? Cached
-            else {
-                del(cachedInstanceId);
-            }
-        }
-
-        private static void _GetChannelId (GetStringDelegate del) {
-
-            //? Not yet cached
-            if (cachedChannelId == null) {
-
-                _GetChannelIdEvent += del;
-
-                #if UNITY_WEBGL && !UNITY_EDITOR
-                    RequestChannelId();
-                #endif
-            }
-
-            //? Cached
-            else {
-                del(cachedChannelId);
-            }
-        }
-
-        private static void _GetGuildId (GetStringDelegate del) {
-
-            //? Not yet cached
-            if (cachedGuildId == null) {
-
-                _GetGuildIdEvent += del;
-
-                #if UNITY_WEBGL && !UNITY_EDITOR
-                    RequestGuildId();
-                #endif
-            }
-
-            //? Cached
-            else {
-                del(cachedGuildId);
-            }
-        }
-
-        private static void _GetUserId (GetStringDelegate del) {
-
-            //? Not yet cached
-            if (cachedUserId == null) {
-
-                _GetUserIdEvent += del;
-
-                #if UNITY_WEBGL && !UNITY_EDITOR
-                    RequestUserId();
-                #endif
-            }
-
-            //? Cached
-            else {
-                del(cachedUserId);
-            }
-        }
-
-        private static void _GetUser (GetUserDelegate del) {
-
-            _GetUserEvent += del;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestUser();
-            #endif
-        }
-
-        private static void _GetInstanceParticipants (InstanceParticipantsDelegate del) {
-
-            _GetInstanceParticipantsEvent += del;
+        //# UNSUBSCRIBE - - - - -
+        /// <summary>
+        /// Remove a subscription via a SubscriptionReference instance (returned by subscription methods).
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static void Unsubscribe(SubscriptionReference reference)
+        {
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
             
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestInstanceParticipants();
-            #endif
-        }
-    
-        private static void _GetChannel (string channelId, GetChannelDelegate del) {
+            if (!messageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a SubscriptionReference that no longer exists ({reference.EventString})");
 
-            _GetChannelEvent += del;
+            var readerSet = messageBus.ReaderSetDictionary[reference.EventString];
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestChannel(channelId);
-            #endif
-        }
+            //? Reader set has reader
+            if (!readerSet.Contains(reference.Reader)) throw new ArgumentException("Tried to unsubscribe from a SubscriptionReference that no longer exists");
+        
+            bool removedSet = messageBus.RemoveReader(reference.EventString, reference.Reader);
 
-        private static void _GetChannelPermissions (string channelId, GetChannelPermissionsDelegate del) {
-
-            _GetChannelPermissionsEvent += del;
-
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestChannelPermissions(channelId);
-            #endif
+            //? Should unsubscribe from RPC
+            if (removedSet && !_mock)
+            {
+                subscribedRpcSet.Remove(reference.EventString);
+                SendCommand<Unsubscribe, SubscribeResponse>(new (reference.EventString));
+            }
         }
 
-        private static void _EncourageHardwareAcceleration (HardwareAccelerationDelegate del) {
+        /// <summary>
+        /// Remove all subscriptions related to a single event.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        public static void UnsubscribeFromEvent(string eventString)
+        {
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
+            
+            if (!messageBus.ReaderSetDictionary.ContainsKey(eventString)) throw new ArgumentException($"Tried to unsubscribe from an event that had no subscriptions ({eventString})");
 
-            _HardwareAccelerationEvent += del;
+            messageBus.ReaderSetDictionary.Remove(eventString);
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestHardwareAcceleration();
-            #endif
+            //\ Unsubscribe from RPC
+            if (_mock) return;
+
+            subscribedRpcSet.Remove(eventString);
+            SendCommand<Unsubscribe, SubscribeResponse>(new (eventString));
         }
 
-        private static void _GetPlatformBehaviors (GetPlatformBehaviorsDelegate del) {
+        /// <summary>
+        /// Remove all subscriptions from every event.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void ClearAllSubscriptions()
+        {
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
 
-            _GetPlatformBehaviorsEvent += del;
+            messageBus.ReaderSetDictionary.Clear();
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestPlatformBehaviors();
-            #endif
+            if (_mock) return;
+
+            foreach (string key in subscribedRpcSet)
+            {
+                SendCommand<Unsubscribe, SubscribeResponse>(new (key));
+            }
         }
 
-        private static void _InitiateImageUpload (ImageUploadDelegate del) {
 
-            _ImageUploadEvent += del;
+        //# CLOSE - - - - -
+        /// <summary>
+        /// Close the app with a specified code and reason.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static void Close(RpcCloseCode code, string message = "")
+        {
+            if (!_ready) throw new InvalidOperationException("Tried to close the app without initialization");
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestImageUpload();
-            #endif
+            if (!_mock)
+            {
+                SendToBridge<Close, NoResponse>(new Close(code, message));
+                StopListening();
+            }
+
+            messageBus.ReaderSetDictionary.Clear();
+            subscribedRpcSet.Clear();
+            GameObject.Destroy(bridge);
+            _ready = false;
+
+            if (_mock && !_configuration!.DisableDissonityInfoLogs)
+            {
+                Utils.DissonityLog($"Embedded app closed with code {code} and message '{message}'");
+            }
         }
 
-        private static void _SetActivity (string stringifiedActivity, SetActivityDelegate del) {
+        //# PRIVATE METHODS - - - - -
+        private static void InitializeQuery(TaskCompletionSource<MultiEvent> tcs, string stringifiedQuery)
+        {
+            var query = JsonConvert.DeserializeObject<QueryData>(stringifiedQuery);
 
-            _SetActivityEvent += del;
+            if (query == null)
+            {
+                tcs.TrySetException(new JsonException("Something went wrong attempting to read the query."));
+                return;
+            }
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestSetActivity(stringifiedActivity);
-            #endif
+            //# QUERY PARAMS - - - - -
+            // Frame id
+            if (query.FrameId == null)
+            {
+                // RpcBridge state should only be OutsideDiscord here
+
+                if (!_configuration!.DisableDissonityInfoLogs)
+                {
+                    Utils.DissonityLogWarning("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled.");
+                }
+
+                tcs.TrySetException(new OutsideDiscordException());
+                return;
+            }
+            _frameId = query.FrameId;
+
+            // Instance id
+            if (query.InstanceId == null)
+            {
+                tcs.TrySetException(new ArgumentException("instance_id query param is not defined"));
+                return;
+            }
+            _instanceId = query.InstanceId;
+
+            // Platform
+            if (query.Platform == null)
+            {
+                tcs.TrySetException(new ArgumentException("platform query param is not defined"));
+                return;
+            }
+            else if (query.Platform != Models.Platform.Desktop && query.Platform != Models.Platform.Mobile)
+            {
+                tcs.TrySetException(new ArgumentException($"Invalid query param 'platform' of '${query.Platform}'. Valid values are '${Models.Platform.Desktop}' or '${Models.Platform.Mobile}'"));
+                return;
+            }
+            _platform = query.Platform;
+
+            // Guild id
+            if (query.GuildId != null)
+            {
+                _guildId = query.GuildId;
+            }
+            
+            // Channel id
+            if (query.ChannelId != null)
+            {
+                _channelId = query.ChannelId;
+            }
+
+            //\ Request state
+            bridge!.GetComponent<DissonityBridge>().stateAction += (code) =>
+            {
+                if (!_configuration!.DisableDissonityInfoLogs)
+                {
+                    //? Problem
+                    if (code == BridgeStateCode.Errored || code == BridgeStateCode.OutsideDiscord)
+                    {
+                        Utils.DissonityLogError($"Bridge returned unexpected state code: {code}");
+
+                        return;
+                    }
+
+                    Utils.DissonityLog($"Bridge returned state code: {code}");
+                }
+            };
+
+            //\ Listen for multi event
+            bridge.GetComponent<DissonityBridge>().multiEventAction += (multiEvent) =>
+            {
+                // OverrideConsoleLogging is done in the BridgeLib
+                _ready = true;
+                _userId = multiEvent.AuthenticateData.User.Id;
+                tcs.TrySetResult(multiEvent);
+            };
+
+            // After requesting the state, the RpcBridge will send the multi event (once ready) through <DissonityBridge>.ReceiveMultiEvent
+            RequestState();
+
+            _initialized = true;
+
+            // The handshake is handled by the RpcBridge even before the Unity build loads
         }
-    
-        private static void _GetUserLocale (GetLocaleDelegate del) {
 
-            _GetLocaleEvent += del;
+        private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand<TResponse> where TResponse : DiscordEvent
+        {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Tried to send a command without initialization");
+            }
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestLocale();
-            #endif
+            var tcs = new TaskCompletionSource<TResponse>();
+
+            // Only the handshake command lacks a nonce
+            string commandNonce = (command.Guid == null)
+                ? handshakeStringId
+                : command.Guid.ToString();
+
+
+            if (typeof(TResponse) == typeof(NoResponse))
+            {
+                // Seems hacky, but I don't think there's other way around
+                // if this method is intended to serve the command response.
+                ((TaskCompletionSource<NoResponse>) (object) tcs).TrySetResult(new NoResponse());
+            }
+
+            else
+            {
+                pendingCommands.Add(commandNonce, tcs);
+            }
+
+            SendToBridge<TCommand, TResponse>(command);
+
+            return tcs.Task;
         }
 
-        private static void _SetConfig (bool useInteractivePip, SetConfigDelegate del) {
+        private static void SendToBridge<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand<TResponse> where TResponse : DiscordEvent
+        {
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Tried to send to bridge without initialization");
+            }
 
-            _SetConfigEvent += del;
+            object payload;
 
-            #if UNITY_WEBGL && !UNITY_EDITOR
-                RequestSetConfig(useInteractivePip.ToString());
-            #endif
+            if (command is FrameCommand<TResponse> frameCommand)
+            {
+                payload = new SerializableFrameCommand<TResponse>(frameCommand);
+            }
+            else
+            {
+                payload = command;
+            }
+
+            string stringifiedMessage = JsonConvert.SerializeObject(new object[2] { command.Opcode, payload });
+
+            if (!isEditor)
+            {
+                //\ Send data to bridge
+                Send(stringifiedMessage);
+            }
+        }
+        
+        private static Task<TResponse> MockSendCommand<TResponse>(object? arg = null) where TResponse : DiscordEvent
+        {
+            if (!_mock) throw new InvalidOperationException("This method can only be called in mock mode");
+            if (!_initialized)
+            {
+                throw new InvalidOperationException("Tried to send a command without initialization");
+            }
+
+            var tcs = new TaskCompletionSource<TResponse>();
+            DiscordMock mock = GameObject.FindObjectOfType<DiscordMock>();
+
+
+            if (typeof(TResponse) == typeof(NoResponse))
+            {
+                ((TaskCompletionSource<NoResponse>) (object) tcs).TrySetResult(new NoResponse());
+            }
+
+            else
+            {
+                // EncourageHardwareAccelerationResponse
+                if (typeof(TResponse) == typeof(EncourageHardwareAccelerationResponse))
+                {
+                    var response = new EncourageHardwareAccelerationResponse();
+
+                    response.Data = new() 
+                    {
+                        Enabled = true
+                    };
+
+                    ((TaskCompletionSource<EncourageHardwareAccelerationResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetChannelPermissionsResponse
+                else if (typeof(TResponse) == typeof(GetChannelPermissionsResponse))
+                {
+                    var response = new GetChannelPermissionsResponse();
+
+                    response.Data = new();
+
+                    //? Query channel id is an actual mock channel
+                    string id = ChannelId!;
+                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == id)?.Value;
+
+                    if (mockChannel != null)
+                    {
+                        response.Data.Permissions = mockChannel.ChannelPermissions.Permissions;
+                    }
+
+                    ((TaskCompletionSource<GetChannelPermissionsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetChannelResponse
+                else if (typeof(TResponse) == typeof(GetChannelResponse))
+                {
+                    var response = new GetChannelResponse();
+
+                    response.Data = new();
+
+                    //? Channel id is an actual mock channel
+                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == (string) arg!)?.Value;
+
+                    if (mockChannel != null)
+                    {
+                        response.Data = mockChannel.ChannelData.ToChannelData();
+                    }
+
+                    else if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("You can get mock channel data by calling Api.Commands.GetChannel with a mock channel id");
+
+                    ((TaskCompletionSource<GetChannelResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetInstanceConnectedParticipantsResponse
+                else if (typeof(TResponse) == typeof(GetInstanceConnectedParticipantsResponse))
+                {
+                    var response = new GetInstanceConnectedParticipantsResponse();
+
+                    response.Data = new()
+                    {
+                        Participants = mock.GetParticipants()
+                    };
+
+                    ((TaskCompletionSource<GetInstanceConnectedParticipantsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetPlatformBehaviorsResponse
+                else if (typeof(TResponse) == typeof(GetPlatformBehaviorsResponse))
+                {
+                    var response = new GetPlatformBehaviorsResponse();
+
+                    response.Data = new()
+                    {
+                        IosKeyboardResizesView = true
+                    };
+
+                    ((TaskCompletionSource<GetPlatformBehaviorsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // InitiateImageUploadResponse
+                else if (typeof(TResponse) == typeof(InitiateImageUploadResponse))
+                {
+                    var response = new InitiateImageUploadResponse();
+
+                    response.Data = new()
+                    {
+                        ImageUrl = "https://placehold.co/100x100"
+                    };
+
+                    ((TaskCompletionSource<InitiateImageUploadResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // SetActivityResponse
+                else if (typeof(TResponse) == typeof(SetActivityResponse))
+                {
+                    var response = new SetActivityResponse();
+
+                    response.Data = ((ActivityBuilder) arg!).ToActivity();
+
+                    ((TaskCompletionSource<SetActivityResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // SetConfigResponse
+                else if (typeof(TResponse) == typeof(SetConfigResponse))
+                {
+                    var response = new SetConfigResponse();
+
+                    response.Data = new()
+                    {
+                        UseInteractivePip = true
+                    };
+
+                    ((TaskCompletionSource<SetConfigResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // UserSettingsGetLocaleResponse
+                else if (typeof(TResponse) == typeof(UserSettingsGetLocaleResponse))
+                {
+                    var response = new UserSettingsGetLocaleResponse();
+
+                    response.Data = new()
+                    {
+                        Locale = MockUtils.ToLocaleString(mock.locale)
+                    };
+
+                    ((TaskCompletionSource<UserSettingsGetLocaleResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                else
+                    ((TaskCompletionSource<NoResponse>) (object) tcs).TrySetResult(new NoResponse());
+            }
+
+            return tcs.Task;
+        }
+
+        internal static void EnableMock()
+        {
+            if (_disableMock) return;
+            _mock = true;
         }
     }
 }

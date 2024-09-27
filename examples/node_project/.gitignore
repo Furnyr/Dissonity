@@ -4,5 +4,5 @@ yalc.lock
 build
 _unity_colyseus
 node_modules
-src/client/nested/Build
-src/client/nested/index.html
+src/client/index.html
+src/client/Files
