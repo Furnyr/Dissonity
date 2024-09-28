@@ -126,7 +126,7 @@ var BridgeLibrary = {
                 window.parent.postMessage({
                     command: "SUBSCRIBE",
                     event,
-                    args: { channel_id: "channel_id" }
+                    args: { channel_id: true }
                 });
                 break;
             }
@@ -135,7 +135,7 @@ var BridgeLibrary = {
                 window.parent.postMessage({
                     command: "SUBSCRIBE",
                     event,
-                    args: { channel_id: "channel_id" }
+                    args: { channel_id: true }
                 });
                 break;
             }
@@ -160,7 +160,7 @@ var BridgeLibrary = {
                 window.parent.postMessage({
                     command: "UNSUBSCRIBE",
                     event,
-                    args: { channel_id: "channel_id" }
+                    args: { channel_id: true }
                 });
                 break;
             }
@@ -169,7 +169,7 @@ var BridgeLibrary = {
                 window.parent.postMessage({
                     command: "UNSUBSCRIBE",
                     event,
-                    args: {}
+                    args: { channel_id: true }
                 });
                 break;
             }

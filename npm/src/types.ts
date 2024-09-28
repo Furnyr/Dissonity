@@ -10,7 +10,7 @@ export type ConfigOptions = {
 };
 
 
-//# DISCORD DATA - - - --
+//# DISCORD DATA - - - - -
 export type DiscordSDKEvents = Parameters<DiscordSDK["subscribe"]>[0];
 export type ScopeArgument = Parameters<DiscordSDK["commands"]["authorize"]>[0]["scope"];
 
