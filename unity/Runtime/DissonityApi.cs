@@ -15,6 +15,7 @@ using Dissonity.Models;
 using Dissonity.Models.Builders;
 using Dissonity.Models.Mock;
 using System.Net;
+using System.Linq;
 
 //todo main tasks
 // User instance authentication
@@ -42,6 +43,7 @@ namespace Dissonity
         internal static string? _channelId;
         internal static string? _userId = null;
         internal static string? _frameId;
+        internal static string? _mobileAppVersion = null;
         internal static ISdkConfiguration? _configuration;
         internal static string handshakeStringId = "handshake";
 
@@ -57,6 +59,7 @@ namespace Dissonity
         // Initialization
         private static bool _initialized = false;
         private static bool _ready = false;
+        private static bool _closedState = false; // True when the RpcBridge is in a closed state
         private static bool _mock = false;
         private static bool _disableMock = false;
 
@@ -68,6 +71,11 @@ namespace Dissonity
 
         //# PROPERTIES - - - - -
         //todo update current user and current member if the scopes are available???
+        // HANDSHAKE_SDK_VERSION_MINIUM_MOBILE_VERSION is in the BridgeLib
+        /// <summary>
+        /// Embedded App SDK version that Dissonity is simulating.
+        /// </summary>
+        public const string SdkVersion = "1.5.0";
         public static string ClientId
         {
             get
@@ -149,11 +157,29 @@ namespace Dissonity
                 return _frameId!;
             }
         }
+        public static string? MobileAppVersion
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+
+                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.MobileAppVersion;
+
+                return _frameId!;
+            }
+        }
         public static bool Initialized
         {
             get
             {
                 return _initialized;
+            }
+        }
+        public static bool Ready
+        {
+            get
+            {
+                return _ready;
             }
         }
         public static ISdkConfiguration Configuration
@@ -308,7 +334,7 @@ namespace Dissonity
                     {
                         mockResponse.Data.Enabled = false;
 
-                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Platform is mobile, not possible to encourage hardware acceleration");
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Platform is mobile, not possible to encourage hardware acceleration");
                     }
 
                     return mockResponse.Data;
@@ -340,6 +366,28 @@ namespace Dissonity
                 {
                     var mockResponse = await MockSendCommand<GetChannelResponse>(channelId);
 
+                    if (mockResponse.Data.Type == ChannelType.Dm || mockResponse.Data.Type == ChannelType.GroupDm)
+                    {
+                        //? Invalid scopes
+                        if (!_configuration!.OauthScopes.Contains(OauthScope.Guilds) || !_configuration!.OauthScopes.Contains(OauthScope.DmChannelsRead))
+                        {
+                            if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Channel is DM and oauth scopes don't include 'guilds' and 'dm_channels.read'. Can't get the channel");
+                        
+                            throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                        }
+                    }
+
+                    else
+                    {
+                        //? Invalid scopes
+                        if (!_configuration!.OauthScopes.Contains(OauthScope.Guilds))
+                        {
+                            if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'guilds'. Can't get the channel");
+
+                            throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                        }
+                    }
+
                     return mockResponse.Data;
                 }
 
@@ -366,6 +414,14 @@ namespace Dissonity
 
                 if (_mock)
                 {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.GuildMembersRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'guilds.members.read'. Can't get channel permissions");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+
                     var mockResponse = await MockSendCommand<GetChannelPermissionsResponse>();
 
                     return mockResponse.Data;
@@ -490,7 +546,7 @@ namespace Dissonity
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
                     if (Platform == Models.Platform.Desktop) Utils.DissonityLog($"Share moment dialog with ({mediaUrl}) sent");
-                    else Utils.DissonityLog("Platform is mobile, not possible to open a share moment dialog");
+                    else Utils.DissonityLogWarning("Platform is mobile, not possible to open a share moment dialog");
                     
                     return;
                 }
@@ -516,6 +572,16 @@ namespace Dissonity
                 
                 if (_mock)
                 {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RpcActivitiesWrite))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'rpc.activities.write'. Can't set the activity");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+
+                    if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Set activity sent");
+
                     var mockResponse = await MockSendCommand<SetActivityResponse>(activity);
 
                     return mockResponse.Data;
@@ -550,7 +616,7 @@ namespace Dissonity
                     {
                         mockResponse.Data.UseInteractivePip = true;
 
-                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLog("Platform is mobile, not possible to set PIP");
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Platform is mobile, not possible to set PIP");
                     }
 
                     return mockResponse.Data;
@@ -580,7 +646,7 @@ namespace Dissonity
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
                     if (Platform == Models.Platform.Mobile) Utils.DissonityLog($"Set orientation lock state to ({lockState})");
-                    else Utils.DissonityLog("Platform is desktop, not possible to set orientation lock state");
+                    else Utils.DissonityLogWarning("Platform is desktop, not possible to set orientation lock state");
                     
                     return;
                 }
@@ -606,6 +672,14 @@ namespace Dissonity
 
                 if (_mock)
                 {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'identify'. Can't get user locale");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+
                     var mockResponse = await MockSendCommand<UserSettingsGetLocaleResponse>();
 
                     return mockResponse.Data;
@@ -1194,11 +1268,13 @@ namespace Dissonity
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="OutsideDiscordException"></exception>
+        /// <exception cref="AuthorizationException"></exception>
         /// <exception cref="JsonException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public static Task<MultiEvent> Initialize()
         {
-            if (_initialized) throw new InvalidOperationException("Already initialized");
+            if (_initialized) throw new InvalidOperationException("Already attempted to initialize");
+            _initialized = true;
 
             _configuration = DissonityConfigAttribute.GetUserConfig();
             _clientId = _configuration.ClientId;
@@ -1225,7 +1301,6 @@ namespace Dissonity
                         throw new InvalidOperationException("Mock mode is enabled but there's no DiscordMock object. Make sure to create one to access mock data.");
                     }
 
-                    _initialized = true;
                     _ready = true;
 
                     return Task.FromResult(new MockMultiEvent().ToMultiEvent());
@@ -1366,7 +1441,7 @@ namespace Dissonity
         /// <exception cref="InvalidOperationException"></exception>
         public static void Close(RpcCloseCode code, string message = "")
         {
-            if (!_ready) throw new InvalidOperationException("Tried to close the app without initialization");
+            if (!_ready && !_closedState) throw new InvalidOperationException("Tried to close the app without initialization");
 
             if (!_mock)
             {
@@ -1445,6 +1520,12 @@ namespace Dissonity
                 _channelId = query.ChannelId;
             }
 
+            // Mobile app version
+            if (query.MobileAppVersion != null)
+            {
+                _mobileAppVersion = query.MobileAppVersion;
+            }
+
             //\ Request state
             bridge!.GetComponent<DissonityBridge>().stateAction += (code) =>
             {
@@ -1454,11 +1535,16 @@ namespace Dissonity
                     if (code == BridgeStateCode.Errored || code == BridgeStateCode.OutsideDiscord)
                     {
                         Utils.DissonityLogError($"Bridge returned unexpected state code: {code}");
-
-                        return;
                     }
 
-                    Utils.DissonityLog($"Bridge returned state code: {code}");
+                    else Utils.DissonityLog($"Bridge returned state code: {code}");
+                }
+
+                //? If the RpcBridge is closed, user denied authorization
+                if (code == BridgeStateCode.Closed)
+                {
+                    _closedState = true;
+                    tcs.TrySetException(new AuthorizationException());
                 }
             };
 
@@ -1473,8 +1559,6 @@ namespace Dissonity
 
             // After requesting the state, the RpcBridge will send the multi event (once ready) through <DissonityBridge>.ReceiveMultiEvent
             RequestState();
-
-            _initialized = true;
 
             // The handshake is handled by the RpcBridge even before the Unity build loads
         }

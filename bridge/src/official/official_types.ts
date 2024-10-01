@@ -10,6 +10,7 @@ corresponding contributors at https://github.com/discord/embedded-app-sdk
 */
 
 // [Patch url mappings functionality] commit source: https://github.com/discord/embedded-app-sdk/pull/252/commits/02b54b71250e2f970709d798fdb132cad3d8d758
+// [Handshake payload] pull request source: https://github.com/discord/embedded-app-sdk/pull/262/
 
 export interface Mapping {
     prefix: string;
@@ -33,4 +34,12 @@ export interface MatchAndRewriteURLInputs {
     prefixHost: string;
     prefix: string;
     target: string;
+}
+
+export interface HandshakePayload {
+    v: number;
+    encoding: string;
+    client_id: string;
+    frame_id: string;
+    sdk_version?: string;
 }

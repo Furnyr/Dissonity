@@ -1,8 +1,10 @@
 const HANDSHAKE_VERSION = 1;
 const HANDSHAKE_ENCODING = "json";
+const HANDSHAKE_SDK_VERSION_MINIUM_MOBILE_VERSION = 250;
+const UNKNOWN_VERSION_NUMBER = -1;
+let HANDSHAKE_SDK_VERSION = "[[[ SDK_VERSION ]]]§";
 const RESPONSE_TYPE = "code";
 const PROMPT = "none";
-const ERROR = "ERROR";
 const OPCODES = {
     Handshake: 0,
     Frame: 1,
@@ -23,8 +25,17 @@ const ALLOWED_ORIGINS = new Set([
     "null",
 ]);
 const COMMANDS = {
+    Dispatch: "DISPATCH",
     Authorize: "AUTHORIZE",
     Authenticate: "AUTHENTICATE"
+};
+const EVENTS = {
+    Error: "ERROR",
+    Ready: "READY"
+};
+const PLATFORMS = {
+    Desktop: "desktop",
+    Mobile: "mobile"
 };
 const STATE_CODES = {
     OutsideDiscord: -1,
@@ -39,6 +50,7 @@ let childIframe = undefined;
 let disableInfoLogs = "[[[ DISABLE_INFO_LOGS ]]]§";
 let unityReady = false;
 let clientId = "";
+let mobileAppVersion = "";
 let readyData = "";
 let authorizeData = "";
 let serverPayloadData = "";
@@ -63,23 +75,30 @@ function SendToIframeBridge(message) {
     send();
 }
 function Handshake() {
-    disableInfoLogs = ParseUserVariable(disableInfoLogs, "boolean");
-    AddListeners(BridgeReadyListener, IframeBridgeListener, NonFrameOpcode);
+    disableInfoLogs = ParseBuildVariable(disableInfoLogs, "boolean");
+    AddListeners(InitialBridgeListener, IframeBridgeListener, NonFrameOpcode);
     const query = RequestQuery();
     if (!query || !query.frame_id) {
         currentState = STATE_CODES.OutsideDiscord;
         return;
     }
     const clientIdVariable = "[[[ CLIENT_ID ]]]§";
-    clientId = ParseUserVariable(clientIdVariable);
+    clientId = ParseBuildVariable(clientIdVariable);
+    HANDSHAKE_SDK_VERSION = ParseBuildVariable(HANDSHAKE_SDK_VERSION);
+    mobileAppVersion = query.mobile_app_version ?? null;
+    const majorMobileVersion = ParseMajorMobileVersion();
+    const handshakePayload = {
+        v: HANDSHAKE_VERSION,
+        encoding: HANDSHAKE_ENCODING,
+        client_id: clientId,
+        frame_id: query.frame_id
+    };
+    if (query.platform === PLATFORMS.Desktop || majorMobileVersion >= HANDSHAKE_SDK_VERSION_MINIUM_MOBILE_VERSION) {
+        handshakePayload["sdk_version"] = HANDSHAKE_SDK_VERSION;
+    }
     InternalSend([
         OPCODES.Handshake,
-        {
-            v: HANDSHAKE_VERSION,
-            encoding: HANDSHAKE_ENCODING,
-            client_id: clientId,
-            frame_id: query.frame_id
-        }
+        handshakePayload
     ]);
 }
 function IframeBridgeListener(message) {
@@ -88,27 +107,6 @@ function IframeBridgeListener(message) {
     if (!message.data.iframeBridge)
         return;
     const { command, payload } = message.data;
-    if (currentState != STATE_CODES.Ready) {
-        switch (command) {
-            case "RequestQuery": {
-                const query = RequestQuery();
-                SendToIframeBridge({ method: "ReceiveQuery", payload: JSON.stringify(query) });
-                break;
-            }
-            case "RequestState": {
-                RequestState();
-                break;
-            }
-            case "RequestPatchUrlMappings": {
-                RequestPatchUrlMappings(payload);
-                break;
-            }
-            default: {
-                throw new Error("[Dissonity BridgeLib]: Invalid command while the RPC connection isn't established");
-            }
-        }
-        return;
-    }
     switch (command) {
         case "Send": {
             Send(payload);
@@ -146,7 +144,6 @@ function NonFrameOpcode(message) {
             break;
         }
         case OPCODES.Close: {
-            currentState = STATE_CODES.Closed;
             StopListening();
             if (unityReady) {
                 SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
@@ -157,7 +154,7 @@ function NonFrameOpcode(message) {
             break;
     }
 }
-function BridgeReadyListener(message) {
+async function InitialBridgeListener(message) {
     if (!ALLOWED_ORIGINS.has(message.origin))
         return;
     if (message.data.iframeBridge)
@@ -165,153 +162,117 @@ function BridgeReadyListener(message) {
     const opcode = message.data?.[0];
     if (opcode != OPCODES.Frame)
         return;
-    RemoveListeners(BridgeReadyListener);
-    const payload = message.data?.[1]?.data;
-    if (!payload || !payload.v) {
-        currentState = STATE_CODES.Errored;
-        if (payload.evt == ERROR) {
+    const payload = message.data?.[1];
+    const data = payload?.data;
+    const event = payload?.evt;
+    const command = payload?.cmd;
+    switch (command) {
+        case COMMANDS.Dispatch: {
+            if (event != EVENTS.Ready)
+                break;
+            const data = SerializePayload(message.data);
+            readyData = data;
+            if (!disableInfoLogs)
+                console.log("[Dissoniy BridgeLib]: Connected to RPC!");
+            const disableLogOverrideVariable = "[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]§";
+            const disableLogOverride = ParseBuildVariable(disableLogOverrideVariable, "boolean");
+            if (disableLogOverride == null) {
+                currentState = STATE_CODES.Errored;
+                throw new Error(`[Dissonity BridgeLib]: DISABLE_CONSOLE_LOG_OVERRIDE has an invalid value (${disableLogOverride}). Accepted values are (1/True) and (0/False)`);
+            }
+            if (!disableLogOverride) {
+                OverrideConsoleLogging();
+            }
+            const oauthScopesVariable = "[[[ OAUTH_SCOPES ]]]§";
+            const oauthScopes = ParseBuildVariable(oauthScopesVariable, "string[]");
+            InternalSend([
+                OPCODES.Frame,
+                {
+                    cmd: COMMANDS.Authorize,
+                    nonce: GetNonce(),
+                    args: {
+                        client_id: clientId,
+                        scope: oauthScopes,
+                        response_type: RESPONSE_TYPE,
+                        prompt: PROMPT,
+                        state: ""
+                    }
+                }
+            ]);
+            break;
+        }
+        case COMMANDS.Authorize: {
+            if (event == EVENTS.Error) {
+                currentState = STATE_CODES.Closed;
+                RemoveListeners(InitialBridgeListener);
+                break;
+            }
+            const serializedData = SerializePayload(message.data);
+            authorizeData = serializedData;
+            if (!disableInfoLogs)
+                console.log("[Dissoniy BridgeLib]: Authorized!");
+            const mappingsVariable = "[[[ MAPPINGS ]]]§";
+            const patchUrlMappingsConfigVariable = "[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§";
+            const mappingsMap = ParseBuildVariable(mappingsVariable, "map");
+            const patchUrlMappingsConfigMap = ParseBuildVariable(patchUrlMappingsConfigVariable, "map");
+            const mappings = MapToMappingArray(mappingsMap);
+            const patchUrlMappingsConfig = MapToConfig(patchUrlMappingsConfigMap);
+            if (mappings.length > 0) {
+                if (!disableInfoLogs)
+                    console.log(`[Dissoniy BridgeLib]: Patching (${mappings.length}) url mappings...`);
+                patchUrlMappings(mappings, patchUrlMappingsConfig);
+            }
+            const tokenRequestPathVariable = "[[[ TOKEN_REQUEST_PATH ]]]§";
+            const tokenRequestPath = ParseBuildVariable(tokenRequestPathVariable, "string");
+            const serverRequestVariable = '[[[ SERVER_REQUEST ]]]§';
+            const serverRequest = ParseBuildVariable(serverRequestVariable);
+            let body = {
+                code: data.code
+            };
+            if (serverRequest != null) {
+                delete serverRequest.code;
+                body = {
+                    code: data.code,
+                    ...serverRequest
+                };
+            }
+            const response = await fetch(`/.proxy${tokenRequestPath}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
+            const json = await response.json();
+            if (!json.token) {
+                throw new Error("[Dissonity]: The server JSON response didn't include a 'token' field");
+            }
+            serverPayloadData = JSON.stringify(json);
+            InternalSend([
+                OPCODES.Frame,
+                {
+                    cmd: COMMANDS.Authenticate,
+                    nonce: GetNonce(),
+                    args: {
+                        access_token: json.token
+                    }
+                }
+            ]);
+            break;
+        }
+        case COMMANDS.Authenticate: {
+            RemoveListeners(InitialBridgeListener);
+            const data = SerializePayload(message.data);
+            authenticateData = data;
+            currentState = STATE_CODES.Ready;
+            if (!disableInfoLogs)
+                console.log("[Dissoniy BridgeLib]: Authenticated!");
             if (unityReady) {
-                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
-                return;
+                AddListeners(Bridge);
+                DispatchMultiEvent();
             }
-            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
+            break;
         }
-        throw new Error("[Dissonity BridgeLib]: Invalid message received");
-    }
-    const data = SerializePayload(message.data);
-    readyData = data;
-    if (!disableInfoLogs)
-        console.log("[Dissoniy BridgeLib]: Connected to the RPC!");
-    const disableLogOverrideVariable = "[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]§";
-    const disableLogOverride = ParseUserVariable(disableLogOverrideVariable, "boolean");
-    if (disableLogOverride == null) {
-        currentState = STATE_CODES.Errored;
-        throw new Error(`[Dissonity BridgeLib]: DISABLE_CONSOLE_LOG_OVERRIDE has an invalid value (${disableLogOverride}). Accepted values are (1/True) and (0/False)`);
-    }
-    if (!disableLogOverride) {
-        OverrideConsoleLogging();
-    }
-    const oauthScopesVariable = "[[[ OAUTH_SCOPES ]]]§";
-    const oauthScopes = ParseUserVariable(oauthScopesVariable, "string[]");
-    AddListeners(BridgeAuthorizeListener);
-    InternalSend([
-        OPCODES.Frame,
-        {
-            cmd: COMMANDS.Authorize,
-            nonce: GetNonce(),
-            args: {
-                client_id: clientId,
-                scope: oauthScopes,
-                response_type: RESPONSE_TYPE,
-                prompt: PROMPT,
-                state: ""
-            }
-        }
-    ]);
-}
-async function BridgeAuthorizeListener(message) {
-    if (!ALLOWED_ORIGINS.has(message.origin))
-        return;
-    if (message.data.iframeBridge)
-        return;
-    const opcode = message.data?.[0];
-    if (opcode != OPCODES.Frame)
-        return;
-    RemoveListeners(BridgeAuthorizeListener);
-    const payload = message.data?.[1]?.data;
-    if (!payload || !payload.code) {
-        currentState = STATE_CODES.Errored;
-        if (payload.evt == ERROR) {
-            if (unityReady) {
-                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
-                return;
-            }
-            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
-        }
-        throw new Error("[Dissonity BridgeLib]: Invalid message received");
-    }
-    const data = SerializePayload(message.data);
-    authorizeData = data;
-    if (!disableInfoLogs)
-        console.log("[Dissoniy BridgeLib]: Authorized!");
-    const mappingsVariable = "[[[ MAPPINGS ]]]§";
-    const patchUrlMappingsConfigVariable = "[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§";
-    const mappingsMap = ParseUserVariable(mappingsVariable, "map");
-    const patchUrlMappingsConfigMap = ParseUserVariable(patchUrlMappingsConfigVariable, "map");
-    const mappings = MapToMappingArray(mappingsMap);
-    const patchUrlMappingsConfig = MapToConfig(patchUrlMappingsConfigMap);
-    if (mappings.length > 0) {
-        if (!disableInfoLogs)
-            console.log(`[Dissoniy BridgeLib]: Patching (${mappings.length}) url mappings...`);
-        patchUrlMappings(mappings, patchUrlMappingsConfig);
-    }
-    const tokenRequestPathVariable = "[[[ TOKEN_REQUEST_PATH ]]]§";
-    const tokenRequestPath = ParseUserVariable(tokenRequestPathVariable, "string");
-    const serverRequestVariable = '[[[ SERVER_REQUEST ]]]§';
-    const serverRequest = ParseUserVariable(serverRequestVariable);
-    let body = {
-        code: payload.code
-    };
-    if (serverRequest != null) {
-        delete serverRequest.code;
-        body = {
-            code: payload.code,
-            ...serverRequest
-        };
-    }
-    const response = await fetch(`/.proxy${tokenRequestPath}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-    });
-    const json = await response.json();
-    if (!json.token) {
-        throw new Error("[Dissonity]: The server JSON response didn't include a 'token' field");
-    }
-    serverPayloadData = JSON.stringify(json);
-    AddListeners(BridgeAuthenticateListener);
-    InternalSend([
-        OPCODES.Frame,
-        {
-            cmd: COMMANDS.Authenticate,
-            nonce: GetNonce(),
-            args: {
-                access_token: json.token
-            }
-        }
-    ]);
-}
-function BridgeAuthenticateListener(message) {
-    if (!ALLOWED_ORIGINS.has(message.origin))
-        return;
-    if (message.data.iframeBridge)
-        return;
-    const opcode = message.data?.[0];
-    if (opcode != OPCODES.Frame)
-        return;
-    RemoveListeners(BridgeAuthenticateListener);
-    const payload = message.data?.[1]?.data;
-    if (!payload || !payload.access_token) {
-        currentState = STATE_CODES.Errored;
-        if (payload.evt == ERROR) {
-            if (unityReady) {
-                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
-                return;
-            }
-            throw new Error(`[Dissonity BridgeLib]: Error received with code ${payload.data.code}: ${payload.data.message}`);
-        }
-        throw new Error("[Dissonity BridgeLib]: Invalid message received");
-    }
-    const data = SerializePayload(message.data);
-    authenticateData = data;
-    currentState = STATE_CODES.Ready;
-    if (!disableInfoLogs)
-        console.log("[Dissoniy BridgeLib]: Authenticated!");
-    if (unityReady) {
-        AddListeners(Bridge);
-        DispatchMultiEvent();
     }
 }
 function Bridge(message) {
@@ -334,7 +295,7 @@ function RemoveListeners(...args) {
         listeners.splice(listeners.indexOf(listener), 1);
     }
 }
-function ParseUserVariable(variable, type = "string") {
+function ParseBuildVariable(variable, type = "string") {
     const raw = variable.split("]]] ")[1].slice(0, -1);
     if (type == "string")
         return raw;
@@ -466,6 +427,17 @@ function ClearData() {
     serverPayloadData = "";
     authenticateData = "";
 }
+function ParseMajorMobileVersion() {
+    if (mobileAppVersion && mobileAppVersion.includes(".")) {
+        try {
+            return parseInt(mobileAppVersion.split(".")[0]);
+        }
+        catch {
+            return UNKNOWN_VERSION_NUMBER;
+        }
+    }
+    return UNKNOWN_VERSION_NUMBER;
+}
 function Send(stringifiedMessage) {
     const message = JSON.parse(stringifiedMessage);
     const source = window.parent.opener ?? window.parent;
@@ -473,6 +445,7 @@ function Send(stringifiedMessage) {
     source.postMessage(message, sourceOrigin);
 }
 function StopListening() {
+    currentState = STATE_CODES.Closed;
     for (const listener of listeners) {
         window.removeEventListener("message", listener);
     }

@@ -8,6 +8,9 @@
     "execute": "node build/server/index.js",
     "start": "npm run build && npm run execute"
   },
+  "engines": {
+    "node": "20.11"
+  },
   "license": "MIT",
   "dependencies": {
     "@colyseus/schema": "^2.0.30",

@@ -226,6 +226,7 @@ namespace Dissonity
             string nonce = responseEvent.Nonce!;
 
             //\ Get task completion source
+            if (!Api.pendingCommands.ContainsKey(nonce)) return;
             var commandTask = Api.pendingCommands[nonce];
 
             // At this point we already have access to the command task and command response.

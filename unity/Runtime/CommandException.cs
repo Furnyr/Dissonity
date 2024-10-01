@@ -4,7 +4,7 @@ using System;
 namespace Dissonity
 {
     /// <summary>
-    /// This exception is thrown by the Api.Commands methods when the Discord client sends an error response for a command. <br/> <br/>
+    /// This exception is thrown by the <c> Api.Commands </c> methods when the Discord client sends an error response for a command. <br/> <br/>
     /// 
     /// You can access the <c> Message </c> and <c> Code </c> fields for more information.
     /// </summary>

@@ -4,7 +4,7 @@ using System;
 namespace Dissonity
 {
     /// <summary>
-    /// This exception is thrown by the Api.Initialize method when the "frame_id"
+    /// This exception is thrown by the <c> Api.Initialize </c> method when the "frame_id"
     /// query parameter is not defined. <br/> <br/>
     /// 
     /// You may use it to detect whether the app is running inside Discord or

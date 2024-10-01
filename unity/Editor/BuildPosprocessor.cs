@@ -64,6 +64,13 @@ namespace Dissonity.Editor
                 string substring = fileContent.Substring(index, endIndex - index);
                 fileContent = fileContent.Replace(substring, $"[[[ CLIENT_ID ]]] {data.ClientId}");
 
+                // Sdk version
+                index = fileContent.IndexOf("[[[ SDK_VERSION ]]]");
+                CheckIndex(index);
+                endIndex = fileContent.IndexOf(VariableSeparator, index);
+                substring = fileContent.Substring(index, endIndex - index);
+                fileContent = fileContent.Replace(substring, $"[[[ SDK_VERSION ]]] {Api.SdkVersion}");
+
                 // Disable console log override
                 index = fileContent.IndexOf("[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]");
                 CheckIndex(index);

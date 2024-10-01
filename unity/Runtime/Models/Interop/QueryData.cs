@@ -23,5 +23,8 @@ namespace Dissonity.Models.Interop
 
         [JsonProperty("platform")]
         public string? Platform { get; set; }
+
+        [JsonProperty("mobile_app_version")]
+        public string? MobileAppVersion { get; set; }
     }
 }

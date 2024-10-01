@@ -16,5 +16,7 @@ namespace Dissonity.Models.Mock
         new public string FrameId = "8c98765-ab11-22dd-a7c0-00fd1f12345";
 
         new public MockPlatform Platform = MockPlatform.Desktop;
+
+        new public string MobileAppVersion = "250.0";
     }
 }
