@@ -6,7 +6,7 @@ import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, 
 
 // The package version is 1.2.x, but this minor change
 // only affects the NPM side and it's completely compatible with Dissonity Unity 1.1.x
-const PACKAGE_VERSION = "1.1.3";
+const PACKAGE_VERSION = "1.1.5";
 
 
 //* Stringifies JSON with BigInts
@@ -127,7 +127,7 @@ export async function setupSdk(options: ConfigOptions) {
                 }
 
                 //? Use channel id
-                if (args.channelId) args = discordSdk!.channelId;
+                if (args.channel_id) args = { channel_id: discordSdk!.channelId };
 
                 try {
                     discordSdk!.subscribe(event as DiscordSDKEvents, handleSubscribeEvent, args as any);
@@ -144,7 +144,7 @@ export async function setupSdk(options: ConfigOptions) {
                 }
 
                 //? Use channel id
-                if (args.channelId) args = discordSdk!.channelId;
+                if (args.channel_id) args = { channel_id: discordSdk!.channelId };
 
                 discordSdk!.unsubscribe(event as DiscordSDKEvents, handleSubscribeEvent);
                 break;
