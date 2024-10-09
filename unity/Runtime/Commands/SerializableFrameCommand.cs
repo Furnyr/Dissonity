@@ -1,11 +1,10 @@
 using System;
-using Dissonity.Events;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class SerializableFrameCommand<TResponse> where TResponse : DiscordEvent
+    internal class SerializableFrameCommand
     {   
         [JsonProperty("cmd")]
         public string Command { get; }
@@ -16,7 +15,7 @@ namespace Dissonity.Commands
         [JsonProperty("args")]
         public object Payload { get; }
 
-        public SerializableFrameCommand(FrameCommand<TResponse> frameCommand)
+        public SerializableFrameCommand(FrameCommand frameCommand)
         {
             Command = frameCommand.Command;
             Nonce = (Guid) frameCommand.Guid;

@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 
 namespace Dissonity.Models.Builders
 {
-    //todo the typings in the official sdk are quite confusing, this should be tested
     /// <summary>
     /// More information about rich presence: https://discord.com/developers/docs/rich-presence/using-with-the-embedded-app-sdk#custom-rich-presence-data
     /// </summary>

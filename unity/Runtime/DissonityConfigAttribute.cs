@@ -45,7 +45,7 @@ namespace Dissonity
             string tokenRequestPath = ((ISdkConfiguration) instance).TokenRequestPath;
             Type requestType = ((ISdkConfiguration) instance).GetRequestType();
             Type responseType = ((ISdkConfiguration) instance).GetResponseType();
-            bool DisableDissonityInfoLogs = ((ISdkConfiguration) instance).DisableDissonityInfoLogs;
+            bool disableDissonityInfoLogs = ((ISdkConfiguration) instance).DisableDissonityInfoLogs;
             MappingBuilder[] mappings = ((ISdkConfiguration) instance).Mappings;
             PatchUrlMappingsConfigBuilder patchConfig = ((ISdkConfiguration) instance).PatchUrlMappingsConfig;
 
@@ -61,9 +61,9 @@ namespace Dissonity
                 TokenRequestPath = tokenRequestPath,
                 ServerTokenRequest = requestType,
                 ServerTokenResponse = responseType,
-                DisableDissonityInfoLogs = DisableDissonityInfoLogs,
+                DisableDissonityInfoLogs = disableDissonityInfoLogs,
                 Mappings = mappings,
-                PatchUrlMappingsConfig = patchConfig
+                PatchUrlMappingsConfig = patchConfig,
             };
 
             return data;

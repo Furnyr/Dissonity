@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class Close : DiscordCommand<NoResponse>
+    internal class Close : DiscordCommand
     {
         internal override Opcode Opcode => Opcode.Close;
 

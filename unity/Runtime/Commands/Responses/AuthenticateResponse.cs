@@ -22,7 +22,7 @@ namespace Dissonity.Commands.Responses
         public AuthenticatedUser User { get; set; }
 
         [JsonProperty("scopes")]
-        public string[] Scopes { get; set; }
+        public string[] Scopes { get; set; } = new string[0];
 
         [JsonProperty("expires")]
         public string Expires { get; set; }

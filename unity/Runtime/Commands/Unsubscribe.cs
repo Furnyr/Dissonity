@@ -1,12 +1,11 @@
 using System;
-using Dissonity.Commands.Responses;
 using Dissonity.Models.Interop;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class Unsubscribe : DiscordCommand<SubscribeResponse>
+    internal class Unsubscribe : DiscordCommand
     {
         #nullable enable annotations
 

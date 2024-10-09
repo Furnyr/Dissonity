@@ -3,10 +3,11 @@ using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
-    //todo Not released yet. Some models related to this functionality may not be implemented.
     [Serializable]
-    internal class Entitlement
+    public class Entitlement
     {
+        #nullable enable annotations
+        
         [JsonProperty("application_id")]
         public string ApplicationId { get; set; }
 
@@ -25,8 +26,8 @@ namespace Dissonity.Models
         [JsonProperty("user_id")]
         public string UserId { get; set; }
 
-        [JsonProperty("branches", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Branches { get; set; }
+        [JsonProperty("branches")]
+        public string[] Branches { get; set; } = new string[0];
  
         [JsonProperty("consumed")]
         public bool? Consumed { get; set; }
@@ -34,19 +35,25 @@ namespace Dissonity.Models
         [JsonProperty("deleted")]
         public bool? Deleted { get; set; }
 
+        /// <summary>
+        /// ISO string
+        /// </summary>
         [JsonProperty("ends_at")]
-        public string EndsAtString { get; set; }
+        public string EndsAt { get; set; }
 
         [JsonProperty("gift_code_batch_id")]
-        public string GiftCodeBatchId { get; set; }
+        public string? GiftCodeBatchId { get; set; }
 
         [JsonProperty("gifter_user_id")]
-        public string GifterUserId { get; set; }
+        public string? GifterUserId { get; set; }
 
         [JsonProperty("parent_id")]
-        public string ParentId { get; set; }
+        public string? ParentId { get; set; }
 
+        /// <summary>
+        /// ISO string
+        /// </summary>
         [JsonProperty("starts_at")]
-        public string StartsAtString { get; set; }
+        public string StartsAt { get; set; }
     }
 }

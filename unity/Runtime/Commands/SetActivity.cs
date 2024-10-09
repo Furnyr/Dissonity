@@ -1,12 +1,11 @@
 using System;
-using Dissonity.Commands.Responses;
 using Dissonity.Models.Builders;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class SetActivity : FrameCommand<SetActivityResponse>
+    internal class SetActivity : FrameCommand
     {
         internal override string Command => DiscordCommandType.SetActivity;
 

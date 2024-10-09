@@ -10,6 +10,8 @@ using Dissonity.Commands;
 using Dissonity.Commands.Responses;
 using Dissonity.Models;
 using System.Linq;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace Dissonity
 {
@@ -21,44 +23,139 @@ namespace Dissonity
     {
         #nullable enable
 
-        internal Action<string>? queryAction = null;
-        internal Action<BridgeStateCode>? stateAction = null;
-        internal Action<MultiEvent>? multiEventAction = null;
-        internal Action? patchUrlMappingsAction = null;
+        internal Dictionary<string, object> pendingTasks = new(); // TaskCompletionSource<>
+
+        [Obsolete] internal Action<string>? queryAction = null;
+        [Obsolete] internal Action<BridgeStateCode>? stateAction = null;
+        [Obsolete] internal Action<MultiEvent>? multiEventAction = null;
+        [Obsolete] internal Action? patchUrlMappingsAction = null;
+        [Obsolete] internal Action<string>? formatPriceAction = null;
 
         private const string Dispatch = "DISPATCH";
+        private const string Multi = "MULTI";
 
-        //# RECEIVE - - - - -
-        public void ReceiveState(string stringifiedMessage)
+        //# JAVASCRIPT - - - - -
+#if UNITY_WEBGL
+        [DllImport("__Internal")]
+        private static extern void RequestState(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void RequestQuery(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void RequestPatchUrlMappings(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void RequestFormatPrice(string stringifiedMessage);
+#endif
+
+#if !UNITY_WEBGL
+        private static void RequestState(string _) {}
+        private static void RequestQuery(string _) {}
+        private static void RequestPatchUrlMappings(string _) {}
+        private static void RequestFormatPrice(string _) {}
+#endif
+
+
+        //# INTERACTIONS - - - - -
+        // Bridge interactions occur between C# and JS, but they don't get to the client RPC protocol.
+        // They are useful to get data to the API level or execute actions,
+        // but any interaction can and will alter the RpcBridge state.
+        internal Task<BridgeStateCode> ExeState()
         {
-            if (stateAction == null) return;
+            string nonce = Guid.NewGuid().ToString();            
+            var tcs = new TaskCompletionSource<BridgeStateCode>();
+            pendingTasks.Add(nonce, tcs);
 
-            var message = JsonConvert.DeserializeObject<BridgeStateMessage>(stringifiedMessage);
+            BridgeMessage<object?> data = new()
+            {
+                Nonce = nonce,
+                Payload = null
+            };
 
-            if (message == null) return;
+            RequestState(JsonConvert.SerializeObject(data));
 
-            stateAction(message.Code);
-
-            stateAction = null;
+            return tcs.Task;
         }
 
-        public void ReceiveQuery(string query)
+        internal Task<string> ExeQuery()
         {
-            if (queryAction == null) return;
+            string nonce = Guid.NewGuid().ToString();            
+            var tcs = new TaskCompletionSource<string>();
+            pendingTasks.Add(nonce, tcs);
 
-            queryAction(query);
+            BridgeMessage<object?> data = new()
+            {
+                Nonce = nonce,
+                Payload = null
+            };
 
-            queryAction = null;
+            RequestQuery(JsonConvert.SerializeObject(data));
+
+            return tcs.Task;
         }
 
-        // Sent by BridgeLib once the authentication process is done
-        public void ReceiveMultiEvent(string stringifiedMessage)
+        internal Task ExePatchUrlMappings(PatchUrlMappings payload)
         {
-            if (multiEventAction == null) return;
+            string nonce = Guid.NewGuid().ToString();            
+            var tcs = new TaskCompletionSource<object?>();
+            pendingTasks.Add(nonce, tcs);
 
-            var payload = JsonConvert.DeserializeObject<RawMultiEvent>(stringifiedMessage);
+            BridgeMessage<BridgeStringPayload> data = new()
+            {
+                Nonce = nonce,
+                Payload = new()
+                {
+                    Str = JsonConvert.SerializeObject(payload)
+                }
+            };
 
-            if (payload == null) return;
+            RequestPatchUrlMappings(JsonConvert.SerializeObject(data));
+
+            return tcs.Task;
+        }
+
+        internal Task<string> ExeFormatPrice(FormatPrice payload)
+        {
+            string nonce = Guid.NewGuid().ToString();            
+            var tcs = new TaskCompletionSource<string>();
+            pendingTasks.Add(nonce, tcs);
+
+            BridgeMessage<BridgeStringPayload> data = new()
+            {
+                Nonce = nonce,
+                Payload = new()
+                {
+                    Str = JsonConvert.SerializeObject(payload)
+                }
+            };
+
+            RequestFormatPrice(JsonConvert.SerializeObject(data));
+
+            return tcs.Task;
+        }
+
+        internal Task<MultiEvent> ExeMultiEvent()
+        {
+            var tcs = new TaskCompletionSource<MultiEvent>();
+            pendingTasks.Add(Multi, tcs); // Only one listener per multi event
+
+            return tcs.Task;
+        }
+
+        //# RECEIVE (INTERACTIONS) - - - - -
+        /// <summary>
+        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// </summary>
+        public void _ReceiveMultiEvent(string stringifiedMessage)
+        {
+            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeMultiPayload>>(stringifiedMessage);
+
+            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message (multi)");
+
+            var payload = message.Payload.RawMultiEvent;
+
+            if (payload == null) throw new JsonException("Something went wrong trying to deserialize the bridge message (multi)");
 
             //\ Get user data
             var userConfig = DissonityConfigAttribute.GetUserConfig();
@@ -91,23 +188,79 @@ namespace Dissonity
                 ServerResponse = serverPayload
             };
 
-            multiEventAction(multiEvent);
+            //? No task
+            if (!pendingTasks.ContainsKey(Multi)) return;
 
-            multiEventAction = null;
+            var tcs = (TaskCompletionSource<MultiEvent>) pendingTasks[Multi];
+            tcs.TrySetResult(multiEvent);
+            pendingTasks.Remove(Multi);
         }
 
-        public void ReceivePatchUrlMappings(string _)
+
+        /// <summary>
+        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// </summary>
+        public void _ReceiveState(string stringifiedMessage)
         {
-            if (patchUrlMappingsAction == null) return;
+            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeStatePayload>>(stringifiedMessage);
 
-            patchUrlMappingsAction();
+            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
 
-            patchUrlMappingsAction = null;
+            //? No task
+            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
+
+            var tcs = (TaskCompletionSource<BridgeStateCode>) pendingTasks[message.Nonce!];
+            tcs.TrySetResult(message.Payload.Code);
+
+            pendingTasks.Remove(message.Nonce!);
+        }
+
+
+        // PatchUrlMappings
+        /// <summary>
+        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// </summary>
+        public void _ReceiveEmpty(string stringifiedMessage)
+        {
+            var message = JsonConvert.DeserializeObject<BridgeMessage<object>>(stringifiedMessage);
+
+            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
+
+            //? No task
+            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
+
+            var tcs = (TaskCompletionSource<object?>) pendingTasks[message.Nonce!];
+            tcs.TrySetResult(null);
+
+            pendingTasks.Remove(message.Nonce!);
+        }
+
+
+        // Query and FormatPrice
+        /// <summary>
+        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// </summary>
+        public void _ReceiveString(string stringifiedMessage)
+        {
+            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeStringPayload>>(stringifiedMessage);
+
+            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
+
+            //? No task
+            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
+
+            var tcs = (TaskCompletionSource<string>) pendingTasks[message.Nonce!];
+            tcs.TrySetResult(message.Payload.Str);
+
+            pendingTasks.Remove(message.Nonce!);
         }
 
 
         //# HANDLE - - - - -
-        public void HandleMessage(string stringifiedMessage)
+        /// <summary>
+        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// </summary>
+        public void _HandleMessage(string stringifiedMessage)
         {
             var message = JsonConvert.DeserializeObject<RpcMessage>(stringifiedMessage);
 
@@ -191,7 +344,7 @@ namespace Dissonity
             //\ Deserialize whole command payload
             var eventType = command
                 ? CommandUtility.GetResponseFromString(rawDiscordEvent.Command)
-                : EventUtility.GetTypeFromString(rawDiscordEvent.Event);
+                : EventUtility.GetTypeFromString(rawDiscordEvent.Event!);
 
             var typedEvent = payload.ToObject(eventType);
 
@@ -204,7 +357,7 @@ namespace Dissonity
             {
                 var dataType = command
                     ? CommandUtility.GetDataTypeFromString(rawDiscordEvent.Command)
-                    : EventUtility.GetDataTypeFromString(rawDiscordEvent.Event);
+                    : EventUtility.GetDataTypeFromString(rawDiscordEvent.Event!);
 
                 //? Not no-response
                 if (dataType != typeof(NoResponse))
@@ -262,7 +415,7 @@ namespace Dissonity
     
 
         //# MOCK - - - - -
-        public void MockDispatch(string eventString, object eventData)
+        internal void MockDispatch(string eventString, object eventData)
         {
             //? Not mock mode
             if (!Api.IsMock) return;

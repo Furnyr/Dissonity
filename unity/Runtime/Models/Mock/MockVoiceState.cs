@@ -14,5 +14,17 @@ namespace Dissonity.Models.Mock
         new public bool SelfDeaf = false;
 
         new public bool Suppress = false;
+
+        public VoiceState ToVoiceState()
+        {
+            return new VoiceState()
+            {
+                Mute = Mute,
+                Deaf = Deaf,
+                SelfMute = SelfMute,
+                SelfDeaf = SelfDeaf,
+                Suppress = Suppress
+            };
+        }
     }
 }

@@ -1,11 +1,10 @@
 using System;
-using Dissonity.Commands.Responses;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class CaptureLog : FrameCommand<NoResponse>
+    internal class CaptureLog : FrameCommand
     {
         internal override string Command => DiscordCommandType.CaptureLog;
 

@@ -42,9 +42,9 @@ namespace Dissonity.Commands.Responses
         public int? Position { get; set; }
         
         [JsonProperty("voice_states")]
-        public UserVoiceState[] VoiceStates { get; set; }
+        public UserVoiceState[] VoiceStates { get; set; } = new UserVoiceState[0];
         
         [JsonProperty("messages")]
-        public Message[] Messages { get; set; }
+        public Message[] Messages { get; set; } = new Message[0];
     }
 }

@@ -1,10 +1,9 @@
 using System;
-using Dissonity.Commands.Responses;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class OpenInviteDialog : FrameCommand<NoResponse>
+    internal class OpenInviteDialog : FrameCommand
     {
         internal override string Command => DiscordCommandType.OpenInviteDialog;
     }

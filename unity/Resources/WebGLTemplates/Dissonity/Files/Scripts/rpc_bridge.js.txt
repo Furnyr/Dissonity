@@ -11,6 +11,9 @@ const OPCODES = {
     Close: 2,
     Hello: 3
 };
+const CLOSE_CODES = {
+    Normal: 1000
+};
 const ALLOWED_ORIGINS = new Set([
     window.location.origin,
     "https://discord.com",
@@ -78,7 +81,7 @@ function Handshake() {
     disableInfoLogs = ParseBuildVariable(disableInfoLogs, "boolean");
     AddListeners(InitialBridgeListener, IframeBridgeListener, NonFrameOpcode);
     const query = RequestQuery();
-    if (!query || !query.frame_id) {
+    if (!query || !query.frame_id || !query.instance_id || !query.platform) {
         currentState = STATE_CODES.OutsideDiscord;
         return;
     }
@@ -106,7 +109,7 @@ function IframeBridgeListener(message) {
         return;
     if (!message.data.iframeBridge)
         return;
-    const { command, payload } = message.data;
+    const { command, nonce, payload } = message.data;
     switch (command) {
         case "Send": {
             Send(payload);
@@ -114,15 +117,27 @@ function IframeBridgeListener(message) {
         }
         case "RequestQuery": {
             const query = RequestQuery();
-            SendToIframeBridge({ method: "ReceiveQuery", payload: JSON.stringify(query) });
+            const formattedPayload = {
+                nonce,
+                payload: {
+                    str: JSON.stringify(query)
+                }
+            };
+            SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(formattedPayload) });
             break;
         }
         case "RequestState": {
-            RequestState();
+            RequestState(nonce);
             break;
         }
         case "RequestPatchUrlMappings": {
-            RequestPatchUrlMappings(payload);
+            const parsedPayload = JSON.parse(payload);
+            RequestPatchUrlMappings(nonce, parsedPayload.str);
+            break;
+        }
+        case "RequestFormatPrice": {
+            const parsedPayload = JSON.parse(payload);
+            RequestFormatPrice(nonce, parsedPayload.str);
             break;
         }
         case "StopListening": {
@@ -146,7 +161,7 @@ function NonFrameOpcode(message) {
         case OPCODES.Close: {
             StopListening();
             if (unityReady) {
-                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) });
+                SendToIframeBridge({ method: "_HandleMessage", payload: SerializePayload(message.data) });
             }
             break;
         }
@@ -205,6 +220,14 @@ async function InitialBridgeListener(message) {
             if (event == EVENTS.Error) {
                 currentState = STATE_CODES.Closed;
                 RemoveListeners(InitialBridgeListener);
+                InternalSend([
+                    OPCODES.Close,
+                    {
+                        code: CLOSE_CODES.Normal,
+                        message: "User unauthorized scopes",
+                        nonce: GetNonce()
+                    }
+                ]);
                 break;
             }
             const serializedData = SerializePayload(message.data);
@@ -281,7 +304,7 @@ function Bridge(message) {
     if (!ALLOWED_ORIGINS.has(message.origin))
         return;
     const data = SerializePayload(message.data);
-    SendToIframeBridge({ method: "HandleMessage", payload: data });
+    SendToIframeBridge({ method: "_HandleMessage", payload: data });
 }
 function AddListeners(...args) {
     for (const listener of args) {
@@ -411,13 +434,18 @@ function InternalSend(message) {
     source.postMessage(message, sourceOrigin);
 }
 function DispatchMultiEvent() {
-    const multiEventPayload = {
-        ready: readyData,
-        authorize: authorizeData,
-        authenticate: authenticateData,
-        response: serverPayloadData
+    const sendMessage = {
+        nonce: null,
+        payload: {
+            raw_multi_event: {
+                ready: readyData,
+                authorize: authorizeData,
+                authenticate: authenticateData,
+                response: serverPayloadData
+            }
+        }
     };
-    SendToIframeBridge({ method: "ReceiveMultiEvent", payload: JSON.stringify(multiEventPayload) });
+    SendToIframeBridge({ method: "_ReceiveMultiEvent", payload: JSON.stringify(sendMessage) });
     ClearData();
 }
 function ClearData() {
@@ -466,11 +494,14 @@ function RequestQuery() {
     }
     return getQueryData();
 }
-function RequestState() {
+function RequestState(nonce) {
     const sendMessage = {
-        code: currentState,
+        nonce,
+        payload: {
+            code: currentState,
+        }
     };
-    SendToIframeBridge({ method: "ReceiveState", payload: JSON.stringify(sendMessage) });
+    SendToIframeBridge({ method: "_ReceiveState", payload: JSON.stringify(sendMessage) });
     if (!unityReady) {
         unityReady = true;
         if (currentState == STATE_CODES.Ready) {
@@ -479,11 +510,25 @@ function RequestState() {
         }
     }
 }
-function RequestPatchUrlMappings(stringifiedMessage) {
+function RequestPatchUrlMappings(nonce, stringifiedMessage) {
     const { mappings, config } = JSON.parse(stringifiedMessage);
     if (mappings.length != 0) {
         patchUrlMappings(mappings, config);
     }
-    SendToIframeBridge({ method: "ReceivePatchUrlMappings", payload: "" });
+    const sendMessage = {
+        nonce
+    };
+    SendToIframeBridge({ method: "_ReceiveEmpty", payload: JSON.stringify(sendMessage) });
+}
+function RequestFormatPrice(nonce, stringifiedMessage) {
+    const { amount, currency, locale } = JSON.parse(stringifiedMessage);
+    const result = formatPrice({ amount, currency }, locale);
+    const sendMessage = {
+        nonce,
+        payload: {
+            str: result
+        }
+    };
+    SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(sendMessage) });
 }
 document.addEventListener("DOMContentLoaded", Handshake);

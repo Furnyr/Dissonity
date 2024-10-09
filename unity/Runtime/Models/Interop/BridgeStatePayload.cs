@@ -1,11 +1,10 @@
-
 using System;
 using Newtonsoft.Json;
 
 namespace Dissonity.Models.Interop
 {
     [Serializable]
-    internal class BridgeStateMessage
+    internal class BridgeStatePayload
     {
         #nullable enable annotations
 

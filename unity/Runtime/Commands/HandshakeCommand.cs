@@ -1,5 +1,4 @@
 using System;
-using Dissonity.Commands.Responses;
 using Dissonity.Models.Interop;
 using Newtonsoft.Json;
 
@@ -10,7 +9,7 @@ namespace Dissonity.Commands
     /// Still keeping this file around just in case
     /// </summary>
     [Serializable]
-    internal class HandshakeCommand : DiscordCommand<NoResponse>
+    internal class HandshakeCommand : DiscordCommand
     {
         internal override Opcode Opcode => Opcode.Handshake;
 

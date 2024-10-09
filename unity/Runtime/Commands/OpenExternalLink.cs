@@ -1,11 +1,10 @@
 using System;
-using Dissonity.Commands.Responses;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class OpenExternalLink : FrameCommand<NoResponse>
+    internal class OpenExternalLink : FrameCommand
     {
         internal override string Command => DiscordCommandType.OpenExternalLink;
 

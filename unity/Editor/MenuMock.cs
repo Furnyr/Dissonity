@@ -15,7 +15,7 @@ namespace Dissonity.Editor
                 return false;
             }
 
-            GameObject obj = new GameObject("_DiscordMock");
+            GameObject obj = new GameObject("@DiscordMock");
 
             obj.AddComponent<DiscordMock>();
 

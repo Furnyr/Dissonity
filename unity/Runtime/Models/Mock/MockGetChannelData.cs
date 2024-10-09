@@ -4,6 +4,7 @@ using Dissonity.Commands.Responses;
 namespace Dissonity.Models.Mock
 {
     [Serializable]
+    [Obsolete]
     public class MockGetChannelData : GetChannelData
     {
         new public string Id = "9123456780";
@@ -21,9 +22,9 @@ namespace Dissonity.Models.Mock
         new public int UserLimit = 100;
         
         new public int Position = 1;
-        
-        new public MockUserVoiceState[] VoiceStates;
 
+        // Voice states isn't exposed
+        
         public GetChannelData ToChannelData()
         {
             return new GetChannelData()
@@ -35,8 +36,7 @@ namespace Dissonity.Models.Mock
                 Topic = Topic,
                 Bitrate = Bitrate,
                 UserLimit = UserLimit,
-                Position = Position,
-                VoiceStates = VoiceStates
+                Position = Position
             };
         }
     }

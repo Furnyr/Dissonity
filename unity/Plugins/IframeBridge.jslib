@@ -6,18 +6,28 @@ mergeInto(LibraryManager.library, {
         window.removeEventListener("message", Bridge);
         SendToRpcBridge({ command: "StopListening" });
     },
-    RequestState: function () {
-        SendToRpcBridge({ command: "RequestState" });
+    RequestState: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce } = JSON.parse(message);
+        SendToRpcBridge({ command: "RequestState", nonce });
     },
     RequestPatchUrlMappings: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
-        SendToRpcBridge({ command: "RequestPatchUrlMappings", payload: message });
+        const { nonce, payload } = JSON.parse(message);
+        SendToRpcBridge({ command: "RequestPatchUrlMappings", nonce, payload: JSON.stringify(payload) });
     },
     Send: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         SendToRpcBridge({ command: "Send", payload: message });
     },
-    RequestQuery: function () {
-        SendToRpcBridge({ command: "RequestQuery" });
+    RequestFormatPrice: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce, payload } = JSON.parse(message);
+        SendToRpcBridge({ command: "RequestFormatPrice", nonce, payload: JSON.stringify(payload) });
+    },
+    RequestQuery: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce } = JSON.parse(message);
+        SendToRpcBridge({ command: "RequestQuery", nonce });
     }
 });

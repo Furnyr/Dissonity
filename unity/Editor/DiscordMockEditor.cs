@@ -13,9 +13,12 @@ namespace Dissonity.Editor
         // Main foldouts
         private bool showActivity = false;
         private bool showGeneralEvents = false;
+        private bool showIap = false;
         private bool showCurrentPlayerEvents = false;
         private bool showOtherPlayers = false;
         private bool showChannels = false;
+        private bool showSkus = false;
+        private bool showEntitlements = false;
 
         // True when a general event that requires details is clicked
         private bool inspectingLayout = false;
@@ -30,23 +33,23 @@ namespace Dissonity.Editor
         // True when the clear menus are open
         private bool clearingPlayers = false;
         private bool clearingChannels = false;
+        private bool clearingSkus = false;
+        private bool clearingEntitlements = false;
 
         // Handles the "other players" event foldouts
         private List<bool> showOtherPlayerEvents = new();
 
 
         public override void OnInspectorGUI()
-        {
+        {            
             DiscordMock mock = (DiscordMock) target;
 
             GUIStyle leftButtonStyle; 
-            GUIStyle dangerLeftButtonStyle; 
-            GUIStyle disabledLeftButtonStyle;
 
-            SetButtonStyles(out leftButtonStyle, out dangerLeftButtonStyle, out disabledLeftButtonStyle);
+            SetButtonStyles(out leftButtonStyle);
 
             // Shorcut
-            bool isPlaying = UnityEngine.Application.isPlaying;
+            bool isPlaying = Application.isPlaying;
 
             // Query
             var queryProperty = serializedObject.FindProperty(nameof(DiscordMock.query));
@@ -106,7 +109,10 @@ namespace Dissonity.Editor
                     {
                         // Draw the array element
                         var otherPlayer = otherPlayersProperty.GetArrayElementAtIndex(i);
-                        EditorGUILayout.PropertyField(otherPlayer, new GUIContent ($"Player {i+2}"), false);
+                        var participant = otherPlayer.FindPropertyRelative(nameof(MockPlayer.Participant));
+                        string name = participant.FindPropertyRelative(nameof(MockParticipant.GlobalName)).stringValue;
+                        
+                        EditorGUILayout.PropertyField(otherPlayer, new GUIContent (name), false);
 
                         if (otherPlayer.isExpanded)
                         {
@@ -138,7 +144,7 @@ namespace Dissonity.Editor
                             
                             EditorGUI.indentLevel++;
 
-                            DrawChildrenRecursively(otherPlayer);
+                            DrawChildrenRecursively(otherPlayer, new string[] { nameof(MockPlayer.GuildMemberRpc) });
 
                             showOtherPlayerEvents[i] = EditorGUILayout.Foldout(showOtherPlayerEvents[i], "Dispatch Events");
 
@@ -165,42 +171,49 @@ namespace Dissonity.Editor
                         // Unique id
                         string id = player.Participant.Id = Utils.GetMockSnowflake();
                         player.GuildMemberRpc.UserId = id;
-                        player.UserVoiceState.User.Id = id;
 
                         // Unique username
-                        string username = player.Participant.Username += $" {mock.otherPlayers.Count+2}";
-                        player.UserVoiceState.User.Username = username;
+                        player.Participant.Username += $" {mock.otherPlayers.Count+2}";
 
                         // Unique global name
-                        string globalName = player.Participant.GlobalName += $" {mock.otherPlayers.Count+2}";
-                        player.UserVoiceState.User.GlobalName = globalName;
+                        player.Participant.GlobalName += $" {mock.otherPlayers.Count+2}";
 
                         // Unique nickname
                         string nickname = player.Participant.Nickname += $" {mock.otherPlayers.Count+2}";
                         player.GuildMemberRpc.Nickname = nickname;
-                        player.UserVoiceState.Nickname = nickname;
 
                         mock.otherPlayers.Add(player);
                     }
+
+                    TintButtonBlue();
 
                     if (!clearingPlayers && GUILayout.Button("Clear", leftButtonStyle))
                     {
                         clearingPlayers = true;
                     }
 
+                    ResetButtonTint();
+
                     if (clearingPlayers)
                     {
+                        TintButtonDark();
+
                         if (GUILayout.Button("Cancel clear", leftButtonStyle))
                         {
                             clearingPlayers = false;
                         }
 
-                        if (GUILayout.Button("Confirm clear", dangerLeftButtonStyle))
+                        ResetButtonTint();
+                        TintButtonRed();
+
+                        if (GUILayout.Button("Confirm clear", leftButtonStyle))
                         {
                             clearingPlayers = false;
-                            mock.otherPlayers.Clear();
+                            otherPlayersProperty.ClearArray();
                             showOtherPlayerEvents.Clear();
                         }
+
+                        ResetButtonTint();
                     }
 
                     EndSpace();
@@ -221,36 +234,18 @@ namespace Dissonity.Editor
                     for (int i = 0; i < mock.channels.Count; i++)
                     {
                         // Draw the array element
-                        var dictionary = channelsProperty.GetArrayElementAtIndex(i);
-                        var channel = dictionary.FindPropertyRelative(nameof(MockDictionary<MockChannel>.Value));
-                        var channelData = channel.FindPropertyRelative(nameof(MockDictionary<MockChannel>.Value.ChannelData));
-                        string channelName = channelData.FindPropertyRelative(nameof(MockDictionary<MockChannel>.Value.ChannelData.Name)).stringValue;
+                        var channel = channelsProperty.GetArrayElementAtIndex(i);
+                        string channelName = channel.FindPropertyRelative(nameof(MockChannel.Name)).stringValue;
                         
-                        EditorGUILayout.PropertyField(dictionary, new GUIContent (channelName), false);
+                        EditorGUILayout.PropertyField(channel, new GUIContent (channelName), false);
 
-                        if (dictionary.isExpanded)
+                        if (channel.isExpanded)
                         {
                             EditorGUI.indentLevel++;
 
-                            DrawChildrenRecursively(dictionary, new string[] { nameof(MockGetChannelData.VoiceStates) });
+                            DrawChildrenRecursively(channel, new string[] { nameof(MockChannel.VoiceStates) });
 
                             EditorGUI.indentLevel--;
-                        }
-                    
-                        // Don't ask me why, but Unity draws the array length box comically large the more indented the array is...
-                        // This fixes that, but either way, the voice states are excluded because it was unreadable.
-                        if (channel.isExpanded)
-                        {
-                            int indentLevel = EditorGUI.indentLevel;
-                            EditorGUI.indentLevel = 0;
-
-                            var voiceStates = channelData.FindPropertyRelative(nameof(MockGetChannelData.VoiceStates));
-
-                            StartSpace(60);
-                            EditorGUILayout.PropertyField(voiceStates, true);
-                            EndSpace();
-
-                            EditorGUI.indentLevel = indentLevel;
                         }
                     }
                     
@@ -265,31 +260,42 @@ namespace Dissonity.Editor
                         var channel = new MockChannel();
 
                         // Unique id
-                        string id = channel.ChannelData.Id = Utils.GetMockSnowflake();
+                        channel.Id = Utils.GetMockSnowflake();
 
                         // Unique name
-                        channel.ChannelData.Name = $"mock-channel-{mock.channels.Count + 1}";
+                        channel.Name = $"mock-channel-{mock.channels.Count + 1}";
 
-                        mock.channels.Add(new MockDictionary<MockChannel> { Id = id, Value = channel });
+                        mock.channels.Add(channel);
                     }
+
+                    TintButtonBlue();
 
                     if (!clearingChannels && GUILayout.Button("Clear", leftButtonStyle))
                     {
                         clearingChannels = true;
                     }
 
+                    ResetButtonTint();
+
                     if (clearingChannels)
                     {
+                        TintButtonDark();
+
                         if (GUILayout.Button("Cancel clear", leftButtonStyle))
                         {
                             clearingChannels = false;
                         }
 
-                        if (GUILayout.Button("Confirm clear", dangerLeftButtonStyle))
+                        ResetButtonTint();
+                        TintButtonRed();
+
+                        if (GUILayout.Button("Confirm clear", leftButtonStyle))
                         {
                             clearingChannels = false;
-                            mock.channels.Clear();
+                            channelsProperty.ClearArray();
                         }
+
+                        ResetButtonTint();
                     }
 
                     EndSpace();
@@ -305,6 +311,8 @@ namespace Dissonity.Editor
             // General events
             if (showGeneralEvents)
             {
+                bool displayButton;
+
                 StartSpace(20);
 
                 if (GUILayout.Button("Activity Instance Participants Update", leftButtonStyle))
@@ -316,17 +324,24 @@ namespace Dissonity.Editor
                         return;
                     }
 
-                    mock.ActivityInstanceParticipantsUpdate();
-
                     if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Activity Instance Participants Update");
+                    
+                    mock.ActivityInstanceParticipantsUpdate();
                 }
 
-                if (!inspectingLayout && GUILayout.Button("Activity Layout Mode Update", leftButtonStyle))
+                if (!inspectingLayout)
                 {
-                    inspectingLayout = true;
-                    showEventLayout = true;
+                    TintButtonBlue();
+                    displayButton = GUILayout.Button("Activity Layout Mode Update", leftButtonStyle);
+                    ResetButtonTint();
+
+                    if (displayButton)
+                    {
+                        inspectingLayout = true;
+                        showEventLayout = true;
+                    }
                 }
-                else if (inspectingLayout)
+                else
                 {
                     EditorGUI.indentLevel++;
 
@@ -341,7 +356,7 @@ namespace Dissonity.Editor
                         var layoutProperty = serializedObject.FindProperty(nameof(DiscordMock.layoutMode));
                         EditorGUILayout.PropertyField(layoutProperty, true);
 
-                        StartSpace(20);
+                        StartSpace(30);
 
                         // Dispatch
                         if (GUILayout.Button("Dispatch Event", leftButtonStyle))
@@ -353,10 +368,12 @@ namespace Dissonity.Editor
                                 return;
                             }
 
-                            mock.ActivityLayoutModeUpdate();
-
                             if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Activity Layout Mode Update");
+
+                            mock.ActivityLayoutModeUpdate();
                         }
+
+                        TintButtonDark();
 
                         // Close
                         if (GUILayout.Button("Close", leftButtonStyle))
@@ -365,7 +382,11 @@ namespace Dissonity.Editor
                             showEventLayout = false;
                         }
 
+                        ResetButtonTint();
+
                         EndSpace();
+
+                        GUILayout.Space(10);
 
                         EditorGUI.indentLevel--;
                     }
@@ -373,17 +394,19 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel--;
                 }
 
-                if (GUILayout.Button("Entitlement Create", disabledLeftButtonStyle))
+                if (!inspectingOrientation)
                 {
-                    Debug.Log("[Dissonity Editor]: The Entitlement Create event is coming soon");
-                }
+                    TintButtonBlue();
+                    displayButton = GUILayout.Button("Orientation Update", leftButtonStyle);
+                    ResetButtonTint();
 
-                if (!inspectingOrientation && GUILayout.Button("Orientation Update", leftButtonStyle))
-                {
-                    inspectingOrientation = true;
-                    showEventOrientation = true;
+                    if (displayButton)
+                    {
+                        inspectingOrientation = true;
+                        showEventOrientation = true;
+                    }
                 }
-                else if (inspectingOrientation)
+                else
                 {
                     EditorGUI.indentLevel++;
 
@@ -398,7 +421,7 @@ namespace Dissonity.Editor
                         var orientationProperty = serializedObject.FindProperty(nameof(DiscordMock.screenOrientation));
                         EditorGUILayout.PropertyField(orientationProperty, true);
 
-                        StartSpace(20);
+                        StartSpace(30);
 
                         // Dispatch
                         if (GUILayout.Button("Dispatch Event", leftButtonStyle))
@@ -410,10 +433,12 @@ namespace Dissonity.Editor
                                 return;
                             }
 
-                            mock.OrientationUpdate();
-
                             if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Orientation Update");
+
+                            mock.OrientationUpdate();
                         }
+
+                        TintButtonDark();
 
                         // Close
                         if (GUILayout.Button("Close", leftButtonStyle))
@@ -422,7 +447,11 @@ namespace Dissonity.Editor
                             showEventOrientation = false;
                         }
 
+                        ResetButtonTint();
+
                         EndSpace();
+
+                        GUILayout.Space(10);
 
                         EditorGUI.indentLevel--;
                     }
@@ -430,12 +459,19 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel--;
                 }
 
-                if (!inspectingThermalState && GUILayout.Button("Thermal State Update", leftButtonStyle))
+                if (!inspectingThermalState)
                 {
-                    inspectingThermalState = true;
-                    showEventThermalState = true;
+                    TintButtonBlue();
+                    displayButton = GUILayout.Button("Thermal State Update", leftButtonStyle);
+                    ResetButtonTint();
+
+                    if (displayButton)
+                    {
+                        inspectingThermalState = true;
+                        showEventThermalState = true;
+                    }
                 }
-                else if (inspectingThermalState)
+                else
                 {
                     EditorGUI.indentLevel++;
 
@@ -450,7 +486,7 @@ namespace Dissonity.Editor
                         var thermalStateProperty = serializedObject.FindProperty(nameof(DiscordMock.thermalState));
                         EditorGUILayout.PropertyField(thermalStateProperty, true);
 
-                        StartSpace(20);
+                        StartSpace(30);
 
                         // Dispatch
                         if (GUILayout.Button("Dispatch Event", leftButtonStyle))
@@ -461,11 +497,13 @@ namespace Dissonity.Editor
                                 Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
                                 return;
                             }
+                            
+                            if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Thermal State Update");
 
                             mock.ThermalStateUpdate();
-
-                            if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Thermal State Update");
                         }
+
+                        TintButtonDark();
 
                         // Close
                         if (GUILayout.Button("Close", leftButtonStyle))
@@ -474,7 +512,11 @@ namespace Dissonity.Editor
                             showEventThermalState = false;
                         }
 
+                        ResetButtonTint();
+
                         EndSpace();
+
+                        GUILayout.Space(10);
 
                         EditorGUI.indentLevel--;
                     }
@@ -485,13 +527,209 @@ namespace Dissonity.Editor
                 EndSpace();
             }
 
+            showIap = EditorGUILayout.Foldout(showIap, "In-App Purchases");
+
+            // IAP
+            if (showIap)
+            {
+                EditorGUI.indentLevel++;
+
+                //# SKUS - - - - -
+                var skusProperty = serializedObject.FindProperty(nameof(DiscordMock.skus));
+                showSkus = EditorGUILayout.Foldout(showSkus, "Skus");
+
+                if (showSkus)
+                {
+                    EditorGUI.indentLevel++;
+
+                    // Draw every sku
+                    for (int i = 0; i < mock.skus.Count; i++)
+                    {
+                        // Draw the array element
+                        var sku = skusProperty.GetArrayElementAtIndex(i);
+                        string skuName = sku.FindPropertyRelative(nameof(MockSku.Name)).stringValue;
+                        
+                        EditorGUILayout.PropertyField(sku, new GUIContent (skuName), false);
+
+                        if (sku.isExpanded)
+                        {
+                            EditorGUI.indentLevel++;
+
+                            DrawChildrenRecursively(sku, null, new Dictionary<string, string>{
+                                { nameof(MockSkuPrice.Amount), "Amount represents cents" },
+                                { nameof(MockSkuPrice.Currency), "Currency is a string of Models.CurrencyCode" }
+                            });
+
+                            EditorGUI.indentLevel--;
+                        }
+                    }
+                    
+                    EditorGUI.indentLevel--;
+
+                    // Draw add sku button
+                    StartSpace(20);
+
+
+                    if (GUILayout.Button("Add SKU", leftButtonStyle))
+                    {
+                        var sku = new MockSku();
+
+                        // Unique id
+                        sku.Id = Utils.GetMockSnowflake();
+
+                        // Unique name
+                        sku.Name = $"Mock SKU {mock.skus.Count + 1}";
+
+                        mock.skus.Add(sku);
+                    }
+
+                    TintButtonBlue();
+
+                    if (!clearingSkus && GUILayout.Button("Clear", leftButtonStyle))
+                    {
+                        clearingSkus = true;
+                    }
+
+                    ResetButtonTint();
+
+                    if (clearingSkus)
+                    {
+                        TintButtonDark();
+
+                        if (GUILayout.Button("Cancel clear", leftButtonStyle))
+                        {
+                            clearingSkus = false;
+                        }
+
+                        ResetButtonTint();
+                        TintButtonRed();
+
+                        if (GUILayout.Button("Confirm clear", leftButtonStyle))
+                        {
+                            clearingSkus = false;
+                            skusProperty.ClearArray();
+                        }
+
+                        ResetButtonTint();
+                    }
+
+                    EndSpace();
+                }
+
+                else if (clearingSkus) clearingSkus = false;
+
+                //# ENTITLEMENTS - - - - -
+                var entitlementsProperty = serializedObject.FindProperty(nameof(DiscordMock.entitlements));
+                GUIContent entitlementsContent = new("Entitlements", "A mock entitlement will be created after calling Api.Commands.StartPurchase(mockSkuId)");
+                showEntitlements = EditorGUILayout.Foldout(showEntitlements, entitlementsContent);
+
+                if (showEntitlements)
+                {
+                    EditorGUI.indentLevel++;
+
+                    // Draw every entitlement
+                    for (int i = 0; i < mock.entitlements.Count; i++)
+                    {
+                        // Draw the array element
+                        var entitlement = entitlementsProperty.GetArrayElementAtIndex(i);
+                        string name = entitlement.FindPropertyRelative(nameof(MockEntitlement.__mock__name)).stringValue;
+                        string id = entitlement.FindPropertyRelative(nameof(MockEntitlement.Id)).stringValue;
+                        
+                        EditorGUILayout.PropertyField(entitlement, new GUIContent (name), false);
+
+                        if (entitlement.isExpanded)
+                        {
+                            EditorGUI.indentLevel++;
+
+                            DrawChildrenRecursively(entitlement, null, new Dictionary<string, string>{{ nameof(MockEntitlement.__mock__name), "Entitlements don't have names, this only changes the visual name in the mock." }});
+
+                            StartSpace(40);
+
+                            if (GUILayout.Button("Dispatch Entitlement Create", leftButtonStyle))
+                            {
+                                //? Not in runtime
+                                if (!isPlaying)
+                                {
+                                    Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                                    return;
+                                }
+
+                                if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Entitlement Create");
+                                
+                                mock.EntitlementCreate(id);
+                            }
+
+                            EndSpace();
+
+                            GUILayout.Space(10);
+
+                            EditorGUI.indentLevel--;
+                        }
+                    }
+                    
+                    EditorGUI.indentLevel--;
+
+                    // Draw add sku button
+                    StartSpace(20);
+
+
+                    if (GUILayout.Button("Add default entitlement", leftButtonStyle))
+                    {
+                        var ent = new MockEntitlement();
+
+                        // Unique id
+                        ent.Id = Utils.GetMockSnowflake();
+
+                        // Unique name
+                        ent.__mock__name = $"Mock Entitlement {mock.entitlements.Count + 1}";
+
+                        mock.entitlements.Add(ent);
+                    }
+
+                    TintButtonBlue();
+
+                    if (!clearingEntitlements && GUILayout.Button("Clear", leftButtonStyle))
+                    {
+                        clearingEntitlements = true;
+                    }
+
+                    ResetButtonTint();
+
+                    if (clearingEntitlements)
+                    {
+                        TintButtonDark();
+
+                        if (GUILayout.Button("Cancel clear", leftButtonStyle))
+                        {
+                            clearingEntitlements = false;
+                        }
+
+                        ResetButtonTint();
+                        TintButtonRed();
+
+                        if (GUILayout.Button("Confirm clear", leftButtonStyle))
+                        {
+                            clearingEntitlements = false;
+                            entitlementsProperty.ClearArray();
+                        }
+
+                        ResetButtonTint();
+                    }
+
+                    EndSpace();
+                }
+
+                EditorGUI.indentLevel--;
+            }
+            
+
             serializedObject.ApplyModifiedProperties();
         }
 
         // Used to draw the children of a property. If Unity does it automatically, indentation breaks between versions.
-        // "exclude" and "action" are used to draw arrays properties manually before other children properties.
-        // When exclude[i] is found, action[actionCount] is run.
-        private void DrawChildrenRecursively(SerializedProperty property, string[] exclude = null)
+        // exclude is used to prevent properties from rendering
+        // tooltipMap is used to draw tooltips for specific properties
+        private void DrawChildrenRecursively(SerializedProperty property, string[] exclude = null, Dictionary<string, string> tooltipMap = null)
         {
             SerializedProperty endProperty = property.GetEndProperty();
 
@@ -501,12 +739,19 @@ namespace Dissonity.Editor
             {
                 if (exclude == null || !exclude.Contains(property.name))
                 {
-                    EditorGUILayout.PropertyField(property, property.isArray);
+                    //? Tooltip
+                    if (tooltipMap != null && tooltipMap.ContainsKey(property.name))
+                    {
+                        GUIContent content = new (property.name, tooltipMap[property.name]);
+                        EditorGUILayout.PropertyField(property, content, property.isArray);
+                    }
+
+                    else EditorGUILayout.PropertyField(property, property.isArray);
 
                     if (property.hasVisibleChildren && property.isExpanded)
                     {
                         EditorGUI.indentLevel++;
-                        DrawChildrenRecursively(property, exclude);
+                        DrawChildrenRecursively(property, exclude, tooltipMap);
                         EditorGUI.indentLevel--;
 
                         continue;
@@ -521,7 +766,7 @@ namespace Dissonity.Editor
         private void DrawDispatchButtons(GUIStyle style, DiscordMock mock, int playerIndex = -1)
         {
             // Shorcut
-            bool isPlaying = UnityEngine.Application.isPlaying;
+            bool isPlaying = Application.isPlaying;
 
             //? Current player
             if (playerIndex == -1)
@@ -535,9 +780,9 @@ namespace Dissonity.Editor
                         return;
                     }
 
-                    mock.CurrentGuildMemberUpdate();
-
                     if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Current Guild Member Update");
+
+                    mock.CurrentGuildMemberUpdate();
                 }
 
                 if (GUILayout.Button("Current User Update", style))
@@ -549,9 +794,9 @@ namespace Dissonity.Editor
                         return;
                     }
 
-                    mock.CurrentUserUpdate();
-
                     if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Current User Update");
+
+                    mock.CurrentUserUpdate();
                 }
             }
 
@@ -564,9 +809,9 @@ namespace Dissonity.Editor
                     return;
                 }
 
-                mock.VoiceStateUpdate(playerIndex);
-
                 if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Voice State Update");
+
+                mock.VoiceStateUpdate(playerIndex);
             }
 
             if (GUILayout.Button("Speaking Start", style))
@@ -578,9 +823,9 @@ namespace Dissonity.Editor
                     return;
                 }
 
-                mock.SpeakingStart(playerIndex);
-
                 if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Speaking Start");
+
+                mock.SpeakingStart(playerIndex);
             }
 
             if (GUILayout.Button("Speaking Stop", style))
@@ -592,37 +837,17 @@ namespace Dissonity.Editor
                     return;
                 }
 
-                mock.SpeakingStop(playerIndex);
-
                 if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Speaking Stop");
+
+                mock.SpeakingStop(playerIndex);
             }
         }
 
-        private void SetButtonStyles(out GUIStyle leftButtonStyle, out GUIStyle dangerLeftButtonStyle, out GUIStyle disabledLeftButtonStyle)
+        private void SetButtonStyles(out GUIStyle leftButtonStyle)
         {
             // Normal button style
             leftButtonStyle = new GUIStyle(GUI.skin.button);
             leftButtonStyle.alignment = TextAnchor.MiddleLeft;
-
-            // Danger button style texture
-            Texture2D redTexture = new Texture2D(1, 1);
-            redTexture.SetPixels(new Color[] { new Color(0.59f, 0.34f, 0.34f) });
-            redTexture.Apply();
-
-            // Danger button style
-            dangerLeftButtonStyle = new GUIStyle(GUI.skin.button);
-            dangerLeftButtonStyle.alignment = TextAnchor.MiddleLeft;
-            dangerLeftButtonStyle.normal.background = redTexture;
-
-            // Disabled button style texture
-            Texture2D disabledTexture = new Texture2D(1, 1);
-            disabledTexture.SetPixels(new Color[] { new Color(0.25f, 0.25f, 0.25f) });
-            disabledTexture.Apply();
-
-            // Disabled button style
-            disabledLeftButtonStyle = new GUIStyle(GUI.skin.button);
-            disabledLeftButtonStyle.alignment = TextAnchor.MiddleLeft;
-            disabledLeftButtonStyle.normal.background = disabledTexture;
         }
     
         private void StartSpace(int space)
@@ -636,6 +861,41 @@ namespace Dissonity.Editor
         {
             EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
+        }
+    
+        // Danger
+        private void TintButtonRed()
+        {
+            GUI.backgroundColor = new Color(0.78f, 0.29f, 0.23f);
+        }
+
+        // Warning (currently unused)
+        private void TintButtonYellow()
+        {
+            GUI.backgroundColor = new Color(1f, 0.8f, 0f);
+        }
+
+        // Close
+        private void TintButtonDark()
+        {
+            GUI.backgroundColor = new Color(0.78f, 0.78f, 0.78f);
+        }
+
+        // Open
+        private void TintButtonBlue()
+        {
+            GUI.backgroundColor = new Color(0.6f, 1f, 0.96f);
+        }
+
+        // Unreleased
+        private void TintButtonDisabled()
+        {
+            GUI.backgroundColor = new Color(0.46f, 0.45f, 0.447f);
+        }
+
+        private void ResetButtonTint()
+        {
+            GUI.backgroundColor = Color.white;
         }
     }
 }

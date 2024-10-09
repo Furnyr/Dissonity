@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace Dissonity.Commands.Responses
 {
+    [Serializable]
     internal class AuthorizeResponse : DiscordEvent
     {
         [JsonProperty("data")]

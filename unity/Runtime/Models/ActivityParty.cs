@@ -12,6 +12,6 @@ namespace Dissonity.Models
         public string? Id { get; set; }
         
         [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
-        public int[] Size { get; set; }
+        public int[] Size { get; set; } = new int[0];
     }
 }

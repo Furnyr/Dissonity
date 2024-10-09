@@ -12,8 +12,8 @@ namespace Dissonity.Models
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Roles { get; set; }
+        [JsonProperty("roles")]
+        public string[] Roles { get; set; } = new string[0];
         
         [JsonProperty("user")]
         public User User { get; set; }

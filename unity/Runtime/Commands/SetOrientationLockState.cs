@@ -1,12 +1,11 @@
 using System;
-using Dissonity.Commands.Responses;
 using Dissonity.Models;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class SetOrientationLockState : FrameCommand<NoResponse>
+    internal class SetOrientationLockState : FrameCommand
     {
         #nullable enable annotations
 

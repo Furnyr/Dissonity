@@ -16,13 +16,11 @@ using Dissonity.Models.Builders;
 using Dissonity.Models.Mock;
 using System.Net;
 using System.Linq;
+using System.Globalization;
 
 //todo main tasks
-// User instance authentication
-// PriceUtils is not necessary yet
-// PermissionUtils is not necessary yet
+// PriceUtils
 // Test patch url mappings
-// Test mock
 // Test real functionality
 // Test that everything users don't need to see is internal
 // Documentation
@@ -48,9 +46,10 @@ namespace Dissonity
         internal static string handshakeStringId = "handshake";
 
         // Messages
-        internal static Dictionary<string, object> pendingCommands = new(); //TaskCompletionSource<TResponse>
+        internal static Dictionary<string, object> pendingCommands = new(); // TaskCompletionSource<TResponse>
         internal static MessageBus messageBus = new();
-        internal static GameObject? bridge = null;
+        internal static GameObject? bridgeObject = null;
+        internal static DissonityBridge? bridge = null;
         internal static HashSet<string> subscribedRpcSet = new();
 
         // Shortcut
@@ -59,12 +58,8 @@ namespace Dissonity
         // Initialization
         private static bool _initialized = false;
         private static bool _ready = false;
-        private static bool _closedState = false; // True when the RpcBridge is in a closed state
         private static bool _mock = false;
-        private static bool _disableMock = false;
-
-        // Constants
-        private const string ProxyDomain = "discordsays.com";
+        private static bool disableMock = false;
 
         // RpcVersion and RpcEncoding (handshake, overall) is handled in the RpcBridge
 
@@ -76,11 +71,12 @@ namespace Dissonity
         /// Embedded App SDK version that Dissonity is simulating.
         /// </summary>
         public const string SdkVersion = "1.5.0";
+        public const string ProxyDomain = "discordsays.com";
         public static string ClientId
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 return _clientId!;
             }
@@ -89,7 +85,7 @@ namespace Dissonity
         { 
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.InstanceId;
 
@@ -100,7 +96,7 @@ namespace Dissonity
         {
            get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return MockUtils.ToPlatformString(GameObject.FindObjectOfType<DiscordMock>().query.Platform);
 
@@ -111,7 +107,7 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.GuildId;
 
@@ -122,7 +118,7 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.ChannelId;
 
@@ -133,7 +129,7 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return GameObject.FindObjectOfType<DiscordMock>().currentPlayer.Participant.Id;
 
@@ -150,7 +146,7 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.FrameId;
 
@@ -161,11 +157,17 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return GameObject.FindObjectOfType<DiscordMock>().query.MobileAppVersion;
+                if (_mock)
+                {
+                    var mock = GameObject.FindObjectOfType<DiscordMock>();
 
-                return _frameId!;
+                    if (mock.query.Platform == MockPlatform.Desktop) return null;
+                    else return mock.query.MobileAppVersion;
+                }
+
+                return _mobileAppVersion!;
             }
         }
         public static bool Initialized
@@ -186,27 +188,12 @@ namespace Dissonity
         {
             get
             {
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
                 return _configuration!;
             }
         }
         public static bool IsMock => _mock;
-
-        /// <summary>
-        /// You can only access the Bridge field in mock mode.
-        /// </summary>
-        public static GameObject Bridge
-        {
-            get
-            {
-                if (!_mock || !isEditor) throw new InvalidOperationException("You can only access the Bridge field in mock mode");
-
-                if (!_ready) throw new InvalidOperationException("Tried to access a field without initialization");
-
-                return bridge!;
-            }
-        }
 
 
         //# JAVASCRIPT - - - - -
@@ -219,77 +206,17 @@ namespace Dissonity
 
         [DllImport("__Internal")]
         private static extern void Send(string stringifiedMessage);
-
-        [DllImport("__Internal")]
-        private static extern void RequestState();
-
-        [DllImport("__Internal")]
-        private static extern void RequestQuery();
-
-        [DllImport("__Internal")]
-        private static extern void RequestPatchUrlMappings(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
         private static void Listen() {}
         private static void StopListening() {}
         private static void Send(string _) {}
-        private static void RequestState() {}
-        private static void RequestQuery() {}
-        private static void RequestPatchUrlMappings(string _) {}
 #endif
 
         //# COMMANDS - - - - -
         public static class Commands
         {
-            /// <summary>
-            /// ❗ <b>Authentication and authorization are handled in the RpcBridge. These methods will remain internal without mock implementation.</b> ❗ <br/> <br/>
-            /// Authorize a new client with your app. <br/> <br/>
-            /// ---------------------- <br/>
-            /// ✅ | Web <br/>
-            /// ✅ | iOS <br/>
-            /// ✅ | Android <br/>
-            /// ---------------------- <br/>
-            /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
-            internal static async Task<AuthorizeData> Authorize(params string[] scope)
-            {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
-
-                if (scope.Length == 0) throw new ArgumentException("You must specify valid scopes");
-
-                var response = await SendCommand<Authorize, AuthorizeResponse>(new (_clientId!, scope) {
-                    ResponseType = "code"
-                });
-
-                return response.Data;
-            }
-
-
-            /// <summary>
-            /// ❗ <b>Authentication and authorization are handled in the RpcBridge. These methods will remain internal without mock implementation.</b> ❗ <br/> <br/>
-            /// Authenticate an existing client with your app. <br/> <br/>
-            /// No scopes required. <br/> <br/>
-            /// ---------------------- <br/>
-            /// ✅ | Web <br/>
-            /// ✅ | iOS <br/>
-            /// ✅ | Android <br/>
-            /// ---------------------- <br/>
-            /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            internal static async Task<AuthenticateData> Authenticate(string accessToken)
-            {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
-
-                var response = await SendCommand<Authenticate, AuthenticateResponse>(new (accessToken));
-
-                if (_userId == null) _userId = response.Data.User.Id;
-            
-                return response.Data;
-            }
-
-
             /// <summary>
             /// Forward logs to your own logger. <br/> <br/>
             /// No scopes required. <br/> <br/>
@@ -303,7 +230,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task CaptureLog(string consoleLevel, string message)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock) return;
 
@@ -324,7 +251,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<EncourageHardwareAccelerationData> EncourageHardwareAcceleration()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -360,7 +287,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<GetChannelData> GetChannel(string channelId)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -410,12 +337,12 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<GetChannelPermissionsData> GetChannelPermissions()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
                     //? Invalid scopes
-                    if (!_configuration!.OauthScopes.Contains(OauthScope.GuildMembersRead))
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
                     {
                         if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'guilds.members.read'. Can't get channel permissions");
                     
@@ -433,21 +360,99 @@ namespace Dissonity
             }
 
 
-            //todo Developer preview, not released yet
             /// <summary>
-            /// Not released yet! :p
+            /// Returns a list of entitlements for the current user. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
             /// </summary>
-            internal static void GetEntitlements() {}
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetEntitlementsData> GetEntitlements()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetEntitlementsResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetEntitlements, GetEntitlementsResponse>(new ());
+
+                return response.Data;
+            }
+
 
             /// <summary>
-            /// Not released yet! :p
+            /// Returns a list of SKU objects. SKUs without prices are automatically filtered out. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
             /// </summary>
-            internal static void GetSkus() {}
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<GetSkusData> GetSkus()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetSkusResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetSkus, GetSkusResponse>(new ());
+
+                return response.Data;
+            }
+
 
             /// <summary>
-            /// Not released yet! :p
+            /// Launches the purchase flow for a specific SKU ID. <br/> <br/>
+            /// No scopes required. <br/> <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ⛔️ | iOS <br/>
+            /// ⛔️ | Android <br/>
+            /// ---------------------- <br/>
             /// </summary>
-            internal static void StartPurchase() {}
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<Entitlement[]> StartPurchase(string skuId)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<StartPurchaseResponse>(skuId);
+
+                    if (Platform == Models.Platform.Mobile)
+                    {
+                        mockResponse.Data = new Entitlement[] {};
+
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Platform is mobile, not possible to start purchase");
+                    }
+
+                    if (mockResponse.Data == null) return new Entitlement[] {};
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<StartPurchase, StartPurchaseResponse>(new (skuId));
+
+                if (response.Data == null) return new Entitlement[] {};
+
+                return response.Data;                
+            }
 
 
             /// <summary>
@@ -463,7 +468,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<GetPlatformBehaviorsData> GetPlatformBehaviors()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -491,7 +496,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task OpenExternalLink(string url)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
@@ -516,7 +521,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task OpenInviteDialog()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
@@ -541,7 +546,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task OpenShareMomentDialog(string mediaUrl)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
@@ -568,7 +573,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<Activity> SetActivity(ActivityBuilder activity)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
                 
                 if (_mock)
                 {
@@ -606,7 +611,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<SetConfigData> SetConfig(bool useInteractivePip)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -641,7 +646,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task SetOrientationLockState(OrientationLockStateType lockState)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock && !_configuration!.DisableDissonityInfoLogs)
                 {
@@ -668,7 +673,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<UserSettingsGetLocaleData> UserSettingsGetLocale()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -704,7 +709,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<InitiateImageUploadData> InitiateImageUpload()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -732,7 +737,7 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<GetInstanceConnectedParticipantsData> GetInstanceConnectedParticipants()
             {
-                if (!_ready) throw new InvalidOperationException("Tried to use a command without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
@@ -760,7 +765,7 @@ namespace Dissonity
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPostRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
@@ -778,7 +783,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPostRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPostRequest(uri, payload, tcs) );
 
                 return tcs.Task;
             }
@@ -794,7 +799,7 @@ namespace Dissonity
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsGetRequest<TJsonResponse>(string path)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
@@ -812,7 +817,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendGetRequest(uri, tcs) );
+                bridge!.StartCoroutine( SendGetRequest(uri, tcs) );
 
                 return tcs.Task;
             }
@@ -828,7 +833,7 @@ namespace Dissonity
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPatchRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
@@ -846,7 +851,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPatchRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPatchRequest(uri, payload, tcs) );
 
                 return tcs.Task;
             }
@@ -862,7 +867,7 @@ namespace Dissonity
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPutRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
@@ -880,7 +885,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendPutRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPutRequest(uri, payload, tcs) );
 
                 return tcs.Task;
             }
@@ -896,7 +901,7 @@ namespace Dissonity
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsDeleteRequest<TJsonResponse>(string path)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
@@ -914,7 +919,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.GetComponent<DissonityBridge>().StartCoroutine( SendDeleteRequest(uri, tcs) );
+                bridge!.StartCoroutine( SendDeleteRequest(uri, tcs) );
 
                 return tcs.Task;
             }
@@ -1045,14 +1050,17 @@ namespace Dissonity
         //# SUBSCRIBE - - - -
         public static class Subscribe
         {
+            //* SubscribeCommandFactory handles mock mode
+
             /// <summary>
             /// Received when the number of instance participants changes. <br/> <br/>
             /// No scopes required.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> ActivityInstanceParticipantsUpdate(Action<ActivityInstanceParticipantsUpdateData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> ActivityInstanceParticipantsUpdate(Action<ActivityInstanceParticipantsUpdateData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 var reference = await SubscribeCommandFactory<ActivityInstanceParticipantsUpdate, ActivityInstanceParticipantsUpdateData>(listener);
 
@@ -1065,9 +1073,10 @@ namespace Dissonity
             /// No scopes required.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> ActivityLayoutModeUpdate(Action<ActivityLayoutModeUpdateData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> ActivityLayoutModeUpdate(Action<ActivityLayoutModeUpdateData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 var reference = await SubscribeCommandFactory<ActivityLayoutModeUpdate, ActivityLayoutModeUpdateData>(listener);
 
@@ -1080,9 +1089,21 @@ namespace Dissonity
             /// Scopes required: <c> identify </c> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> CurrentUserUpdate(Action<User> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> CurrentUserUpdate(Action<User> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'identify'. Can't subscribe to Current User Update");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
 
                 var reference = await SubscribeCommandFactory<CurrentUserUpdate, User>(listener);
 
@@ -1096,9 +1117,21 @@ namespace Dissonity
             /// Scopes required: <c> identify </c>, <c> guilds.members.read </c> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> CurrentGuildMemberUpdate(string guildId, Action<GuildMemberRpc> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> CurrentGuildMemberUpdate(string guildId, Action<GuildMemberRpc> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.Identify) || !_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'identify' and 'guilds.members.read'. Can't subscribe to Current Guild Member Update");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
 
                 var reference = await SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(listener, new EventArguments{ GuildId = guildId });
 
@@ -1106,11 +1139,21 @@ namespace Dissonity
             }
 
 
-            //todo Developer preview, not released yet
+            //todo Also not documented yet
             /// <summary>
-            /// Not released yet! :p
+            /// Received when an entitlement is created for a SKU <br/> <br/>
+            /// No scopes required
             /// </summary>
-            internal static void EntitlementCreate() {}
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> EntitlementCreate(Action<EntitlementCreateData> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                var reference = await SubscribeCommandFactory<EntitlementCreate, EntitlementCreateData>(listener);
+
+                return reference;
+            }
 
 
             /// <summary>
@@ -1118,9 +1161,10 @@ namespace Dissonity
             /// No scopes required.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
             public static SubscriptionReference Error(Action<ErrorEventData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 //\ Create reader
                 var reader = new MessageBusReaderIndefinite((discordEvent) =>
@@ -1148,9 +1192,10 @@ namespace Dissonity
             /// No scopes required.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> OrientationUpdate(Action<OrientationUpdateData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> OrientationUpdate(Action<OrientationUpdateData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 var reference = await SubscribeCommandFactory<OrientationUpdate, OrientationUpdateData>(listener);
 
@@ -1163,9 +1208,21 @@ namespace Dissonity
             /// Scopes required: <c> rpc.voice.read </c> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> SpeakingStart(string channelId, Action<SpeakingStartData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> SpeakingStart(string channelId, Action<SpeakingStartData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RpcVoiceRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'rpc.voice.read'. Can't subscribe to Speaking Start");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
 
                 var reference = await SubscribeCommandFactory<SpeakingStart, SpeakingStartData>(listener, new EventArguments{ ChannelId = channelId });
 
@@ -1178,9 +1235,21 @@ namespace Dissonity
             /// Scopes required: <c> rpc.voice.read </c> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> SpeakingStop(string channelId, Action<SpeakingStopData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> SpeakingStop(string channelId, Action<SpeakingStopData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RpcVoiceRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'rpc.voice.read'. Can't subscribe to Speaking Stop");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
 
                 var reference = await SubscribeCommandFactory<SpeakingStop, SpeakingStopData>(listener, new EventArguments{ ChannelId = channelId });
 
@@ -1193,9 +1262,10 @@ namespace Dissonity
             /// No scopes required
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> ThermalStateUpdate(Action<ThermalStateUpdateData> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> ThermalStateUpdate(Action<ThermalStateUpdateData> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 var reference = await SubscribeCommandFactory<ThermalStateUpdate, ThermalStateUpdateData>(listener);
 
@@ -1208,9 +1278,21 @@ namespace Dissonity
             /// Scopes required: <c> rpc.voice.read </c> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public async static Task<SubscriptionReference> VoiceStateUpdate(string channelId, Action<UserVoiceState> listener)
+            /// <exception cref="CommandException"></exception>
+            public static async Task<SubscriptionReference> VoiceStateUpdate(string channelId, Action<UserVoiceState> listener)
             {
-                if (!_ready) throw new InvalidOperationException("Tried to subscribe without initialization");
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RpcVoiceRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'rpc.voice.read'. Can't subscribe to Speaking Stop");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
 
                 var reference = await SubscribeCommandFactory<VoiceStateUpdate, UserVoiceState>(listener, new EventArguments{ ChannelId = channelId });
 
@@ -1218,7 +1300,7 @@ namespace Dissonity
             }
 
             // Private method used to simplify the subscription methods
-            private async static Task<SubscriptionReference> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null) where TEvent : DiscordEvent
+            private static async Task<SubscriptionReference> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null) where TEvent : DiscordEvent
             {
                 string eventString = EventUtility.GetStringFromType(typeof(TEvent));
 
@@ -1268,7 +1350,6 @@ namespace Dissonity
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="OutsideDiscordException"></exception>
-        /// <exception cref="AuthorizationException"></exception>
         /// <exception cref="JsonException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public static Task<MultiEvent> Initialize()
@@ -1280,9 +1361,9 @@ namespace Dissonity
             _clientId = _configuration.ClientId;
 
             //\ Create bridge instance
-            bridge = new GameObject("_DissonityBridge");
-            var bridgeComponent = bridge.AddComponent<DissonityBridge>();
-            GameObject.DontDestroyOnLoad(bridge);
+            bridgeObject = new GameObject("_DissonityBridge");
+            bridge = bridgeObject.AddComponent<DissonityBridge>();
+            GameObject.DontDestroyOnLoad(bridgeObject);
 
             //\ Prepare initialization task
             var tcs = new TaskCompletionSource<MultiEvent>();
@@ -1316,17 +1397,18 @@ namespace Dissonity
 
             // Mock is invalid here
             _mock = false;
-            _disableMock = true;
+            disableMock = true;
 
             Listen();
 
-            //\ Request query
-            bridgeComponent.queryAction += (query) =>
+            async void HandleInteraction()
             {
-                InitializeQuery(tcs, query);
-            };
+                string query = await bridge!.ExeQuery();
 
-            RequestQuery();
+                InitializeQuery(tcs, query);
+            }
+
+            HandleInteraction();
 
             return tcs.Task;
         }
@@ -1337,9 +1419,14 @@ namespace Dissonity
         /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static Task PatchUrlMappings(MappingBuilder[] mappings, PatchUrlMappingsConfigBuilder config)
+        public static Task PatchUrlMappings(MappingBuilder[] mappings, PatchUrlMappingsConfigBuilder? config = null)
         {
-            if (_initialized) throw new InvalidOperationException("Tried to use a method without initialization");
+            if (!_ready) throw new InvalidOperationException("Tried to use a method without being ready");
+
+            if (config == null)
+            {
+                config = _configuration!.PatchUrlMappingsConfig;
+            }
 
             var tcs = new TaskCompletionSource<bool>();
 
@@ -1351,22 +1438,69 @@ namespace Dissonity
                 return tcs.Task;
             }
 
-            bridge!.GetComponent<DissonityBridge>().patchUrlMappingsAction += () =>
+            async void HandleInteraction()
             {
+                var payload = new PatchUrlMappings()
+                {
+                    Mappings = mappings,
+                    Config = config
+                };
+
+                await bridge!.ExePatchUrlMappings(payload);
+
                 tcs.TrySetResult(true);
-            };
+            }
 
-            var payload = new PatchUrlMappings()
-            {
-                Mappings = mappings,
-                Config = config
-            };
-
-            RequestPatchUrlMappings(JsonConvert.SerializeObject(payload));
+            HandleInteraction();
 
             return tcs.Task;
         }
 
+
+        /// <summary>
+        /// Use this method to easily render SKU prices. When called in the Unity Editor, uses a generic currency symbol <c> ¤ </c>.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static Task<string> FormatPrice(SkuPrice price, string locale = Locale.UsEnglish)
+        {
+            if (!_ready) throw new InvalidOperationException("Tried to use a method without being ready");
+
+            var tcs = new TaskCompletionSource<string>();
+
+            if (_mock)
+            {
+                CultureInfo culture = new CultureInfo(locale);
+                NumberFormatInfo numberFormat = culture.NumberFormat;
+
+                numberFormat.CurrencySymbol = "¤";
+
+                double number = price.Amount / 100;
+                string result = number.ToString("C", numberFormat);
+
+                //\ Complete task
+                tcs.TrySetResult(result);
+
+                return tcs.Task;
+            } 
+
+            async void HandleInteraction()
+            {
+                var payload = new FormatPrice()
+                {
+                    Amount = price.Amount,
+                    Currency = price.Currency,
+                    Locale = locale
+                };
+
+                string result = await bridge!.ExeFormatPrice(payload);
+
+                tcs.TrySetResult(result);
+            }
+
+            HandleInteraction();
+
+            return tcs.Task;
+        }
 
         //# UNSUBSCRIBE - - - - -
         /// <summary>
@@ -1376,7 +1510,7 @@ namespace Dissonity
         /// <exception cref="ArgumentException"></exception>
         public static void Unsubscribe(SubscriptionReference reference)
         {
-            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
             
             if (!messageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a SubscriptionReference that no longer exists ({reference.EventString})");
 
@@ -1402,7 +1536,7 @@ namespace Dissonity
         /// <exception cref="ArgumentException"></exception>
         public static void UnsubscribeFromEvent(string eventString)
         {
-            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
             
             if (!messageBus.ReaderSetDictionary.ContainsKey(eventString)) throw new ArgumentException($"Tried to unsubscribe from an event that had no subscriptions ({eventString})");
 
@@ -1421,7 +1555,7 @@ namespace Dissonity
         /// <exception cref="InvalidOperationException"></exception>
         public static void ClearAllSubscriptions()
         {
-            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without initialization");
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
 
             messageBus.ReaderSetDictionary.Clear();
 
@@ -1441,7 +1575,7 @@ namespace Dissonity
         /// <exception cref="InvalidOperationException"></exception>
         public static void Close(RpcCloseCode code, string message = "")
         {
-            if (!_ready && !_closedState) throw new InvalidOperationException("Tried to close the app without initialization");
+            if (!_ready) throw new InvalidOperationException("Tried to close the app without being ready");
 
             if (!_mock)
             {
@@ -1467,7 +1601,7 @@ namespace Dissonity
 
             if (query == null)
             {
-                tcs.TrySetException(new JsonException("Something went wrong attempting to read the query."));
+                tcs.TrySetException(new JsonException("Something went wrong attempting to read the query"));
                 return;
             }
 
@@ -1477,12 +1611,7 @@ namespace Dissonity
             {
                 // RpcBridge state should only be OutsideDiscord here
 
-                if (!_configuration!.DisableDissonityInfoLogs)
-                {
-                    Utils.DissonityLogWarning("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled.");
-                }
-
-                tcs.TrySetException(new OutsideDiscordException());
+                tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled."));
                 return;
             }
             _frameId = query.FrameId;
@@ -1490,7 +1619,7 @@ namespace Dissonity
             // Instance id
             if (query.InstanceId == null)
             {
-                tcs.TrySetException(new ArgumentException("instance_id query param is not defined"));
+                tcs.TrySetException(new OutsideDiscordException("instance_id query param is not defined"));
                 return;
             }
             _instanceId = query.InstanceId;
@@ -1498,7 +1627,7 @@ namespace Dissonity
             // Platform
             if (query.Platform == null)
             {
-                tcs.TrySetException(new ArgumentException("platform query param is not defined"));
+                tcs.TrySetException(new OutsideDiscordException("platform query param is not defined"));
                 return;
             }
             else if (query.Platform != Models.Platform.Desktop && query.Platform != Models.Platform.Mobile)
@@ -1527,8 +1656,10 @@ namespace Dissonity
             }
 
             //\ Request state
-            bridge!.GetComponent<DissonityBridge>().stateAction += (code) =>
+            async void HandleState()
             {
+                var code = await bridge!.ExeState();
+
                 if (!_configuration!.DisableDissonityInfoLogs)
                 {
                     //? Problem
@@ -1539,35 +1670,30 @@ namespace Dissonity
 
                     else Utils.DissonityLog($"Bridge returned state code: {code}");
                 }
+            }
 
-                //? If the RpcBridge is closed, user denied authorization
-                if (code == BridgeStateCode.Closed)
-                {
-                    _closedState = true;
-                    tcs.TrySetException(new AuthorizationException());
-                }
-            };
-
-            //\ Listen for multi event
-            bridge.GetComponent<DissonityBridge>().multiEventAction += (multiEvent) =>
+            async void HandleMulti()
             {
+                var multiEvent = await bridge!.ExeMultiEvent();
+
                 // OverrideConsoleLogging is done in the BridgeLib
                 _ready = true;
                 _userId = multiEvent.AuthenticateData.User.Id;
                 tcs.TrySetResult(multiEvent);
-            };
+            }
 
             // After requesting the state, the RpcBridge will send the multi event (once ready) through <DissonityBridge>.ReceiveMultiEvent
-            RequestState();
+            HandleMulti();
+            HandleState();
 
             // The handshake is handled by the RpcBridge even before the Unity build loads
         }
 
-        private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand<TResponse> where TResponse : DiscordEvent
+        private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand where TResponse : DiscordEvent
         {
             if (!_initialized)
             {
-                throw new InvalidOperationException("Tried to send a command without initialization");
+                throw new InvalidOperationException("Tried to send a command without being ready");
             }
 
             var tcs = new TaskCompletionSource<TResponse>();
@@ -1595,18 +1721,18 @@ namespace Dissonity
             return tcs.Task;
         }
 
-        private static void SendToBridge<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand<TResponse> where TResponse : DiscordEvent
+        private static void SendToBridge<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand where TResponse : DiscordEvent
         {
             if (!_initialized)
             {
-                throw new InvalidOperationException("Tried to send to bridge without initialization");
+                throw new InvalidOperationException("Tried to send to bridge without being ready");
             }
 
             object payload;
 
-            if (command is FrameCommand<TResponse> frameCommand)
+            if (command is FrameCommand frameCommand)
             {
-                payload = new SerializableFrameCommand<TResponse>(frameCommand);
+                payload = new SerializableFrameCommand(frameCommand);
             }
             else
             {
@@ -1627,12 +1753,11 @@ namespace Dissonity
             if (!_mock) throw new InvalidOperationException("This method can only be called in mock mode");
             if (!_initialized)
             {
-                throw new InvalidOperationException("Tried to send a command without initialization");
+                throw new InvalidOperationException("Tried to send a command without being ready");
             }
 
             var tcs = new TaskCompletionSource<TResponse>();
             DiscordMock mock = GameObject.FindObjectOfType<DiscordMock>();
-
 
             if (typeof(TResponse) == typeof(NoResponse))
             {
@@ -1663,7 +1788,7 @@ namespace Dissonity
 
                     //? Query channel id is an actual mock channel
                     string id = ChannelId!;
-                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == id)?.Value;
+                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == id);
 
                     if (mockChannel != null)
                     {
@@ -1671,6 +1796,19 @@ namespace Dissonity
                     }
 
                     ((TaskCompletionSource<GetChannelPermissionsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetEntitlementsResponse
+                else if (typeof(TResponse) == typeof(GetEntitlementsResponse))
+                {
+                    var response = new GetEntitlementsResponse();
+
+                    response.Data = new()
+                    {
+                        Entitlements = mock.GetEntitlements()
+                    };
+
+                    ((TaskCompletionSource<GetEntitlementsResponse>) (object) tcs).TrySetResult(response);
                 }
 
                 // GetChannelResponse
@@ -1681,14 +1819,22 @@ namespace Dissonity
                     response.Data = new();
 
                     //? Channel id is an actual mock channel
-                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == (string) arg!)?.Value;
+                    MockChannel? mockChannel = mock.channels.Find(c => c.Id == (string) arg!);
 
                     if (mockChannel != null)
                     {
-                        response.Data = mockChannel.ChannelData.ToChannelData();
+                        response.Data = mockChannel.ToChannelData();
                     }
 
                     else if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("You can get mock channel data by calling Api.Commands.GetChannel with a mock channel id");
+
+                    //? Channel id is query channel id
+                    if (mock.query.ChannelId == (string) arg!)
+                    {
+                        // I believe it makes more sense to only add these if the channel
+                        // is the same that's sent in the query
+                        response.Data.VoiceStates = mock.GetUserVoiceStates();
+                    }
 
                     ((TaskCompletionSource<GetChannelResponse>) (object) tcs).TrySetResult(response);
                 }
@@ -1717,6 +1863,19 @@ namespace Dissonity
                     };
 
                     ((TaskCompletionSource<GetPlatformBehaviorsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetSkusResponse
+                else if (typeof(TResponse) == typeof(GetSkusResponse))
+                {
+                    var response = new GetSkusResponse();
+
+                    response.Data = new()
+                    {
+                        Skus = mock.GetSkus()
+                    };
+
+                    ((TaskCompletionSource<GetSkusResponse>) (object) tcs).TrySetResult(response);
                 }
 
                 // InitiateImageUploadResponse
@@ -1755,6 +1914,42 @@ namespace Dissonity
                     ((TaskCompletionSource<SetConfigResponse>) (object) tcs).TrySetResult(response);
                 }
 
+                // StartPurchaseResponse
+                else if (typeof(TResponse) == typeof(StartPurchaseResponse))
+                {
+                    var response = new StartPurchaseResponse();
+
+                    //? Sku id is an actual mock sku
+                    MockSku? mockSku = mock.skus.Find(s => s.Id == (string) arg!);
+
+                    if (mockSku != null)
+                    {
+                        //? Add SKU if it's not added yet
+                        MockEntitlement? mockEntitlement = mock.entitlements.Find(e => e.SkuId == (string) arg!);
+
+                        if (mockEntitlement == null)
+                        {
+                            string id = Utils.GetMockSnowflake();
+
+                            mock.entitlements.Add(new MockEntitlement()
+                            {
+                                UserId = mock.currentPlayer.Participant.Id,
+                                SkuId = (string) arg!,
+                                Id = id,
+                                __mock__name = $"{mockSku.Name} Entitlement"
+                            });
+
+                            mock.EntitlementCreate(id);
+                        }
+                    }
+
+                    else if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("You can test a purchase by calling Api.Commands.StartPurchase with a mock sku id");
+                    
+                    response.Data = mock.GetEntitlements();
+
+                    ((TaskCompletionSource<StartPurchaseResponse>) (object) tcs).TrySetResult(response);
+                }
+
                 // UserSettingsGetLocaleResponse
                 else if (typeof(TResponse) == typeof(UserSettingsGetLocaleResponse))
                 {
@@ -1775,10 +1970,15 @@ namespace Dissonity
             return tcs.Task;
         }
 
-        internal static void EnableMock()
+        internal static void MockOn()
         {
-            if (_disableMock) return;
+            if (disableMock) return;
             _mock = true;
+        }
+
+        internal static void MockOff()
+        {
+            _mock = false;
         }
     }
 }

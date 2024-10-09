@@ -1,11 +1,10 @@
 using System;
-using Dissonity.Commands.Responses;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class OpenShareMomentDialog : FrameCommand<NoResponse>
+    internal class OpenShareMomentDialog : FrameCommand
     {
         internal override string Command => DiscordCommandType.OpenShareMomentDialog;
     

@@ -1,8 +1,7 @@
 
 namespace Dissonity.Models
 {
-    //todo Not released yet. Some models related to this functionality may not be implemented.
-    internal enum EntitlementType
+    public enum EntitlementType
     {
         Unhandled = -1,
         Purchase = 1,

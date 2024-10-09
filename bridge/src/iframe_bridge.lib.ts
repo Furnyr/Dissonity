@@ -16,7 +16,7 @@ declare const UTF8ToString: (str: any) => string;
 
 // Jspre
 declare const Bridge: (message: MessageEvent) => void;
-declare const SendToRpcBridge: (message: { command: RpcBridgeCommands, payload?: string }) => void;
+declare const SendToRpcBridge: (message: { command: RpcBridgeCommands, nonce?: string, payload?: string }) => void;
 
 // Plugin
 declare const LibraryManager: { library: string };
@@ -41,16 +41,21 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity
-    RequestState: function (): void {
-        SendToRpcBridge({ command: "RequestState" });
+    RequestState: function (stringifiedMessage: string): void {
+
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce } = JSON.parse(message);
+
+        SendToRpcBridge({ command: "RequestState", nonce });
     },
 
     //@unity
     RequestPatchUrlMappings: function (stringifiedMessage: string): void {
 
         const message = UTF8ToString(stringifiedMessage);
+        const { nonce, payload } = JSON.parse(message);
 
-        SendToRpcBridge({ command: "RequestPatchUrlMappings", payload: message });
+        SendToRpcBridge({ command: "RequestPatchUrlMappings", nonce, payload: JSON.stringify(payload) });
     },
 
     //@unity
@@ -63,10 +68,23 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity
+    RequestFormatPrice: function (stringifiedMessage: string): void {
+
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce, payload } = JSON.parse(message);
+
+        SendToRpcBridge({ command: "RequestFormatPrice", nonce, payload: JSON.stringify(payload) });
+    },
+
+    //@unity
     // This could be the same function that the RpcBridge has
     // since it can access the query from a nested iframe,
     // but it's not to make sure both bridges have the same implementation.
-    RequestQuery: function (): void{
-        SendToRpcBridge({ command: "RequestQuery" });
+    RequestQuery: function (stringifiedMessage: string): void{
+
+        const message = UTF8ToString(stringifiedMessage);
+        const { nonce } = JSON.parse(message);
+
+        SendToRpcBridge({ command: "RequestQuery", nonce });
     }
 });

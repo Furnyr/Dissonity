@@ -16,6 +16,7 @@ Function names are PascalCase, C# method conventions.
 
 // Official methods
 declare const patchUrlMappings: (mappings: Mapping[], config: PatchUrlMappingsConfig) => void;
+declare const formatPrice: (price: {amount: number; currency: string}, locale: string) => string;
 
 // Official types
 import type { Mapping, PatchUrlMappingsConfig, HandshakePayload } from "./official/official_types";
@@ -40,6 +41,9 @@ const OPCODES = {
     Frame: 1,
     Close: 2,
     Hello: 3
+};
+const CLOSE_CODES = {
+    Normal: 1000
 };
 const ALLOWED_ORIGINS = new Set([
     window.location.origin,
@@ -141,8 +145,8 @@ function Handshake(): void {
 
     const query = RequestQuery();
 
-    //? No frame_id param
-    if (!query || !query.frame_id) {
+    //? No query params
+    if (!query || !query.frame_id || !query.instance_id || !query.platform) {//todo left it here
         currentState = STATE_CODES.OutsideDiscord;
         return;
     }
@@ -185,7 +189,7 @@ function IframeBridgeListener(message: MessageEvent): void {
     //? Send from the IframeBridge
     if (!message.data.iframeBridge) return;
 
-    const { command, payload } = message.data;
+    const { command, nonce, payload } = message.data; // payload is a stringified message
         
     switch (command as RpcBridgeCommands) {
 
@@ -195,18 +199,34 @@ function IframeBridgeListener(message: MessageEvent): void {
         }
 
         case "RequestQuery": {
+
             const query = RequestQuery();
-            SendToIframeBridge({ method: "ReceiveQuery", payload: JSON.stringify(query) });
+            
+            const formattedPayload = {
+                nonce,
+                payload: {
+                    str: JSON.stringify(query)
+                }
+            };
+
+            SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(formattedPayload) });
             break;
         }
 
         case "RequestState": {
-            RequestState();
+            RequestState(nonce);
             break;
         }
 
         case "RequestPatchUrlMappings": {
-            RequestPatchUrlMappings(payload);
+            const parsedPayload = JSON.parse(payload);
+            RequestPatchUrlMappings(nonce, parsedPayload.str);
+            break;
+        }
+
+        case "RequestFormatPrice": {
+            const parsedPayload = JSON.parse(payload);
+            RequestFormatPrice(nonce, parsedPayload.str);
             break;
         }
 
@@ -244,7 +264,7 @@ function NonFrameOpcode(message: MessageEvent): void {
     
             //? Forward message to Unity
             if (unityReady) {
-                SendToIframeBridge({ method: "HandleMessage", payload: SerializePayload(message.data) })
+                SendToIframeBridge({ method: "_HandleMessage", payload: SerializePayload(message.data) })
             }
             break;
         }
@@ -332,6 +352,18 @@ async function InitialBridgeListener(message: MessageEvent): Promise<void> {
                 //\ Close RpcBridge
                 currentState = STATE_CODES.Closed;
                 RemoveListeners(InitialBridgeListener);
+
+                InternalSend(
+                    [
+                        OPCODES.Close,
+                        {
+                            code: CLOSE_CODES.Normal,
+                            message: "User unauthorized scopes",
+                            nonce: GetNonce()
+                        }
+                    ]
+                )
+
                 break;
             }
 
@@ -454,7 +486,7 @@ function Bridge(message: MessageEvent): void {
 
     const data = SerializePayload(message.data);
 
-    SendToIframeBridge({ method: "HandleMessage", payload: data })
+    SendToIframeBridge({ method: "_HandleMessage", payload: data })
 }
 
 
@@ -640,14 +672,19 @@ function InternalSend(message: unknown): void {
 
 function DispatchMultiEvent(): void {
 
-    const multiEventPayload = {
-        ready: readyData,
-        authorize: authorizeData,
-        authenticate: authenticateData,
-        response: serverPayloadData
+    const sendMessage = {
+        nonce: null,
+        payload: {
+            raw_multi_event: {
+                ready: readyData,
+                authorize: authorizeData,
+                authenticate: authenticateData,
+                response: serverPayloadData
+            }
+        }
     };
 
-    SendToIframeBridge({ method: "ReceiveMultiEvent", payload: JSON.stringify(multiEventPayload) });
+    SendToIframeBridge({ method: "_ReceiveMultiEvent", payload: JSON.stringify(sendMessage) });
 
     ClearData();
 }
@@ -721,13 +758,16 @@ function RequestQuery(): Record<string, string> {
 }
 
 //@indirect:iframe-bridge
-function RequestState(): void {
+function RequestState(nonce: string): void {
 
     const sendMessage = {
-        code: currentState,
+        nonce,
+        payload: {
+            code: currentState,
+        }
     };
 
-    SendToIframeBridge({ method: "ReceiveState", payload: JSON.stringify(sendMessage) });
+    SendToIframeBridge({ method: "_ReceiveState",  payload: JSON.stringify(sendMessage) });
 
     if (!unityReady) {
 
@@ -741,7 +781,7 @@ function RequestState(): void {
 }
 
 //@indirect:iframe-bridge
-function RequestPatchUrlMappings(stringifiedMessage: string): void {
+function RequestPatchUrlMappings(nonce: string, stringifiedMessage: string): void {
 
     const { mappings, config } = JSON.parse(stringifiedMessage);
 
@@ -749,8 +789,29 @@ function RequestPatchUrlMappings(stringifiedMessage: string): void {
         patchUrlMappings(mappings, config);
     }
 
-    SendToIframeBridge({ method: "ReceivePatchUrlMappings", payload: "" });
+    const sendMessage = {
+        nonce
+    };
+
+    SendToIframeBridge({ method: "_ReceiveEmpty", payload: JSON.stringify(sendMessage) });
 }
 
+//@indirect:iframe-bridge
+function RequestFormatPrice(nonce: string, stringifiedMessage: string): void {
+
+    const { amount, currency, locale } = JSON.parse(stringifiedMessage);
+
+    const result = formatPrice({ amount, currency }, locale);
+
+    const sendMessage = {
+        nonce,
+        payload: {
+            str: result
+        }
+    };
+
+    SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(sendMessage) });
+}
+//todo left it here, with underscores added ^
 
 document.addEventListener("DOMContentLoaded", Handshake);

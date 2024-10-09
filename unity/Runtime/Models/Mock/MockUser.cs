@@ -9,7 +9,7 @@ namespace Dissonity.Models.Mock
 
         new public string Username = "mock";
 
-        new public string GlobalName = "Mock name";
+        new public string GlobalName = "Mock player";
 
         new public string Avatar = "4v4t43h4sh";
 
@@ -22,5 +22,21 @@ namespace Dissonity.Models.Mock
         new public int Flags = 0;
 
         new public int PremiumType = 0;
+
+        public User ToUser()
+        {
+            return new User()
+            {
+                GlobalName = GlobalName,
+                AccentColor = AccentColor,
+                AvatarDecoration = AvatarDecoration,
+                Bot = Bot,
+                Flags = Flags,
+                PremiumType = PremiumType,
+                Id = Id,
+                Username = Username,
+                Avatar = Avatar
+            };
+        }
     }
 }

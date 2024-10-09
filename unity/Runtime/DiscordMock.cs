@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Dissonity.Models.Mock;
 using System.Collections.Generic;
@@ -11,24 +12,31 @@ namespace Dissonity
     /// </summary>
     public class DiscordMock : MonoBehaviour
     {
-        public MockLocale locale = MockLocale.en_US;
+        #nullable enable annotations
 
-        public MockPlayer currentPlayer = new();
-
-        public List<MockPlayer> otherPlayers = new();
-
-        public List<MockDictionary<MockChannel>> channels = new();
-
+        // Query
         public MockQueryData query = new();
+
+        // Activity
+        public MockLocale locale = MockLocale.en_US;
+        public MockPlayer currentPlayer = new();
+        public List<MockPlayer> otherPlayers = new();
+        public List<MockChannel> channels = new();
 
         // General events
         public LayoutModeType layoutMode = LayoutModeType.Focused;
         public OrientationType screenOrientation = OrientationType.Landscape;
         public ThermalStateType thermalState = ThermalStateType.Nominal;
+        public string mockEntitlementId = "";
+
+        // In-App Purchases
+        public List<MockEntitlement> entitlements = new();
+        public List<MockSku> skus = new();
 
         // Singleton
         public static DiscordMock Singleton { get; private set; }
 
+        //# RUNTIME - - - - -
         void Awake()
         {
             if (!Api.isEditor)
@@ -48,10 +56,10 @@ namespace Dissonity
 
             GameObject.DontDestroyOnLoad(gameObject);
 
-            Api.EnableMock();
+            Api.MockOn();
         }
 
-        public Participant[] GetParticipants()
+        internal Participant[] GetParticipants()
         {
             List<Participant> participants = new();
 
@@ -66,6 +74,56 @@ namespace Dissonity
             return participants.ToArray();
         }
 
+        internal Sku[] GetSkus()
+        {
+            List<Sku> skuList = new();
+
+            foreach (var dict in skus)
+            {
+                skuList.Add(dict.ToSku());
+            }
+
+            return skuList.ToArray();
+        }
+
+        internal Entitlement[] GetEntitlements()
+        {
+            List<Entitlement> entitlementList = new();
+
+            foreach (var ent in entitlements)
+            {
+                entitlementList.Add(ent.ToEntitlement());
+            }
+
+            return entitlementList.ToArray();
+        }
+
+        internal UserVoiceState[] GetUserVoiceStates()
+        {
+            List<UserVoiceState> userVoiceStates = new();
+
+            var myVoiceState = currentPlayer.UserVoiceState.ToUserVoiceState();
+            myVoiceState.Nickname = currentPlayer.Participant.Nickname;
+            myVoiceState.User = currentPlayer.Participant;
+
+            userVoiceStates.Add(myVoiceState);
+
+            // Add each player voice state
+            foreach (MockPlayer player in otherPlayers)
+            {
+                var voiceState = player.UserVoiceState.ToUserVoiceState();
+                voiceState.Nickname = player.Participant.Nickname;
+                voiceState.User = player.Participant;
+
+                userVoiceStates.Add(voiceState);
+            }
+
+            return userVoiceStates.ToArray();
+        }
+
+        /// <summary>
+        /// Dispatch a mock Activity Instance Participants Update.
+        /// </summary>
         public void ActivityInstanceParticipantsUpdate()
         {
             ActivityInstanceParticipantsUpdateData data = new()
@@ -73,9 +131,13 @@ namespace Dissonity
                 Participants = GetParticipants()
             };
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.ActivityInstanceParticipantsUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.ActivityInstanceParticipantsUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Activity Layout Mode Update.
+        /// </summary>
         public void ActivityLayoutModeUpdate()
         {
             ActivityLayoutModeUpdateData data = new()
@@ -83,9 +145,13 @@ namespace Dissonity
                 LayoutMode = layoutMode
             };
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.ActivityLayoutModeUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.ActivityLayoutModeUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Orientation Update.
+        /// </summary>
         public void OrientationUpdate()
         {
             OrientationUpdateData data = new()
@@ -93,9 +159,13 @@ namespace Dissonity
                 ScreenOrientation = screenOrientation
             };
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.OrientationUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.OrientationUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Thermal State Update.
+        /// </summary>
         public void ThermalStateUpdate()
         {
             ThermalStateUpdateData data = new()
@@ -103,23 +173,39 @@ namespace Dissonity
                 ThermalState = thermalState
             };
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.ThermalStateUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.ThermalStateUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Current Guild Member Update.
+        /// </summary>
         public void CurrentGuildMemberUpdate()
         {
-            GuildMemberRpc data = currentPlayer.GuildMemberRpc;
+            GuildMemberRpc data = currentPlayer.GuildMemberRpc.ToGuildMemberRpc();
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.CurrentGuildMemberUpdate, data); 
+            data.Nickname = currentPlayer.Participant.Nickname;
+            data.UserId = currentPlayer.Participant.Id;
+
+            Api.bridge!.MockDispatch(DiscordEventType.CurrentGuildMemberUpdate, data); 
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Current User Update.
+        /// </summary>
         public void CurrentUserUpdate()
         {
-            User data = currentPlayer.Participant;
+            User data = currentPlayer.Participant.ToUser();
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.CurrentUserUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.CurrentUserUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Voice State Update. <br/> <br/>
+        /// <c> playerIndex </c> -1 for current player.
+        /// </summary>
         public void VoiceStateUpdate(int playerIndex = -1)
         {
             //\ Dispatch
@@ -129,9 +215,14 @@ namespace Dissonity
             if (playerIndex == -1) data = currentPlayer.UserVoiceState;
             else data = otherPlayers[playerIndex].UserVoiceState;
 
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.VoiceStateUpdate, data);
+            Api.bridge!.MockDispatch(DiscordEventType.VoiceStateUpdate, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Speaking Start. <br/> <br/>
+        /// <c> playerIndex </c> -1 for current player.
+        /// </summary>
         public void SpeakingStart(int playerIndex = -1)
         {
             //\ Dispatch
@@ -147,9 +238,14 @@ namespace Dissonity
                 UserId = userId
             };
             
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.SpeakingStart, data);
+            Api.bridge!.MockDispatch(DiscordEventType.SpeakingStart, data);
         }
 
+
+        /// <summary>
+        /// Dispatch a mock Speaking Stop. <br/> <br/>
+        /// <c> playerIndex </c> -1 for current player.
+        /// </summary>
         public void SpeakingStop(int playerIndex = -1)
         {
             //\ Dispatch
@@ -165,7 +261,26 @@ namespace Dissonity
                 UserId = userId
             };
             
-            Api.Bridge.GetComponent<DissonityBridge>().MockDispatch(DiscordEventType.SpeakingStop, data);
+            Api.bridge!.MockDispatch(DiscordEventType.SpeakingStop, data);
+        }
+    
+
+        /// <summary>
+        /// Dispatch a mock Entitlement Create.
+        /// </summary>
+        /// <exception cref="ArgumentException"></exception>
+        public void EntitlementCreate(string mockEntitlementId)
+        {
+            MockEntitlement? ent = entitlements.Find(e => e.Id == mockEntitlementId);
+
+            if (ent == null) throw new ArgumentException("You must pass a valid mock entitlement id");
+
+            EntitlementCreateData data = new()
+            {
+                Entitlement = ent.ToEntitlement()
+            };
+
+            Api.bridge!.MockDispatch(DiscordEventType.EntitlementCreate, data);
         }
     }
 }

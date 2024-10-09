@@ -9,10 +9,20 @@ namespace Dissonity.Models.Mock
 
         new public float Volume = 1f;
 
-        new public string Nickname = "Mock nickname";
+        // Nickname isn't exposed
         
-        new public MockUser User = new();
+        // User isn't exposed
 
         new public MockVoiceState VoiceState = new();
+
+        public UserVoiceState ToUserVoiceState()
+        {
+            return new UserVoiceState()
+            {
+                Mute = Mute,
+                Volume = Volume,
+                VoiceState = VoiceState.ToVoiceState()
+            };
+        }
     }
 }

@@ -44,7 +44,7 @@ namespace Dissonity.Models
         [JsonProperty("author")]
         public EmbedAuthor? Author { get; set; }
         
-        [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
-        public EmbedField[] Field { get; set; }
+        [JsonProperty("fields")]
+        public EmbedField[] Field { get; set; } = new EmbedField[0];
     }
 }

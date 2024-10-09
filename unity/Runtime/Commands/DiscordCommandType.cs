@@ -9,8 +9,8 @@ namespace Dissonity.Commands
         public const string Subscribe = "SUBSCRIBE";
         public const string Unsubscribe = "UNSUBSCRIBE";
         public const string SetActivity = "SET_ACTIVITY";
-        public const string GetSkus = "GET_SKUS";
-        public const string GetEntitlements = "GET_ENTITLEMENTS";
+        public const string GetSkusEmbedded = "GET_SKUS_EMBEDDED";
+        public const string GetEntitlementsEmbedded = "GET_ENTITLEMENTS_EMBEDDED";
         public const string StartPurchase = "START_PURCHASE";
         public const string SetConfig = "SET_CONFIG";
         public const string UserSettingsGetLocale = "USER_SETTINGS_GET_LOCALE";

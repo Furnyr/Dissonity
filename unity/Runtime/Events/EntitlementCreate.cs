@@ -4,10 +4,6 @@ using Newtonsoft.Json;
 
 namespace Dissonity.Events
 {
-    //todo Not released yet. Some models related to this functionality may not be implemented.
-    /// <summary>
-    /// Not released yet
-    /// </summary>
     [Serializable]
     internal class EntitlementCreate : DiscordEvent
     {
@@ -16,7 +12,7 @@ namespace Dissonity.Events
     }
 
     [Serializable]
-    internal class EntitlementCreateData
+    public class EntitlementCreateData
     {
         [JsonProperty("entitlement")]
         public Entitlement Entitlement { get; set; }

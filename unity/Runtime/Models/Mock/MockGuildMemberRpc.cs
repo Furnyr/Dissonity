@@ -7,7 +7,7 @@ namespace Dissonity.Models.Mock
     {
         #nullable enable annotations
 
-        new public string UserId = "9123456780";
+        // User id isn't exposed
 
         new public string GuildId = "8876543219";
 
@@ -17,6 +17,17 @@ namespace Dissonity.Models.Mock
 
         new public string ColorString = "#5865F2";
         
-        new public string Nickname = "Mock nickname";
+        // Nickname isn't exposed
+
+        public GuildMemberRpc ToGuildMemberRpc()
+        {
+            return new GuildMemberRpc()
+            {
+                GuildId = GuildId,
+                Avatar = Avatar,
+                AvatarDecoration = AvatarDecoration.ToAvatarDecoration(),
+                ColorString = ColorString
+            };
+        }
     }
 }

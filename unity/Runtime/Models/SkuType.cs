@@ -1,8 +1,7 @@
 
 namespace Dissonity.Models
 {
-    //todo Not released yet. Some models related to this functionality may not be implemented.
-    internal enum SkuType
+    public enum SkuType
     {
         Unhandled = -1,
         Application = 1,

@@ -1,4 +1,3 @@
-
 using System;
 using Dissonity.Models.Builders;
 using Newtonsoft.Json;

@@ -3,10 +3,11 @@ using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
-    //todo Not released yet. Some models related to this functionality may not be implemented.
     [Serializable]
-    internal class Sku
+    public class Sku
     {
+        #nullable enable annotations
+
         [JsonProperty("id")]
         public string Id { get; set; }
 
@@ -17,7 +18,7 @@ namespace Dissonity.Models
         public SkuType Type { get; set; }
 
         [JsonProperty("prize")]
-        public SkuPrize Prize { get; set; }
+        public SkuPrice Price { get; set; }
 
         [JsonProperty("application_id")]
         public string ApplicationId { get; set; }
@@ -26,6 +27,6 @@ namespace Dissonity.Models
         public int Flags { get; set; }
 
         [JsonProperty("release_date")]
-        public string ReleaseDate { get; set; }
+        public string? ReleaseDate { get; set; }
     }
 }

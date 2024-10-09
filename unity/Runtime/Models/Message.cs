@@ -38,23 +38,23 @@ namespace Dissonity.Models
         [JsonProperty("mention_everyone")]
         public bool MentionEveryone { get; set; }
 
-        [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public User[] Mentions { get; set; }
+        [JsonProperty("mentions")]
+        public User[] Mentions { get; set; } = new User[0];
 
-        [JsonProperty("mention_roles", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] MentionRoles { get; set; }
+        [JsonProperty("mention_roles")]
+        public string[] MentionRoles { get; set; } = new string[0];
 
-        [JsonProperty("mention_channels", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelMention[] MentionChannels { get; set; }
+        [JsonProperty("mention_channels")]
+        public ChannelMention[] MentionChannels { get; set; } = new ChannelMention[0];
         
-        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-        public Attachment[] Attachments { get; set; }
+        [JsonProperty("attachments")]
+        public Attachment[] Attachments { get; set; } = new Attachment[0];
 
-        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-        public Embed[] Embeds { get; set; }
+        [JsonProperty("embeds")]
+        public Embed[] Embeds { get; set; } = new Embed[0];
         
-        [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
-        public Reaction[] Reactions { get; set; }
+        [JsonProperty("reactions")]
+        public Reaction[] Reactions { get; set; } = new Reaction[0];
 
         [JsonProperty("nonce")]
         public string Nonce { get; set; }
@@ -80,8 +80,8 @@ namespace Dissonity.Models
         [JsonProperty("flags")]
         public int? Flags { get; set; }
 
-        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
-        public object[] Stickers { get; set; }
+        [JsonProperty("stickers")]
+        public object[] Stickers { get; set; } = new object[0];
 
         [JsonProperty("referenced_message")]
         public object? ReferencedMessage { get; set; }

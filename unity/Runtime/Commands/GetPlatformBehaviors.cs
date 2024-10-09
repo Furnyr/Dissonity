@@ -1,10 +1,9 @@
 using System;
-using Dissonity.Commands.Responses;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class GetPlatformBehaviors : FrameCommand<GetPlatformBehaviorsResponse>
+    internal class GetPlatformBehaviors : FrameCommand
     {
         internal override string Command => DiscordCommandType.GetPlatformBehaviors;
     }

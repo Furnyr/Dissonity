@@ -1,12 +1,11 @@
 using System;
-using Dissonity.Events;
 using Dissonity.Models.Interop;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal abstract class DiscordCommand<TResponse> where TResponse : DiscordEvent
+    internal abstract class DiscordCommand
     {
         [JsonIgnore]
         internal abstract Opcode Opcode { get; }

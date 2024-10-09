@@ -4,3 +4,6 @@ build
 examples/node_project/src/client/**/*.js
 examples/node_project/src/server/**/*.js
 examples/node_project/_unity_colyseus
+#v1
+npm
+examples/node_project/src/client/nested

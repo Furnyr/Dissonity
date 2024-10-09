@@ -14,7 +14,7 @@ import type { RpcBridgeCommands } from "./types";
 
 //# FUNCTIONS - - - - -
 //@iframe-bridge.lib
-function SendToRpcBridge(message: { command: RpcBridgeCommands, payload?: string }): void {
+function SendToRpcBridge(message: { command: RpcBridgeCommands, nonce?: string, payload?: string }): void {
 
     const source: Window = window.parent.opener ?? window.parent;
     const sourceOrigin = !!document.referrer ? document.referrer : "*";

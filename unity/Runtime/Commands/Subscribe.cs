@@ -1,12 +1,11 @@
 using System;
-using Dissonity.Commands.Responses;
 using Dissonity.Models.Interop;
 using Newtonsoft.Json;
 
 namespace Dissonity.Commands
 {
     [Serializable]
-    internal class Subscribe : DiscordCommand<SubscribeResponse>
+    internal class Subscribe : DiscordCommand
     {
         #nullable enable annotations
 
