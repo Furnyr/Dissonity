@@ -37,7 +37,7 @@ Mock images are outdated but updating them is not necessary.
 
 - Added `Request-` JS functions to DissonityBridge
 
-- Array properties should be [] instead of null is there's no data
+- Array properties should be [] instead of null if there's no data
 
 - Exposed classes that were [previously unreleased](https://github.com/Furnyr/Dissonity/wiki/Namespaces) (Entitlement, EntitlementType, Sku, SkuPrice, SkuType, SkuFlags)
 
