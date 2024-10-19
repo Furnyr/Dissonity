@@ -12,7 +12,7 @@ namespace Dissonity.Commands.Responses
     }
 
     [Serializable]
-    public class SubscribeData
+    internal class SubscribeData
     {
         [JsonProperty("evt")]
         public string Event { get; set; }

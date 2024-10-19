@@ -1,25 +1,30 @@
 
 using System.Collections.Generic;
+using System.Linq;
 using Dissonity.Events;
+using UnityEngine;
 
 namespace Dissonity.Bus
 {
     internal class MessageBus
     {
-        #nullable enable
-
         internal Dictionary<string, HashSet<MessageBusReader>> ReaderSetDictionary = new();
+        internal Dictionary<string, HashSet<MessageBusReader>> InternalReaderSetDictionary = new();
 
         private object ReaderLock = new object();
 
-        public MessageBusReader AddReader(string eventString, MessageBusReader reader)
+        public MessageBusReader AddReader(string eventString, MessageBusReader reader, bool isInternal = false)
         {
             lock (ReaderLock)
             {
+                Dictionary<string, HashSet<MessageBusReader>> dictionary = isInternal
+                    ? InternalReaderSetDictionary
+                    : ReaderSetDictionary;
+
                 //? Existing reader set
-                if (ReaderSetDictionary.ContainsKey(eventString))
+                if (dictionary.ContainsKey(eventString))
                 {
-                    var readerSet = ReaderSetDictionary[eventString];
+                    var readerSet = dictionary[eventString];
 
                     readerSet.Add(reader);
                 }
@@ -29,7 +34,7 @@ namespace Dissonity.Bus
                 {
                     var readerSet = new HashSet<MessageBusReader>();
 
-                    ReaderSetDictionary.Add(eventString, readerSet);
+                    dictionary.Add(eventString, readerSet);
 
                     readerSet.Add(reader);
                 }
@@ -38,36 +43,49 @@ namespace Dissonity.Bus
             return reader;
         }
 
-        public bool RemoveReader(string eventString, MessageBusReader reader)
+        public bool ReaderSetExists(string eventString)
         {
-            bool removedSet = false;
+            return ReaderSetDictionary.ContainsKey(eventString) || InternalReaderSetDictionary.ContainsKey(eventString);
+        }
+
+        public bool RemoveReader(string eventString, MessageBusReader reader, bool isInternal = false)
+        {
+            bool setIsGone = false;
 
             lock (ReaderLock)
             {
-                if (!ReaderSetDictionary.ContainsKey(eventString)) return false;
+                Dictionary<string, HashSet<MessageBusReader>> dictionary = isInternal
+                    ? InternalReaderSetDictionary
+                    : ReaderSetDictionary;
 
-                var readerSet = ReaderSetDictionary[eventString];
+                if (!dictionary.ContainsKey(eventString)) return false;
+
+                var readerSet = dictionary[eventString];
 
                 readerSet.RemoveWhere(r => r == reader);
 
                 //? Empty reader set
                 if (readerSet.Count == 0)
                 {
-                    removedSet = true;
-                    ReaderSetDictionary.Remove(eventString);
+                    dictionary.Remove(eventString);
+                    setIsGone = ReaderSetExists(eventString);
                 }
             }
 
-            return removedSet;
+            return setIsGone;
         }
 
-        public void RemoveAllReaders(string eventString)
+        public void RemoveAllReaders(string eventString, bool isInternal = false)
         {
             lock (ReaderLock)
             {
-                if (!ReaderSetDictionary.ContainsKey(eventString)) return;
+                Dictionary<string, HashSet<MessageBusReader>> dictionary = isInternal
+                    ? InternalReaderSetDictionary
+                    : ReaderSetDictionary;
+                
+                if (!dictionary.ContainsKey(eventString)) return;
 
-                ReaderSetDictionary.Remove(eventString);
+                dictionary.Remove(eventString);
             }
         }
 
@@ -77,16 +95,21 @@ namespace Dissonity.Bus
 
             lock (ReaderLock)
             {
-                if (!ReaderSetDictionary.ContainsKey(eventString)) return;
-
-                var readerSet = ReaderSetDictionary[eventString];
-
-                foreach (var reader in readerSet)
+                //\ Dispatch in both dictionaries
+                var dictionaries = new Dictionary<string, HashSet<MessageBusReader>>[] { ReaderSetDictionary, InternalReaderSetDictionary };
+                foreach (var dictionary in dictionaries)
                 {
-                    reader.ReadEvent(discordEvent);
-                }
+                    if (!dictionary.ContainsKey(eventString)) continue;
 
-                readerSet.RemoveWhere(reader => reader.Done);
+                    var readerSet = dictionary[eventString];
+
+                    readerSet.RemoveWhere(reader => reader.Done);
+
+                    foreach (var reader in readerSet.ToList())
+                    {
+                        reader.ReadEvent(discordEvent);
+                    }
+                }
             }
         }
     }

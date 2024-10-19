@@ -12,7 +12,7 @@ namespace Dissonity.Models
         public string Name { get; set; }
 
         [JsonProperty("type")]
-        public long Type { get; set; }
+        public ActivityType Type { get; set; }
         
         [JsonProperty("url")]
         public string? Url { get; set; }
@@ -24,7 +24,7 @@ namespace Dissonity.Models
         public Timeframe? Timestamps { get; set; }
         
         [JsonProperty("application_id")]
-        public string? ApplicationId { get; set; }
+        public long? ApplicationId { get; set; }
         
         [JsonProperty("details")]
         public string? Details { get; set; }

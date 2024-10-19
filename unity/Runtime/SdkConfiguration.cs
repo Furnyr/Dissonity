@@ -6,7 +6,7 @@ namespace Dissonity
 {
     public interface ISdkConfiguration
     {
-        string ClientId { get; }
+        long ClientId { get; }
         string[] OauthScopes { get; }
         string TokenRequestPath { get; }
 
@@ -15,7 +15,13 @@ namespace Dissonity
         bool DisableDissonityInfoLogs { get; }
         MappingBuilder[] Mappings { get; }
         PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; }
+        bool SynchronizeUser { get; }
+        bool SynchronizeGuildMemberRpc { get; }
+        ScreenResolution DesktopResolution { get; } 
+        ScreenResolution MobileResolution { get; } 
+        ScreenResolution WebResolution { get; } 
 
+        // Types
         abstract Type GetRequestType();
         abstract Type GetResponseType();
     }
@@ -24,14 +30,46 @@ namespace Dissonity
         where TRequest : ServerTokenRequest
         where TResponse : ServerTokenResponse
     {
-        public abstract string ClientId { get; }
+        /// <summary>
+        /// Your application id. <br/> <br/>
+        /// https://discord.com/developers/applications
+        /// </summary>
+        public abstract long ClientId { get; }
+
+        /// <summary>
+        /// The OAuth2 scopes your app needs. <br/> <br/> https://discord.com/developers/docs/topics/oauth2
+        /// </summary>
         public abstract string[] OauthScopes { get; }
+
+        /// <summary>
+        /// Path where your backend exchanges an authorization code for an access token.
+        /// </summary>
         public abstract string TokenRequestPath { get; }
 
-        // Optional
-        public virtual bool DisableConsoleLogOverride { get; } = false;
+
+        //# OPTIONAL - - - - -
+        /// <summary>
+        /// https://discord.com/developers/docs/activities/development-guides#disabling-logging <br/> <br/>
+        /// Defaults to true.
+        /// </summary>
+        public virtual bool DisableConsoleLogOverride { get; } = true;
+
+        /// <summary>
+        /// Disable information logs. <br/> <br/>
+        /// It's recommended to keep logs enabled during testing.
+        /// </summary>
         public virtual bool DisableDissonityInfoLogs { get; } = false;
+
+        /// <summary>
+        /// Mappings to patch during initialization. <br/> <br/>
+        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// </summary>
         public virtual MappingBuilder[] Mappings { get; } = {};
+
+        /// <summary>
+        /// Patch url mappings configuration. <br/> <br/>
+        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// </summary>
         public virtual PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; } = new()
         {
             PatchFetch = true,
@@ -40,6 +78,36 @@ namespace Dissonity
             PatchSrcAttributes = false
         };
 
+        /// <summary>
+        /// Keep <c> Api.SyncedUser </c> up to date by automatically subscribing to <i> CurrentUserUpdate </i>.
+        /// </summary>
+        public virtual bool SynchronizeUser { get; } = false;
+
+        /// <summary>
+        /// Keep <c> Api.SyncedGuildMemberRpc </c> up to date by automatically subscribing to <i> CurrentGuildMemberUpdate </i>.
+        /// </summary>
+        public virtual bool SynchronizeGuildMemberRpc { get; } = false;
+
+        /// <summary>
+        /// How app resolution will be handled on desktop. <br/> <br/>
+        /// Defaults to <c> ScreenResolution.Viewport </c>
+        /// </summary>
+        public virtual ScreenResolution DesktopResolution { get; } = ScreenResolution.Viewport;
+
+        /// <summary>
+        /// How app resolution will be handled on mobile. <br/> <br/>
+        /// Defaults to <c> ScreenResolution.Dynamic </c>
+        /// </summary>
+        public virtual ScreenResolution MobileResolution { get; } = ScreenResolution.Dynamic;
+
+        /// <summary>
+        /// How app resolution will be handled on web. <br/> <br/>
+        /// Defaults to <c> ScreenResolution.Dynamic </c>
+        /// </summary>
+        public virtual ScreenResolution WebResolution { get; } = ScreenResolution.Dynamic;
+
+
+        //# USED INTERNALLY - - - - -
         // Used later to serialize data returned by BridgeLib
         public Type GetRequestType()
         {
@@ -58,7 +126,7 @@ namespace Dissonity
     /// </summary>
     public class _UserData : ISdkConfiguration
     {
-        public string ClientId { get; set; }
+        public long ClientId { get; set; }
         public string[] OauthScopes { get; set; }
         public string TokenRequestPath { get; set; }
         public Type ServerTokenRequest { get; set; }
@@ -67,8 +135,13 @@ namespace Dissonity
         // Optional
         public bool DisableConsoleLogOverride { get; set; }
         public bool DisableDissonityInfoLogs { get; set; }
+        public bool SynchronizeUser { get; set; }
+        public bool SynchronizeGuildMemberRpc { get; set; }
         public MappingBuilder[] Mappings { get; set; }
         public PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; set; }
+        public ScreenResolution DesktopResolution { get; set; } 
+        public ScreenResolution MobileResolution { get; set; } 
+        public ScreenResolution WebResolution { get; set; } 
 
         // Used later to serialize data returned by BridgeLib
         public Type GetRequestType()

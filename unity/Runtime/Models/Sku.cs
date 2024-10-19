@@ -9,7 +9,7 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -21,10 +21,10 @@ namespace Dissonity.Models
         public SkuPrice Price { get; set; }
 
         [JsonProperty("application_id")]
-        public string ApplicationId { get; set; }
+        public long ApplicationId { get; set; }
 
         [JsonProperty("flags")]
-        public int Flags { get; set; }
+        public long Flags { get; set; }
 
         [JsonProperty("release_date")]
         public string? ReleaseDate { get; set; }

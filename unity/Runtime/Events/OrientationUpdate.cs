@@ -12,7 +12,7 @@ namespace Dissonity.Events
     }
     
     [Serializable]
-    public class OrientationUpdateData
+    internal class OrientationUpdateData
     {
         [JsonProperty("screen_orientation")]
         public OrientationType ScreenOrientation { get; set; }

@@ -5,7 +5,7 @@ namespace Dissonity.Models.Mock
     [Serializable]
     public class MockUser : User
     {
-        new public string Id = "9123456780";
+        new public long Id = 9123456780;
 
         new public string Username = "mock";
 
@@ -19,9 +19,9 @@ namespace Dissonity.Models.Mock
 
         new public bool Bot = false;
 
-        new public int Flags = 0;
+        new public long Flags = 0;
 
-        new public int PremiumType = 0;
+        new public PremiumType PremiumType = PremiumType.None;
 
         public User ToUser()
         {

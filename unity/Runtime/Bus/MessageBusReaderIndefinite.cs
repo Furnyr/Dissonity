@@ -5,11 +5,11 @@ namespace Dissonity.Bus
 {
     internal class MessageBusReaderIndefinite : MessageBusReader
     {
-        protected override Action<DiscordEvent> Listener { get; }
+        internal override Action<DiscordEvent> Listener { get; }
 
         public override bool Done => false;
 
-        public MessageBusReaderIndefinite(Action<DiscordEvent> listener)
+        public MessageBusReaderIndefinite(object userListener, Action<DiscordEvent> listener) : base(userListener)
         {
             Listener = listener;
         }

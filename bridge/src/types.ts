@@ -8,3 +8,9 @@ export type RpcFramePayload = {
     evt?: string,
     data: any
 };
+
+export type RpcBridgeMessage = {
+    command: RpcBridgeCommands,
+    nonce?: string,
+    payload?: string
+};

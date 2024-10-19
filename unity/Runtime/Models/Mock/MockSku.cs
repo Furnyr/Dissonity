@@ -7,7 +7,7 @@ namespace Dissonity.Models.Mock
     {
         #nullable enable annotations
 
-        new public string Id = "543212345";
+        new public long Id = 123456789;
 
         new public string Name = "Mock SKU";
 
@@ -15,9 +15,9 @@ namespace Dissonity.Models.Mock
 
         new public MockSkuPrice Price = new();
 
-        new public string ApplicationId = "121221123456";
+        new public long ApplicationId = 123456789;
 
-        new public int Flags = 0;
+        new public long Flags = 0;
 
         new public string? ReleaseDate = "20xx-04-15T15:50+00Z";
 

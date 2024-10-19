@@ -1,7 +1,10 @@
 using System;
 
-[Serializable]
-public class ServerTokenRequest 
+namespace Dissonity
 {
-    public string code;
+    [Serializable]
+    public class ServerTokenRequest 
+    {
+        public string code;
+    }
 }

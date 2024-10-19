@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Dissonity.Models.Mock
 {
@@ -7,19 +8,17 @@ namespace Dissonity.Models.Mock
     {
         #nullable enable annotations
 
-        new public string Id = "012345678";
+        new public long Id = 123456789;
 
-        new public string SkuId = "mock-sku-id";
+        new public long SkuId = 123456789;
 
-        new public string ApplicationId = "121221123456";
+        new public long ApplicationId = 123456789;
 
         new public int GiftCodeFlags = 0;
 
         new public EntitlementType Type = EntitlementType.Purchase;
 
-        new public string UserId = "9123456780";
-
-        // Branches isn't exposed
+        // UserId isn't exposed
  
         new public bool? Consumed = false;
 
@@ -29,11 +28,13 @@ namespace Dissonity.Models.Mock
 
         new public string? GiftCodeBatchId = null;
 
-        new public string? GifterUserId = null;
+        new public long? GifterUserId = null;
+
+        new public string StartsAt = "20xx-04-15T15:50+00Z";
 
         // ParentId isn't exposed
 
-        new public string StartsAt = "20xx-04-15T15:50+00Z";
+        // Branches isn't exposed
 
         public string __mock__name; // funky name so users know it's not normally there, just in case
 
@@ -46,7 +47,6 @@ namespace Dissonity.Models.Mock
                 Id = Id,
                 SkuId = SkuId,
                 Type = Type,
-                UserId = UserId,
                 Consumed = Consumed,
                 Deleted = Deleted,
                 EndsAt = EndsAt,

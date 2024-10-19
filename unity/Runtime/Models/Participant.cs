@@ -1,10 +1,11 @@
 using System;
+using Dissonity.Events;
 using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
     // Discord can allow themselves to call a "participant" and a "user" the same way, but C# strong typing makes this a pain.
-    // Another advantage is that users will know when they can expect the nickname to be there, rather than accessing <User>.Nickname
+    // This way, users will know when they can expect the nickname to be there, rather than accessing <User>.Nickname
     // and it always being null.
     [Serializable]
     public class Participant : User

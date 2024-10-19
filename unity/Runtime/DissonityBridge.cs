@@ -25,12 +25,6 @@ namespace Dissonity
 
         internal Dictionary<string, object> pendingTasks = new(); // TaskCompletionSource<>
 
-        [Obsolete] internal Action<string>? queryAction = null;
-        [Obsolete] internal Action<BridgeStateCode>? stateAction = null;
-        [Obsolete] internal Action<MultiEvent>? multiEventAction = null;
-        [Obsolete] internal Action? patchUrlMappingsAction = null;
-        [Obsolete] internal Action<string>? formatPriceAction = null;
-
         private const string Dispatch = "DISPATCH";
         private const string Multi = "MULTI";
 
@@ -149,6 +143,12 @@ namespace Dissonity
         /// </summary>
         public void _ReceiveMultiEvent(string stringifiedMessage)
         {
+            //? No task
+            if (!pendingTasks.ContainsKey(Multi)) return;
+
+            var tcs = (TaskCompletionSource<MultiEvent>) pendingTasks[Multi];
+
+            //\ First deserialize
             var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeMultiPayload>>(stringifiedMessage);
 
             if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message (multi)");
@@ -171,9 +171,9 @@ namespace Dissonity
             //\ Deserialize RPC events
             RpcMessage? readyMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.ReadyMessage);
             RpcMessage? authorizeMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.AuthorizeMessage);
-            RpcMessage? authenticateMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.AuthenticateMessage);
+            RpcMessage? authenticateMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.AuthenticateMessage);     
         
-            if (readyMessage == null || authorizeMessage == null || authenticateMessage == null) throw new JsonException("Something went wrong trying to deserialize the first RPC payload");
+            if (readyMessage == null || readyMessage == null || authorizeMessage == null || authenticateMessage == null) throw new JsonException("Something went wrong trying to deserialize the first RPC payload");
 
             var readyEvent = (ReadyEvent) ((JObject) readyMessage.Data[1]).ToObject(typeof(ReadyEvent))!;
             var authorizeResponse = (AuthorizeResponse) ((JObject) authorizeMessage.Data[1]).ToObject(typeof(AuthorizeResponse))!;
@@ -188,10 +188,6 @@ namespace Dissonity
                 ServerResponse = serverPayload
             };
 
-            //? No task
-            if (!pendingTasks.ContainsKey(Multi)) return;
-
-            var tcs = (TaskCompletionSource<MultiEvent>) pendingTasks[Multi];
             tcs.TrySetResult(multiEvent);
             pendingTasks.Remove(Multi);
         }

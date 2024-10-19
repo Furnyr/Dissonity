@@ -9,7 +9,7 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("id")]
-        public string? Id { get; set; }
+        public long? Id { get; set; }
         
         [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
         public int[] Size { get; set; } = new int[0];

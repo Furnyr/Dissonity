@@ -36,7 +36,7 @@ namespace Dissonity.Commands
             { DiscordCommandType.Authenticate, typeof(AuthenticateData) },
             { DiscordCommandType.Authorize, typeof(AuthorizeData) },
             { DiscordCommandType.EncourageHwAcceleration, typeof(EncourageHardwareAccelerationData) },
-            { DiscordCommandType.GetChannel, typeof(GetChannelData) },
+            { DiscordCommandType.GetChannel, typeof(ChannelRpc) },
             { DiscordCommandType.GetChannelPermissions, typeof(GetChannelPermissionsData) },
             { DiscordCommandType.GetEntitlementsEmbedded, typeof(GetEntitlementsData) },
             { DiscordCommandType.GetActivityInstanceConnectedParticipants, typeof(GetInstanceConnectedParticipantsData) },

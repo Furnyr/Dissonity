@@ -9,13 +9,13 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
         
         [JsonProperty("channel_id")]
-        public string ChannelId { get; set; }
+        public long ChannelId { get; set; }
 
         [JsonProperty("guild_id")]
-        public string? GuildId { get; set; }
+        public long? GuildId { get; set; }
 
         [JsonProperty("author")]
         public User? Author { get; set; }
@@ -42,7 +42,7 @@ namespace Dissonity.Models
         public User[] Mentions { get; set; } = new User[0];
 
         [JsonProperty("mention_roles")]
-        public string[] MentionRoles { get; set; } = new string[0];
+        public long[] MentionRoles { get; set; } = new long[0];
 
         [JsonProperty("mention_channels")]
         public ChannelMention[] MentionChannels { get; set; } = new ChannelMention[0];
@@ -72,13 +72,13 @@ namespace Dissonity.Models
         public MessageActivity? Activity { get; set; }
 
         [JsonProperty("application")]
-        public MessageApplication? Application { get; set; }
+        public Application? Application { get; set; }
 
         [JsonProperty("message_reference")]
         public MessageReference? MessageReference { get; set; }
         
         [JsonProperty("flags")]
-        public int? Flags { get; set; }
+        public long? Flags { get; set; }
 
         [JsonProperty("stickers")]
         public object[] Stickers { get; set; } = new object[0];

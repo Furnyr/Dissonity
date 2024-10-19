@@ -27,26 +27,26 @@ namespace Dissonity.Models.Mock
             AccessToken = "access_token",
             User = new()
             {
-                Id = "9123456780",
+                Id = 9123456780,
                 Username = "mock",
                 Avatar = "4v4t43h4sh",
                 GlobalName = "Mock name",
                 AccentColor = 0,
                 AvatarDecoration = new()
                 {
-                    Asset = "asset",
-                    SkuId = "sku_id"
+                    Asset = "4v4t43h4sh",
+                    SkuId = 123456789
                 },
                 PublicFlags = 0,
             },
             Scopes = DissonityConfigAttribute.GetUserConfig().OauthScopes,
-            Expires = "expires",
+            Expires = "20xx-04-15T15:50+00Z",
             Application = new()
             {
                 Name = "application_name",
                 Description = "application_description",
                 Icon = "application_icon",
-                Id = "9123456780",
+                Id = 123456789,
                 RpcOrigins = "rpc_origins"
             }
         };
@@ -57,13 +57,13 @@ namespace Dissonity.Models.Mock
         {
             var mock = GameObject.FindObjectOfType<DiscordMock>();
 
-            AuthenticateData.User.Id = mock.currentPlayer.Participant.Id;
-            AuthenticateData.User.Username = mock.currentPlayer.Participant.Username;
-            AuthenticateData.User.Avatar = mock.currentPlayer.Participant.Avatar;
-            AuthenticateData.User.GlobalName = mock.currentPlayer.Participant.GlobalName;
-            AuthenticateData.User.AccentColor = mock.currentPlayer.Participant.AccentColor;
-            AuthenticateData.User.AvatarDecoration = mock.currentPlayer.Participant.AvatarDecoration;
-            AuthenticateData.User.PublicFlags = mock.currentPlayer.Participant.Flags;
+            AuthenticateData.User.Id = mock._currentPlayer.Participant.Id;
+            AuthenticateData.User.Username = mock._currentPlayer.Participant.Username;
+            AuthenticateData.User.Avatar = mock._currentPlayer.Participant.Avatar;
+            AuthenticateData.User.GlobalName = mock._currentPlayer.Participant.GlobalName;
+            AuthenticateData.User.AccentColor = mock._currentPlayer.Participant.AccentColor;
+            AuthenticateData.User.AvatarDecoration = mock._currentPlayer.Participant.AvatarDecoration;
+            AuthenticateData.User.PublicFlags = mock._currentPlayer.Participant.Flags;
         }
 
         public MultiEvent ToMultiEvent()

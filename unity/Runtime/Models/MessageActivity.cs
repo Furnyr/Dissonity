@@ -9,7 +9,7 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("type")]
-        public int Type { get; set; }
+        public MessageActivityType Type { get; set; }
         
         [JsonProperty("party_id")]
         public string? PartyId { get; set; }

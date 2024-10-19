@@ -12,7 +12,7 @@ namespace Dissonity.Events
     }
 
     [Serializable]
-    public class ActivityLayoutModeUpdateData
+    internal class ActivityLayoutModeUpdateData
     {
         [JsonProperty("layout_mode")]
         public LayoutModeType LayoutMode { get; set; }

@@ -19,7 +19,7 @@ namespace Dissonity.Models
         public AvatarDecoration? AvatarDecoration { get; set; }
 
         [JsonProperty("public_flags")]
-        public int PublicFlags { get; set; }
+        public long PublicFlags { get; set; }
 
         [JsonIgnore]
         public string DisplayName

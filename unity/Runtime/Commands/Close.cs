@@ -17,7 +17,7 @@ namespace Dissonity.Commands
         public string Message { get; set; }
 
         [JsonProperty("nonce")] 
-        public Guid? Nonce => Guid;
+        public Guid Nonce => Guid;
 
         public Close(RpcCloseCode code, string message)
         {

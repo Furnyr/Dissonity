@@ -51,34 +51,38 @@ fs.writeFileSync("./build/.env", envBuffer);
 const htmlBuffer = fs.readFileSync("./src/client/index.html");
 fs.writeFileSync("./build/client/index.html", htmlBuffer);
 
+// client/discord.check.js
+const checkBuf = fs.readFileSync("./src/client/discord.check.js");
+fs.writeFileSync("./build/client/discord.check.js", checkBuf);
+
 //? client files
-if (!fs.existsSync("./build/client/files")) {
-  fs.mkdirSync("./build/client/files");
+if (!fs.existsSync("./build/client/Files")) {
+  fs.mkdirSync("./build/client/Files");
 }
 
 //? client build
-if (!fs.existsSync("./build/client/files/Build")) {
-  fs.mkdirSync("./build/client/files/Build");
+if (!fs.existsSync("./build/client/Files/Build")) {
+  fs.mkdirSync("./build/client/Files/Build");
 }
 
 //? client scripts
-if (!fs.existsSync("./build/client/files/Scripts")) {
-  fs.mkdirSync("./build/client/files/Scripts");
+if (!fs.existsSync("./build/client/Files/Scripts")) {
+  fs.mkdirSync("./build/client/Files/Scripts");
 }
 
-const nestedHtmlBuffer = fs.readFileSync("./src/client/files/iframe_index.html");
-fs.writeFileSync("./build/client/files/iframe_index.html", nestedHtmlBuffer);
+/*const nestedHtmlBuffer = fs.readFileSync("./src/client/Files/iframe_index.html");
+fs.writeFileSync("./build/client/Files/iframe_index.html", nestedHtmlBuffer);*/
 
-const rpcBridgeBf = fs.readFileSync("./src/client/files/Scripts/rpc_bridge.js");
-fs.writeFileSync("./build/client/files/Scripts/rpc_bridge.js", rpcBridgeBf);
+const rpcBridgeBf = fs.readFileSync("./src/client/Files/Scripts/rpc_bridge.js");
+fs.writeFileSync("./build/client/Files/Scripts/rpc_bridge.js", rpcBridgeBf);
 
-const officialUtilsBf = fs.readFileSync("./src/client/files/Scripts/official_utils.js");
-fs.writeFileSync("./build/client/files/Scripts/official_utils.js", officialUtilsBf);
+const officialUtilsBf = fs.readFileSync("./src/client/Files/Scripts/official_utils.js");
+fs.writeFileSync("./build/client/Files/Scripts/official_utils.js", officialUtilsBf);
 
-for (const fileName of fs.readdirSync("./src/client/files/Build")) {
+for (const fileName of fs.readdirSync("./src/client/Files/Build")) {
 
-  const fileBuffer = fs.readFileSync(`./src/client/files/Build/${fileName}`);
-  fs.writeFileSync(`./build/client/files/Build/${fileName}`, fileBuffer);
+  const fileBuffer = fs.readFileSync(`./src/client/Files/Build/${fileName}`);
+  fs.writeFileSync(`./build/client/Files/Build/${fileName}`, fileBuffer);
 }
 
 console.log("Other files have been included in the build folder");

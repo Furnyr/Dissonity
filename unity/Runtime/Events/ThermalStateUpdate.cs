@@ -12,7 +12,7 @@ namespace Dissonity.Events
     }
 
     [Serializable]
-    public class ThermalStateUpdateData
+    internal class ThermalStateUpdateData
     {
         [JsonProperty("thermal_state")]
         public ThermalStateType ThermalState { get; set; }

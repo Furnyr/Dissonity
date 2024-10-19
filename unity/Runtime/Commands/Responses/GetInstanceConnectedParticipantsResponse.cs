@@ -13,7 +13,7 @@ namespace Dissonity.Commands.Responses
     }
      
     [Serializable]
-    public class GetInstanceConnectedParticipantsData
+    internal class GetInstanceConnectedParticipantsData
     {
         [JsonProperty("participants")]
         public Participant[] Participants { get; set; } = new Participant[0];

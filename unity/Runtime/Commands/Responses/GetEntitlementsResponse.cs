@@ -13,7 +13,7 @@ namespace Dissonity.Commands.Responses
     }
      
     [Serializable]
-    public class GetEntitlementsData
+    internal class GetEntitlementsData
     {
         [JsonProperty("entitlements")]
         public Entitlement[] Entitlements { get; set; } = new Entitlement[0];

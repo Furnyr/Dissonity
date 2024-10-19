@@ -7,13 +7,13 @@ namespace Dissonity.Models
     public class Emoji
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
 
         [JsonProperty("roles")]
-        public string[] Roles { get; set; } = new string[0];
+        public long[] Roles { get; set; } = new long[0];
         
         [JsonProperty("user")]
         public User User { get; set; }

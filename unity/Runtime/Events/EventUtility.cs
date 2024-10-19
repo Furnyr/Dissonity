@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dissonity.Models;
 
 namespace Dissonity.Events
@@ -24,29 +25,18 @@ namespace Dissonity.Events
             { DiscordEventType.EntitlementCreate, typeof(EntitlementCreate) },
         };
 
-        internal static Dictionary<Type, string> EventStringMap = new ()
-        {
-            { typeof(ReadyEvent), DiscordEventType.Ready },
-            { typeof(ErrorEvent), DiscordEventType.Error },
-            { typeof(VoiceStateUpdate), DiscordEventType.VoiceStateUpdate },
-            { typeof(SpeakingStart), DiscordEventType.SpeakingStart },
-            { typeof(SpeakingStop), DiscordEventType.SpeakingStop },
-            { typeof(ActivityInstanceParticipantsUpdate), DiscordEventType.ActivityInstanceParticipantsUpdate },
-            { typeof(ActivityLayoutModeUpdate), DiscordEventType.ActivityLayoutModeUpdate },
-            { typeof(CurrentUserUpdate), DiscordEventType.CurrentUserUpdate },
-            { typeof(CurrentGuildMemberUpdate), DiscordEventType.CurrentGuildMemberUpdate },
-            { typeof(OrientationUpdate), DiscordEventType.OrientationUpdate },
-            { typeof(ThermalStateUpdate), DiscordEventType.ThermalStateUpdate },
-            { typeof(EntitlementCreate), DiscordEventType.EntitlementCreate }
-        };
+        // Don't confuse "event data" with "event return data".
+        // Event data is the value of the "data" property sent by Discord,
+        // while event return data is the useful data returned to the user.
+        // E.g.: ActivityInstanceParticipantsUpdateData vs Participant[]
 
         internal static Dictionary<string, Type> EventDataMap = new ()
         {
             { DiscordEventType.Ready, typeof(ReadyEventData) },
             { DiscordEventType.Error, typeof(ErrorEventData) },
             { DiscordEventType.VoiceStateUpdate, typeof(UserVoiceState) },
-            { DiscordEventType.SpeakingStart, typeof(SpeakingStartData) },
-            { DiscordEventType.SpeakingStop, typeof(SpeakingStopData) },
+            { DiscordEventType.SpeakingStart, typeof(SpeakingData) },
+            { DiscordEventType.SpeakingStop, typeof(SpeakingData) },
             { DiscordEventType.ActivityInstanceParticipantsUpdate, typeof(ActivityInstanceParticipantsUpdateData) },
             { DiscordEventType.ActivityLayoutModeUpdate, typeof(ActivityLayoutModeUpdateData) },
             { DiscordEventType.CurrentUserUpdate, typeof(User) },
@@ -54,6 +44,22 @@ namespace Dissonity.Events
             { DiscordEventType.OrientationUpdate, typeof(OrientationUpdateData) },
             { DiscordEventType.ThermalStateUpdate, typeof(ThermalStateUpdateData) },
             { DiscordEventType.EntitlementCreate, typeof(EntitlementCreateData) },
+        };
+
+        internal static Dictionary<string, Type> EventReturnDataMap = new ()
+        {
+            { DiscordEventType.Ready, typeof(ReadyEventData) },
+            { DiscordEventType.Error, typeof(ErrorEventData) },
+            { DiscordEventType.VoiceStateUpdate, typeof(UserVoiceState) },
+            { DiscordEventType.SpeakingStart, typeof(SpeakingData) },
+            { DiscordEventType.SpeakingStop, typeof(SpeakingData) },
+            { DiscordEventType.ActivityInstanceParticipantsUpdate, typeof(Participant[]) },
+            { DiscordEventType.ActivityLayoutModeUpdate, typeof(LayoutModeType) },
+            { DiscordEventType.CurrentUserUpdate, typeof(User) },
+            { DiscordEventType.CurrentGuildMemberUpdate, typeof(GuildMemberRpc) },
+            { DiscordEventType.OrientationUpdate, typeof(OrientationType) },
+            { DiscordEventType.ThermalStateUpdate, typeof(ThermalStateType) },
+            { DiscordEventType.EntitlementCreate, typeof(Entitlement) },
         };
 
         internal static Type GetTypeFromString(string eventString)
@@ -67,9 +73,9 @@ namespace Dissonity.Events
 
         internal static string GetStringFromType(Type eventType)
         {
-            if (!EventStringMap.ContainsKey(eventType)) throw new Exception($"Couldn't find event string for '{eventType}'");
+            if (!EventMap.ContainsValue(eventType)) throw new Exception($"Couldn't find event string for '{eventType}'");
 
-            string eventString = EventStringMap[eventType];
+            string eventString = EventMap.First(x => x.Value == eventType).Key;
 
             return eventString;
         }
@@ -81,6 +87,24 @@ namespace Dissonity.Events
             Type dataType = EventDataMap[eventString];
 
             return dataType;
+        }
+
+        internal static string GetStringFromDataType(Type dataType)
+        {
+            if (!EventDataMap.ContainsValue(dataType)) throw new Exception($"Couldn't find event string for '{dataType}'");
+
+            string eventString = EventDataMap.First(x => x.Value == dataType).Key;
+
+            return eventString;
+        }
+
+        internal static string GetStringFromReturnDataType(Type returnDataType)
+        {
+            if (!EventReturnDataMap.ContainsValue(returnDataType)) throw new Exception($"Couldn't find event string for '{returnDataType}'");
+
+            string eventString = EventReturnDataMap.First(x => x.Value == returnDataType).Key;
+
+            return eventString;
         }
     }
 }

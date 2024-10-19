@@ -12,7 +12,7 @@ namespace Dissonity.Models
         public User User { get; set; }
 
         [JsonProperty("roles")]
-        public string[] Roles { get; set; } = new string[0];
+        public long[] Roles { get; set; } = new long[0];
 
         [JsonProperty("joined_at")]
         public string JoinedAt { get; set; }

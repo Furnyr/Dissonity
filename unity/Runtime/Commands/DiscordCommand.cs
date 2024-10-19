@@ -11,6 +11,6 @@ namespace Dissonity.Commands
         internal abstract Opcode Opcode { get; }
 
         [JsonIgnore]
-        internal virtual Guid? Guid { get; } = System.Guid.NewGuid();
+        internal virtual Guid Guid { get; } = System.Guid.NewGuid();
     }
 }

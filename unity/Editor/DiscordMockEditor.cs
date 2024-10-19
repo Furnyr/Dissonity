@@ -52,7 +52,7 @@ namespace Dissonity.Editor
             bool isPlaying = Application.isPlaying;
 
             // Query
-            var queryProperty = serializedObject.FindProperty(nameof(DiscordMock.query));
+            var queryProperty = serializedObject.FindProperty(nameof(DiscordMock._query));
             EditorGUILayout.PropertyField(queryProperty, false);
 
             if (queryProperty.isExpanded)
@@ -70,11 +70,11 @@ namespace Dissonity.Editor
                 EditorGUI.indentLevel++;
 
                 // Locale
-                var localeProperty = serializedObject.FindProperty(nameof(DiscordMock.locale));
+                var localeProperty = serializedObject.FindProperty(nameof(DiscordMock._locale));
                 EditorGUILayout.PropertyField(localeProperty, true);
 
                 //# CURRENT PLAYER - - - - -      
-                var currentPlayerProperty = serializedObject.FindProperty(nameof(DiscordMock.currentPlayer));
+                var currentPlayerProperty = serializedObject.FindProperty(nameof(DiscordMock._currentPlayer));
                 EditorGUILayout.PropertyField(currentPlayerProperty, false);
 
                 if (currentPlayerProperty.isExpanded)
@@ -97,7 +97,7 @@ namespace Dissonity.Editor
 
 
                 //# OTHER PLAYERS - - - - -
-                var otherPlayersProperty = serializedObject.FindProperty(nameof(DiscordMock.otherPlayers));
+                var otherPlayersProperty = serializedObject.FindProperty(nameof(DiscordMock._otherPlayers));
                 showOtherPlayers = EditorGUILayout.Foldout(showOtherPlayers, "Other Players");
 
                 if (showOtherPlayers)
@@ -105,7 +105,7 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel++;
 
                     // Draw and add dispatch buttons to every player
-                    for (int i = 0; i < mock.otherPlayers.Count; i++)
+                    for (int i = 0; i < mock._otherPlayers.Count; i++)
                     {
                         // Draw the array element
                         var otherPlayer = otherPlayersProperty.GetArrayElementAtIndex(i);
@@ -117,12 +117,12 @@ namespace Dissonity.Editor
                         if (otherPlayer.isExpanded)
                         {
                             //? Handle difference in players and tracked players
-                            if (showOtherPlayerEvents.Count != mock.otherPlayers.Count)
+                            if (showOtherPlayerEvents.Count != mock._otherPlayers.Count)
                             {
                                 //? Mock has more
-                                if (showOtherPlayerEvents.Count < mock.otherPlayers.Count)
+                                if (showOtherPlayerEvents.Count < mock._otherPlayers.Count)
                                 {
-                                    int newPlayers = mock.otherPlayers.Count - showOtherPlayerEvents.Count;
+                                    int newPlayers = mock._otherPlayers.Count - showOtherPlayerEvents.Count;
 
                                     for (int y = 0; y < newPlayers; y++)
                                     {
@@ -135,7 +135,7 @@ namespace Dissonity.Editor
                                 {
                                     showOtherPlayerEvents.Clear();
 
-                                    foreach (var _ in mock.otherPlayers)
+                                    foreach (var _ in mock._otherPlayers)
                                     {
                                         showOtherPlayerEvents.Add(false);
                                     }
@@ -169,20 +169,20 @@ namespace Dissonity.Editor
                         var player = new MockPlayer();
 
                         // Unique id
-                        string id = player.Participant.Id = Utils.GetMockSnowflake();
+                        long id = player.Participant.Id = Utils.GetMockSnowflake();
                         player.GuildMemberRpc.UserId = id;
 
                         // Unique username
-                        player.Participant.Username += $" {mock.otherPlayers.Count+2}";
+                        player.Participant.Username += $" {mock._otherPlayers.Count+2}";
 
                         // Unique global name
-                        player.Participant.GlobalName += $" {mock.otherPlayers.Count+2}";
+                        player.Participant.GlobalName += $" {mock._otherPlayers.Count+2}";
 
                         // Unique nickname
-                        string nickname = player.Participant.Nickname += $" {mock.otherPlayers.Count+2}";
+                        string nickname = player.Participant.Nickname += $" {mock._otherPlayers.Count+2}";
                         player.GuildMemberRpc.Nickname = nickname;
 
-                        mock.otherPlayers.Add(player);
+                        mock._otherPlayers.Add(player);
                     }
 
                     TintButtonBlue();
@@ -223,7 +223,7 @@ namespace Dissonity.Editor
 
 
                 //# CHANNELS - - - - -
-                var channelsProperty = serializedObject.FindProperty(nameof(DiscordMock.channels));
+                var channelsProperty = serializedObject.FindProperty(nameof(DiscordMock._channels));
                 showChannels = EditorGUILayout.Foldout(showChannels, "Channels");
 
                 if (showChannels)
@@ -231,7 +231,7 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel++;
 
                     // Draw every channel
-                    for (int i = 0; i < mock.channels.Count; i++)
+                    for (int i = 0; i < mock._channels.Count; i++)
                     {
                         // Draw the array element
                         var channel = channelsProperty.GetArrayElementAtIndex(i);
@@ -257,15 +257,16 @@ namespace Dissonity.Editor
 
                     if (GUILayout.Button("Add channel", leftButtonStyle))
                     {
-                        var channel = new MockChannel();
+                        var channel = new MockChannel
+                        {
+                            // Unique id
+                            Id = Utils.GetMockSnowflake(),
 
-                        // Unique id
-                        channel.Id = Utils.GetMockSnowflake();
+                            // Unique name
+                            Name = $"mock-channel-{mock._channels.Count + 1}"
+                        };
 
-                        // Unique name
-                        channel.Name = $"mock-channel-{mock.channels.Count + 1}";
-
-                        mock.channels.Add(channel);
+                        mock._channels.Add(channel);
                     }
 
                     TintButtonBlue();
@@ -313,7 +314,7 @@ namespace Dissonity.Editor
             {
                 bool displayButton;
 
-                StartSpace(20);
+                StartSpace(10);
 
                 if (GUILayout.Button("Activity Instance Participants Update", leftButtonStyle))
                 {
@@ -353,7 +354,7 @@ namespace Dissonity.Editor
                         EditorGUI.indentLevel++;
 
                         // Property
-                        var layoutProperty = serializedObject.FindProperty(nameof(DiscordMock.layoutMode));
+                        var layoutProperty = serializedObject.FindProperty(nameof(DiscordMock._layoutMode));
                         EditorGUILayout.PropertyField(layoutProperty, true);
 
                         StartSpace(30);
@@ -418,7 +419,7 @@ namespace Dissonity.Editor
                         EditorGUI.indentLevel++;
 
                         // Property
-                        var orientationProperty = serializedObject.FindProperty(nameof(DiscordMock.screenOrientation));
+                        var orientationProperty = serializedObject.FindProperty(nameof(DiscordMock._screenOrientation));
                         EditorGUILayout.PropertyField(orientationProperty, true);
 
                         StartSpace(30);
@@ -483,7 +484,7 @@ namespace Dissonity.Editor
                         EditorGUI.indentLevel++;
 
                         // Property
-                        var thermalStateProperty = serializedObject.FindProperty(nameof(DiscordMock.thermalState));
+                        var thermalStateProperty = serializedObject.FindProperty(nameof(DiscordMock._thermalState));
                         EditorGUILayout.PropertyField(thermalStateProperty, true);
 
                         StartSpace(30);
@@ -535,7 +536,7 @@ namespace Dissonity.Editor
                 EditorGUI.indentLevel++;
 
                 //# SKUS - - - - -
-                var skusProperty = serializedObject.FindProperty(nameof(DiscordMock.skus));
+                var skusProperty = serializedObject.FindProperty(nameof(DiscordMock._skus));
                 showSkus = EditorGUILayout.Foldout(showSkus, "Skus");
 
                 if (showSkus)
@@ -543,7 +544,7 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel++;
 
                     // Draw every sku
-                    for (int i = 0; i < mock.skus.Count; i++)
+                    for (int i = 0; i < mock._skus.Count; i++)
                     {
                         // Draw the array element
                         var sku = skusProperty.GetArrayElementAtIndex(i);
@@ -572,15 +573,16 @@ namespace Dissonity.Editor
 
                     if (GUILayout.Button("Add SKU", leftButtonStyle))
                     {
-                        var sku = new MockSku();
+                        var sku = new MockSku
+                        {
+                            // Unique id
+                            Id = Utils.GetMockSnowflake(),
 
-                        // Unique id
-                        sku.Id = Utils.GetMockSnowflake();
+                            // Unique name
+                            Name = $"Mock SKU {mock._skus.Count + 1}"
+                        };
 
-                        // Unique name
-                        sku.Name = $"Mock SKU {mock.skus.Count + 1}";
-
-                        mock.skus.Add(sku);
+                        mock._skus.Add(sku);
                     }
 
                     TintButtonBlue();
@@ -619,7 +621,7 @@ namespace Dissonity.Editor
                 else if (clearingSkus) clearingSkus = false;
 
                 //# ENTITLEMENTS - - - - -
-                var entitlementsProperty = serializedObject.FindProperty(nameof(DiscordMock.entitlements));
+                var entitlementsProperty = serializedObject.FindProperty(nameof(DiscordMock._entitlements));
                 GUIContent entitlementsContent = new("Entitlements", "A mock entitlement will be created after calling Api.Commands.StartPurchase(mockSkuId)");
                 showEntitlements = EditorGUILayout.Foldout(showEntitlements, entitlementsContent);
 
@@ -628,12 +630,12 @@ namespace Dissonity.Editor
                     EditorGUI.indentLevel++;
 
                     // Draw every entitlement
-                    for (int i = 0; i < mock.entitlements.Count; i++)
+                    for (int i = 0; i < mock._entitlements.Count; i++)
                     {
                         // Draw the array element
                         var entitlement = entitlementsProperty.GetArrayElementAtIndex(i);
                         string name = entitlement.FindPropertyRelative(nameof(MockEntitlement.__mock__name)).stringValue;
-                        string id = entitlement.FindPropertyRelative(nameof(MockEntitlement.Id)).stringValue;
+                        long id = entitlement.FindPropertyRelative(nameof(MockEntitlement.Id)).longValue;
                         
                         EditorGUILayout.PropertyField(entitlement, new GUIContent (name), false);
 
@@ -675,15 +677,16 @@ namespace Dissonity.Editor
 
                     if (GUILayout.Button("Add default entitlement", leftButtonStyle))
                     {
-                        var ent = new MockEntitlement();
+                        var ent = new MockEntitlement
+                        {
+                            // Unique id
+                            Id = Utils.GetMockSnowflake(),
 
-                        // Unique id
-                        ent.Id = Utils.GetMockSnowflake();
+                            // Unique name
+                            __mock__name = $"Mock Entitlement {mock._entitlements.Count + 1}"
+                        };
 
-                        // Unique name
-                        ent.__mock__name = $"Mock Entitlement {mock.entitlements.Count + 1}";
-
-                        mock.entitlements.Add(ent);
+                        mock._entitlements.Add(ent);
                     }
 
                     TintButtonBlue();
@@ -719,6 +722,8 @@ namespace Dissonity.Editor
                     EndSpace();
                 }
 
+                else if (clearingEntitlements) clearingEntitlements = false;
+
                 EditorGUI.indentLevel--;
             }
             
@@ -729,7 +734,7 @@ namespace Dissonity.Editor
         // Used to draw the children of a property. If Unity does it automatically, indentation breaks between versions.
         // exclude is used to prevent properties from rendering
         // tooltipMap is used to draw tooltips for specific properties
-        private void DrawChildrenRecursively(SerializedProperty property, string[] exclude = null, Dictionary<string, string> tooltipMap = null)
+        internal static void DrawChildrenRecursively(SerializedProperty property, string[] exclude = null, Dictionary<string, string> tooltipMap = null)
         {
             SerializedProperty endProperty = property.GetEndProperty();
 

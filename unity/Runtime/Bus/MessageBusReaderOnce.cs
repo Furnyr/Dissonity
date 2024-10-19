@@ -5,17 +5,17 @@ namespace Dissonity.Bus
 {
     internal class MessageBusReaderOnce : MessageBusReader
     {
-        protected override Action<DiscordEvent> Listener { get; }
+        internal override Action<DiscordEvent> Listener { get; }
 
         private bool _Done;
         public override bool Done => _Done;
 
-        public MessageBusReaderOnce(Action<DiscordEvent> listener)
+        public MessageBusReaderOnce(object userListener, Action<DiscordEvent> listener) : base(userListener)
         {
             Listener = discordEvent =>
             {
-                listener.Invoke(discordEvent);
                 _Done = true;
+                listener.Invoke(discordEvent);
             };
         }
     }

@@ -12,7 +12,7 @@ namespace Dissonity.Models.Builders
         #nullable enable annotations
 
         [JsonProperty("type")]
-        public int Type { get; set; }
+        public ActivityType Type { get; set; }
 
         [JsonProperty("timestamps")]
         public Timeframe? Timestamps { get; set; }

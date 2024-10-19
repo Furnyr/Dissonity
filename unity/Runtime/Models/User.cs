@@ -1,4 +1,5 @@
 using System;
+using Dissonity.Events;
 using Newtonsoft.Json;
 
 namespace Dissonity.Models
@@ -21,10 +22,10 @@ namespace Dissonity.Models
         public bool Bot { get; set; }
 
         [JsonProperty("flags")]
-        public int? Flags { get; set; }
+        public long? Flags { get; set; }
 
         [JsonProperty("premium_type")]
-        public int? PremiumType { get; set; }
+        public PremiumType? PremiumType { get; set; }
 
         [JsonIgnore]
         public string DisplayName

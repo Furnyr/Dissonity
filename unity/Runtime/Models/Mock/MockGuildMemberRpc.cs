@@ -9,7 +9,7 @@ namespace Dissonity.Models.Mock
 
         // User id isn't exposed
 
-        new public string GuildId = "8876543219";
+        new public long GuildId = 123456789;
 
         new public string Avatar = "4v4t43h4sh";
 

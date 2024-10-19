@@ -7,7 +7,7 @@ namespace Dissonity.Models
     public class Attachment
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("url")]
         public string Url { get; set; }

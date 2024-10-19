@@ -39,7 +39,7 @@ namespace Dissonity
             }
 
             //\ Get fields
-            string clientId = ((ISdkConfiguration) instance).ClientId;
+            long clientId = ((ISdkConfiguration) instance).ClientId;
             bool disableLogOverride = ((ISdkConfiguration) instance).DisableConsoleLogOverride;
             string[] oauthScopes = ((ISdkConfiguration) instance).OauthScopes;
             string tokenRequestPath = ((ISdkConfiguration) instance).TokenRequestPath;
@@ -48,6 +48,11 @@ namespace Dissonity
             bool disableDissonityInfoLogs = ((ISdkConfiguration) instance).DisableDissonityInfoLogs;
             MappingBuilder[] mappings = ((ISdkConfiguration) instance).Mappings;
             PatchUrlMappingsConfigBuilder patchConfig = ((ISdkConfiguration) instance).PatchUrlMappingsConfig;
+            ScreenResolution desktopResolution = ((ISdkConfiguration) instance).DesktopResolution;
+            ScreenResolution mobileResolution = ((ISdkConfiguration) instance).MobileResolution;
+            ScreenResolution webResolution = ((ISdkConfiguration) instance).WebResolution;
+            bool synchronizeUser = ((ISdkConfiguration) instance).SynchronizeUser;
+            bool synchronizeGuildMemberRpc = ((ISdkConfiguration) instance).SynchronizeGuildMemberRpc;
 
             // Handle token request path
             tokenRequestPath = tokenRequestPath.StartsWith("/")
@@ -64,6 +69,11 @@ namespace Dissonity
                 DisableDissonityInfoLogs = disableDissonityInfoLogs,
                 Mappings = mappings,
                 PatchUrlMappingsConfig = patchConfig,
+                DesktopResolution = desktopResolution,
+                MobileResolution = mobileResolution,
+                WebResolution = webResolution,
+                SynchronizeUser = synchronizeUser,
+                SynchronizeGuildMemberRpc = synchronizeGuildMemberRpc
             };
 
             return data;

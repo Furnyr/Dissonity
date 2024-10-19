@@ -2,7 +2,7 @@
 namespace Dissonity.Models.Mock
 {
     /// <summary>
-    /// You should use Models.Locale, this enum is only used for selection in the mock object.
+    /// You should use <c> Models.Locale </c>, this enum is only used for selection in the mock object.
     /// </summary>
     public enum MockLocale
     {

@@ -12,6 +12,6 @@ namespace Dissonity.Models
         public string Asset { get; set; }
 
         [JsonProperty("skuId")]
-        public string? SkuId { get; set; }
+        public long? SkuId { get; set; }
     }
 }

@@ -1,33 +1,61 @@
 mergeInto(LibraryManager.library, {
-    Listen: function () {
-        window.addEventListener("message", Bridge);
+    LoadInterface: function () {
+        this.InterfaceWrapper = async (data) => {
+            if (!this.rpcInterface) {
+                await this.rpcInterfacePromise;
+                if (!this.rpcInterface)
+                    return;
+            }
+            this.rpcInterface(data);
+        };
+        this.rpcInterfacePromise = new Promise((resolve, reject) => {
+            if (window.outsideDiscord) {
+                import("web_bridge")
+                    .then(module => {
+                    this.rpcInterface = module.InterfaceBridgeListener;
+                    resolve(true);
+                })
+                    .catch(error => {
+                    reject(error);
+                });
+            }
+            else {
+                import("bridge")
+                    .then(module => {
+                    this.rpcInterface = module.InterfaceBridgeListener;
+                    resolve(true);
+                })
+                    .catch(error => {
+                    reject(error);
+                });
+            }
+        });
     },
     StopListening: function () {
-        window.removeEventListener("message", Bridge);
-        SendToRpcBridge({ command: "StopListening" });
+        this.InterfaceWrapper({ command: "StopListening" });
     },
     RequestState: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         const { nonce } = JSON.parse(message);
-        SendToRpcBridge({ command: "RequestState", nonce });
+        this.InterfaceWrapper({ command: "RequestState", nonce });
     },
     RequestPatchUrlMappings: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         const { nonce, payload } = JSON.parse(message);
-        SendToRpcBridge({ command: "RequestPatchUrlMappings", nonce, payload: JSON.stringify(payload) });
+        this.InterfaceWrapper({ command: "RequestPatchUrlMappings", nonce, payload: JSON.stringify(payload) });
     },
     Send: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
-        SendToRpcBridge({ command: "Send", payload: message });
+        this.InterfaceWrapper({ command: "Send", payload: message });
     },
     RequestFormatPrice: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         const { nonce, payload } = JSON.parse(message);
-        SendToRpcBridge({ command: "RequestFormatPrice", nonce, payload: JSON.stringify(payload) });
+        this.InterfaceWrapper({ command: "RequestFormatPrice", nonce, payload: JSON.stringify(payload) });
     },
     RequestQuery: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         const { nonce } = JSON.parse(message);
-        SendToRpcBridge({ command: "RequestQuery", nonce });
+        this.InterfaceWrapper({ command: "RequestQuery", nonce });
     }
 });

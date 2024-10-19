@@ -28,6 +28,6 @@ namespace Dissonity.Commands.Responses
         public string Expires { get; set; }
         
         [JsonProperty("application")]
-        public Application Application { get; set; }
+        public AuthenticatedApplication Application { get; set; }
     }
 }

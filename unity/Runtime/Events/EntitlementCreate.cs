@@ -12,7 +12,7 @@ namespace Dissonity.Events
     }
 
     [Serializable]
-    public class EntitlementCreateData
+    internal class EntitlementCreateData
     {
         [JsonProperty("entitlement")]
         public Entitlement Entitlement { get; set; }

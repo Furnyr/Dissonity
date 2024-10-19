@@ -368,7 +368,7 @@ const CurrencyExponents = {
     [CurrencyCodes.ZMW]: 2,
     [CurrencyCodes.ZWL]: 2,
 };
-function formatPrice(price, locale = 'en-US') {
+export function formatPrice(price, locale = 'en-US') {
     const { amount, currency } = price;
     const formatter = Intl.NumberFormat(locale, { style: 'currency', currency });
     return formatter.format(convertToMajorCurrencyUnits(amount, currency));
@@ -383,7 +383,7 @@ function convertToMajorCurrencyUnits(minorUnitValue, currency) {
 }
 const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
 const PROXY_PREFIX = '/.proxy';
-function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false } = {}) {
+export function patchUrlMappings(mappings, { patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false } = {}) {
     if (typeof window === 'undefined')
         return;
     if (patchFetch) {

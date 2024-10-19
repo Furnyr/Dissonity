@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <style>
@@ -15,18 +16,281 @@
         padding-bottom: var(--saib);
         padding-left: var(--sail);
         padding-right: var(--sair);
+        overflow: hidden;
       }
-      iframe {
+      canvas {
+        padding-top: var(--sait);
+        padding-bottom: var(--saib);
+        padding-left: var(--sail);
+        padding-right: var(--sair);
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
         display: block;
-        border: 0px;
-        height: 100vh;
-        width: 100vw;
+        position: absolute;
       }
     </style>
-    <script src=".proxy/Files/Scripts/official_utils.js"></script>
-    <script src=".proxy/Files/Scripts/rpc_bridge.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{{{ PRODUCT_NAME }}}</title>
   </head>
-  <body>
-    <iframe id="dissonity-child" src=".proxy/Files/iframe_index.html" height="100vh" width="100vw" scrolling="no"></iframe>
+  <body style="text-align: center; border: 0; margin: 0;">
+    <canvas id="dissonity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1" style="width: 100vw; height: 100vh; background: #000000"></canvas>
+    <script type="importmap">
+      {
+        "imports": {
+          "bridge": "./.proxy/Files/Scripts/rpc_bridge.js",
+          "web_bridge": "./Files/Scripts/rpc_bridge.js"
+        }
+      }
+    </script>
+    <script type="module">
+      async function handleLoading() {
+
+        async function fileExists(url) {
+          const response = await fetch(url, { method: "HEAD" });
+          return response.ok;
+        }
+        
+        // Script paths
+        const officialPath = ".proxy/Files/Scripts/official_utils.js";
+        const webBridgePath = "Files/Scripts/rpc_bridge.js";
+        const bridgePath = ".proxy/Files/Scripts/rpc_bridge.js";
+        const webLoaderPath = "Files/Build/{{{ LOADER_FILENAME }}}";
+        const loaderPath = ".proxy/Files/Build/{{{ LOADER_FILENAME }}}";
+        const checkPath = ".proxy/discord.check.js";
+
+        const outsideDiscord = !(await fileExists(checkPath));
+
+        // Outside Discord
+        if (outsideDiscord) {
+
+          // Loader
+          const loader = document.createElement("script");
+          loader.setAttribute("src", webLoaderPath);
+          loader.setAttribute("type", "text/javascript");
+          
+          const loadPromise = new Promise(resolve => {
+            loader.addEventListener("load", resolve);
+          });
+
+          // Closed RpcBridge
+          const bridge = document.createElement("script");
+          bridge.setAttribute("src", webBridgePath);
+          bridge.setAttribute("type", "module");
+          bridge.setAttribute("data-web", true);
+
+          document.head.appendChild(loader);
+          document.head.appendChild(bridge);
+
+          await loadPromise;
+        }
+
+        // Discord client - load bridge
+        else {
+
+          // Loader
+          const loader = document.createElement("script");
+          loader.setAttribute("src", loaderPath);
+          loader.setAttribute("type", "text/javascript");
+
+          const loadPromise = new Promise(resolve => {
+            loader.addEventListener("load", resolve);
+          });
+
+          // Utils
+          const officialUtils = document.createElement("script");
+          officialUtils.setAttribute("src", officialPath);
+          officialUtils.setAttribute("type", "module");
+
+          // RpcBridge
+          const bridge = document.createElement("script");
+          bridge.setAttribute("src", bridgePath);
+          bridge.setAttribute("type", "module");
+          bridge.setAttribute("data-web", false);
+
+          document.head.appendChild(loader);
+          document.head.appendChild(officialUtils);
+          document.head.appendChild(bridge);
+
+          await loadPromise;
+        }
+
+        // Unity - - - - -
+        var canvas = document.querySelector("#dissonity-canvas");
+
+        // Background
+        let background = "{{{ BACKGROUND_FILENAME ? 'Files/Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
+        if (background != "#000000") {
+          background = outsideDiscord
+            ? "url('" + background
+            : "url('.proxy/" + background;
+        }
+        canvas.style.background = background;
+
+        // Constants
+        const RESOLUTION_TYPE = {
+          Default: 1,
+          Viewport: 2,
+          Dynamic: 3
+        };
+
+        const PLATFORM_RUNTIME = {
+          Desktop: 1,
+          Mobile: 2,
+          Web: 3
+        };
+
+        // Resolution
+        function parseVariable(variable) {
+          const raw = variable.split("]]] ")[1].slice(0, -1);
+          return raw;
+        }
+
+        const defaultWidth = {{{ WIDTH }}};
+        const defaultHeight = {{{ HEIGHT }}};
+
+        let viewportWidth = "[[[ WIDTH ]]]§";
+        let viewportHeight = "[[[ HEIGHT ]]]§";
+
+        let desktopResolution = "[[[ DESKTOP_RESOLUTION ]]]§";
+        let mobileResolution = "[[[ MOBILE_RESOLUTION ]]]§";
+        let webResolution = "[[[ WEB_RESOLUTION ]]]§";
+
+        let width;
+        let height;
+        let resolution;
+        let autoSize = false;
+
+        // Parse
+        viewportWidth = Number( parseVariable(viewportWidth) );
+        viewportHeight = Number( parseVariable(viewportHeight) );
+        desktopResolution = Number( parseVariable(desktopResolution) );
+        mobileResolution = Number( parseVariable(mobileResolution) );
+        webResolution = Number( parseVariable(webResolution) );
+
+        // Web
+        if (outsideDiscord) resolution = webResolution;
+
+        // Mobile
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+
+          if (!resolution) resolution = mobileResolution;
+
+          // Mobile device style: fill the whole browser client area with the game canvas:
+          var meta = document.createElement('meta');
+          meta.name = 'viewport';
+          meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+          document.getElementsByTagName('head')[0].appendChild(meta);
+  
+          var canvas = document.querySelector("#dissonity-canvas");
+          canvas.style.width = "100%";
+          canvas.style.height = "100%";
+          canvas.style.position = "fixed";
+  
+          document.body.style.textAlign = "left";
+        }
+
+        else if (!resolution){
+          resolution = desktopResolution;
+        }
+
+        switch (resolution) {
+          case RESOLUTION_TYPE.Default: {
+            width = defaultWidth;
+            height = defaultHeight;
+            break;
+          }
+          case RESOLUTION_TYPE.Viewport: {
+            width = viewportWidth;
+            height = viewportHeight;
+            break;
+          }
+          case RESOLUTION_TYPE.Dynamic: {
+            autoSize = true;
+            break;
+          }
+        }
+
+        if (!autoSize) {
+
+          function keepRatio()
+          {
+            canvas.width = width;
+            canvas.height = height;
+            const aspectRatio = canvas.width / canvas.height;
+  
+            let newWidth = window.innerWidth;
+            let newHeight = window.innerHeight;
+  
+            if (newWidth / newHeight > aspectRatio) {
+              newWidth = newHeight * aspectRatio;
+            } else {
+              newHeight = newWidth / aspectRatio;
+            }
+  
+            canvas.style.width = `${newWidth}px`;
+            canvas.style.height = `${newHeight}px`;
+          }
+  
+          keepRatio();
+  
+          window.addEventListener("resize", () => {
+            keepRatio();
+          });
+        }
+
+        const dataUrl = outsideDiscord ? "Files/Build/{{{ DATA_FILENAME }}}" : ".proxy/Files/Build/{{{ DATA_FILENAME }}}";
+        const frameworkUrl = outsideDiscord ? "Files/Build/{{{ FRAMEWORK_FILENAME }}}" : ".proxy/Files/Build/{{{ FRAMEWORK_FILENAME }}}";
+        const workerUrl = outsideDiscord ? "Files/Build/{{{ WORKER_FILENAME }}}" : ".proxy/Files/Build/{{{ WORKER_FILENAME }}}";
+        const codeUrl = outsideDiscord ? "Files/Build/{{{ CODE_FILENAME }}}" : ".proxy/Files/Build/{{{ CODE_FILENAME }}}";
+        const memoryUrl = outsideDiscord ? "Files/Build/{{{ MEMORY_FILENAME }}}" : ".proxy/Files/Build/{{{ MEMORY_FILENAME }}}";
+        const symbolsUrl = outsideDiscord ? "Files/Build/{{{ SYMBOLS_FILENAME }}}" : ".proxy/Files/Build/{{{ SYMBOLS_FILENAME }}}";
+  
+        createUnityInstance(document.querySelector("#dissonity-canvas"), {
+          dataUrl,
+          frameworkUrl,
+#if USE_THREADS
+          workerUrl,
+#endif
+#if USE_WASM
+          codeUrl,
+#endif
+#if MEMORY_FILENAME
+          memoryUrl,
+#endif
+#if SYMBOLS_FILENAME
+          symbolsUrl,
+#endif
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+          productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+          productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+          matchWebGLToCanvasSize: autoSize,
+          // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+        }).then(instance => {
+
+          if (outsideDiscord) {
+
+            import("web_bridge")
+            .then(module => {
+              module.SetUnityInstance(instance);
+            });
+          }
+
+          else {
+
+            import("bridge")
+            .then(module => {
+              module.SetUnityInstance(instance);
+            });
+          }
+        });
+      }
+
+      handleLoading();
+    </script>
   </body>
 </html>

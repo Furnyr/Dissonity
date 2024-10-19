@@ -13,7 +13,7 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("username")]
         public string Username { get; set; }

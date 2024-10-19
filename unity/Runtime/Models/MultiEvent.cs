@@ -9,12 +9,14 @@ namespace Dissonity.Models
     /// </summary>
     public class MultiEvent
     {
+        #nullable enable annotations
+
         public ReadyEventData ReadyData { get; set; }
 
         public AuthorizeData AuthorizeData { get; set; }
 
         public AuthenticateData AuthenticateData { get; set; }
 
-        public object ServerResponse { get; set; }
+        public object? ServerResponse { get; set; }
     }
 }

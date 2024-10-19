@@ -12,9 +12,9 @@ namespace Dissonity.Events
     }
 
     [Serializable]
-    public class ActivityInstanceParticipantsUpdateData
+    internal class ActivityInstanceParticipantsUpdateData 
     {
         [JsonProperty("participants")]
-        public Participant[] Participants { get; set; }
+        public Participant[] Participants { get; set; } = new Participant[0];
     }
 }

@@ -57,22 +57,22 @@ namespace Dissonity.Editor
             // Target paths
             string targetPath = Path.Combine(Application.dataPath, "WebGLTemplates/Dissonity");
             string targetIndex = Path.Combine(targetPath, "index.html");
-            string targetThumbnail = Path.Combine(targetPath, "thumbnail.png");
-            string targetIframe = Path.Combine(targetPath, "Files/iframe_index.html");
+            string checkPath = Path.Combine(targetPath, "discord.check.js");
+            string targetThumbnail = Path.Combine(targetPath, "thumbnail.png"); //todo thumbnail
             string targetRpcBridge = Path.Combine(targetPath, "Files/Scripts/rpc_bridge.js");
             string targetOfficialUtils = Path.Combine(targetPath, "Files/Scripts/official_utils.js");
 
             //\ Read everything
             var index = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/index").ToString();
+            var check = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/discord.check.js").ToString();
             byte[] thumbnail = Resources.Load<Texture2D>("WebGLTemplates/Dissonity/thumbnail").EncodeToPNG();
-            string iframe = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/Files/iframe_index").ToString();
             string rpcBridge = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/Files/Scripts/rpc_bridge.js").ToString();
             string officialUtils = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/Files/Scripts/official_utils.js").ToString();
 
             //\ Write
             File.WriteAllText(targetIndex, index);
+            File.WriteAllText(checkPath, check);
             File.WriteAllBytes(targetThumbnail, thumbnail);
-            File.WriteAllText(targetIframe, iframe);
             File.WriteAllText(targetRpcBridge, rpcBridge);
             File.WriteAllText(targetOfficialUtils, officialUtils);
         }

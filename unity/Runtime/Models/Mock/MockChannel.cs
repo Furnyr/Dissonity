@@ -4,13 +4,13 @@ using Dissonity.Commands.Responses;
 namespace Dissonity.Models.Mock
 {
     [Serializable]
-    public class MockChannel : GetChannelData
+    public class MockChannel : ChannelRpc
     {
-        new public string Id = "9123456780";
+        new public long Id = 123456789;
         
         new public ChannelType Type = ChannelType.GuildText;
 
-        new public string GuildId = "8876543219";
+        new public long GuildId = 123456789;
 
         public MockGetChannelPermissionsData ChannelPermissions = new();
         
@@ -26,9 +26,9 @@ namespace Dissonity.Models.Mock
 
         // Voice states isn't exposed
         
-        public GetChannelData ToChannelData()
+        public ChannelRpc ToChannelRpc()
         {
-            return new GetChannelData()
+            return new ChannelRpc()
             {
                 Id = Id,
                 Type = Type,

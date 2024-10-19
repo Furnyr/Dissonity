@@ -18,7 +18,7 @@ namespace Dissonity.Commands
         public SerializableFrameCommand(FrameCommand frameCommand)
         {
             Command = frameCommand.Command;
-            Nonce = (Guid) frameCommand.Guid;
+            Nonce = frameCommand.Guid;
             Payload = frameCommand;
         }
     }

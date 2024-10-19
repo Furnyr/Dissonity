@@ -7,13 +7,13 @@ namespace Dissonity.Models
     public class ChannelMention
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         [JsonProperty("guild_id")]
-        public string GuildId { get; set; }
+        public long GuildId { get; set; }
         
         [JsonProperty("type")]
-        public int Type { get; set; }
+        public ChannelType Type { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }

@@ -1,4 +1,5 @@
 using System;
+using Dissonity.Events;
 using Newtonsoft.Json;
 
 namespace Dissonity.Models
@@ -9,10 +10,10 @@ namespace Dissonity.Models
         #nullable enable annotations
 
         [JsonProperty("user_id")]
-        public string UserId { get; set; }
+        public long UserId { get; set; }
 
         [JsonProperty("guild_id")]
-        public string GuildId { get; set; }
+        public long GuildId { get; set; }
 
         [JsonProperty("avatar")]
         public string? Avatar { get; set; }

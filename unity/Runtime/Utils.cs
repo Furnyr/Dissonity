@@ -25,7 +25,7 @@ namespace Dissonity
             Debug.LogError($"[Dissonity]: {message}");
         }
 
-        public static string GetMockSnowflake()
+        public static long GetMockSnowflake()
         {
             var current = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
@@ -39,7 +39,7 @@ namespace Dissonity
 
             long timestamp = current - epoch;
 
-            string snowflake = (timestamp << 23 | 1 << 13 | _increment).ToString();
+            long snowflake = timestamp << 23 | 1 << 13 | _increment;
 
             return snowflake;
         }

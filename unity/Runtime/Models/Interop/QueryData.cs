@@ -12,10 +12,10 @@ namespace Dissonity.Models.Interop
         public string? InstanceId { get; set; }
 
         [JsonProperty("channel_id")]
-        public string? ChannelId { get; set; }
+        public long? ChannelId { get; set; }
 
         [JsonProperty("guild_id")]
-        public string? GuildId { get; set; }
+        public long? GuildId { get; set; }
 
         [JsonProperty("frame_id")]
         public string? FrameId { get; set; }

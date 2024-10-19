@@ -1,7 +1,8 @@
 node_modules
 .env
 build
-examples/node_project/src/client/**/*.js
+examples/node_project/src/client/**/*
+!examples/node_project/src/client/**/README.md
 examples/node_project/src/server/**/*.js
 examples/node_project/_unity_colyseus
 #v1

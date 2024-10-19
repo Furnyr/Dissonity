@@ -2,6 +2,94 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-10-19 - alpha progress 3
+
+This alpha progress version is centered on QoL changes, internal overhauls, support for app resolution config and other fixes.
+
+## Wiki
+
+- Removed IframeBridge from [Home](https://github.com/Furnyr/Dissonity/wiki) page
+- Added [InterfaceBridge](https://github.com/Furnyr/Dissonity/wiki#-terms-) documentation
+- Added SyncedUser and SyncedGuildMember to [API properties](https://github.com/Furnyr/Dissonity/wiki/Design#api-properties)
+- Added [Structure synchronization](https://github.com/Furnyr/Dissonity/wiki/Design#%EF%B8%8F-configuration-%EF%B8%8F) documentation
+- Added [new unsubscribe method](https://github.com/Furnyr/Dissonity/wiki/Design#apisubscribe--apiunsubscribe)
+- Updated [Long or string?](https://github.com/Furnyr/Dissonity/wiki/Design#long-or-string) documentation
+- Removed references to previously-unrelased features
+- Updated [Namespaces](https://github.com/Furnyr/Dissonity/wiki/Namespaces/_compare/2152fa277eee456422bd6d9ae4868ffaa7dfa48d...b6d15e7239168ec019ba0db9ad592ef342b8d3ef)
+- Updated [Plan for the future](https://github.com/Furnyr/Dissonity/wiki/Plan-for-the-future-(v2)) to reflect the latest changes
+- Updated [Utils](https://github.com/Furnyr/Dissonity/wiki/Utils) to use long for snowflakes
+
+## BridgeLib
+
+> *Goodbye again, IframeBridge!*
+
+- Removed IframeBridge in favor of InterfaceBridge
+
+- Use ES6 modules to not expose the Unity instance directly
+
+- Support web activities
+
+- Improved "outside Discord" check
+
+## Dissonity (internal)
+
+- Fix reset mock clear button
+
+- Added underscores to mock properties
+
+- Added screen resolution config
+
+- Changed snowflakes from strings to longs
+
+- Added internal subscriptions
+
+- Build backgrounds are now completely supported
+
+- Removed MockDictionary and other obsolete classes
+
+# Dissonity (API)
+
+- Added Api.SyncedUser and Api.SyncedGuildMemberRpc
+
+- Added more models
+
+- Added tooltips to API and configuration properties
+
+- Added headers to proxy methods
+
+- Changed the return value to some commands and events (arrays, enums and classes are returned directly)
+
+- Added SynchronizeUser and SynchronizeGuildMemberRpc to the Dissonity configuration
+
+- Added screen orientation configuration
+
+## Testing notes
+
+Main things to test:
+- New command return values
+- New event return values
+- Unsubscribe via listener method
+- All snowflakes ids must be longs
+- Screen orientation and web support
+- Structure synchronization
+- User subscriptions shouldn't mess with structure synchronization
+
+Secondary things to test:
+- Proxy methods
+- Initial server request/response
+
+## Other
+
+Version 2 will be licensed under the Apache License 2.0
+
+## Next
+
+With the latest overhaul, the API is closer to be stable. Still not quite there though.
+
+The next thing I'll be doing is testing, doing research to improve compatibility and maybe setting up unit testing.
+
+---
+
 # 2024-10-09 - alpha progress 2
 
 This alpha progress version is centered on supporting the previously-unreleased features, improvements to the mock object, some conventions and polishing the C# <-> JS bridge.

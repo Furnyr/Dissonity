@@ -384,8 +384,8 @@ const CurrencyExponents = {
   [CurrencyCodes.ZWL]: 2,
 };
 
-//@indirect:rpc-bridge
-function formatPrice(price: {amount: number; currency: string}, locale: string = 'en-US'): string {
+//@rpc-bridge
+export function formatPrice(price: {amount: number; currency: string}, locale: string = 'en-US'): string {
   const {amount, currency} = price;
   const formatter = Intl.NumberFormat(locale, {style: 'currency', currency});
   return formatter.format(convertToMajorCurrencyUnits(amount, currency as CurrencyCodes));
@@ -407,8 +407,8 @@ const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
 const PROXY_PREFIX = '/.proxy';
 
 
-//@indirect:rpc-bridge
-function patchUrlMappings(
+//@rpc-bridge
+export function patchUrlMappings(
     mappings: Mapping[],
     {patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false}: PatchUrlMappingsConfig = {},
   ) {

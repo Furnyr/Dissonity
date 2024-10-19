@@ -13,7 +13,7 @@ namespace Dissonity.Commands.Responses
     }
      
     [Serializable]
-    public class GetSkusData
+    internal class GetSkusData
     {
         [JsonProperty("skus")]
         public Sku[] Skus { get; set; } = new Sku[0];

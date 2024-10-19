@@ -1,10 +1,10 @@
 
 /*
 
-This is the "RpcBridge". It handles the communication with the Discord RPC
-but it can't send messages to the Unity build.
+This is the "RpcBridge". It handles the communication with the Discord RPC.
 
-Instead, it passes the necessary information to the "IframeBridge".
+It can interact directly with Unity, but Unity needs to go through the "InterfaceBridge"
+to communicate with it.
 
 It handles the handshake, authorization and authentication while the Unity build loads.
 
@@ -14,15 +14,18 @@ Function names are PascalCase, C# method conventions.
 
 */
 
+
 // Official methods
-declare const patchUrlMappings: (mappings: Mapping[], config: PatchUrlMappingsConfig) => void;
-declare const formatPrice: (price: {amount: number; currency: string}, locale: string) => string;
+const { patchUrlMappings, formatPrice } : {
+    patchUrlMappings: (mappings: Mapping[], config: PatchUrlMappingsConfig) => void,
+    formatPrice: (price: {amount: number; currency: string}, locale: string) => string
+} = await import("./official_utils.js" as string);
 
 // Official types
 import type { Mapping, PatchUrlMappingsConfig, HandshakePayload } from "./official/official_types";
 
 // Types
-import type { RpcBridgeCommands, DissonityBridgeMethods, ParseVariableType, RpcFramePayload } from "./types";
+import type { RpcBridgeCommands, DissonityBridgeMethods, ParseVariableType, RpcFramePayload, RpcBridgeMessage } from "./types";
 
 //# CONSTANTS - - - - -
 // Handshake
@@ -83,7 +86,6 @@ const _VARIABLE_SEPARATOR = "§"; //alt 21 win
 
 //# VARIABLES - - - - -
 let currentState = STATE_CODES.Loading;
-let childIframe : HTMLIFrameElement | null | undefined = undefined;
 let disableInfoLogs: string | boolean = "[[[ DISABLE_INFO_LOGS ]]]§";
 let unityReady = false;
 
@@ -99,39 +101,19 @@ let authenticateData = "";
 // Listeners
 let listeners: ((message: MessageEvent) => void)[] = [];
 
+let _unityInstance: {
+    SendMessage: (gameObject: string, method: string, value: any) => void;
+} | null = null;
 
-//# FUNCTIONS - - - - -
-function SendToIframeBridge(message: { method: DissonityBridgeMethods, payload: string }): void {
 
-    function send() {
-        const sourceOrigin = window.location.origin;
-        childIframe!.contentWindow?.postMessage(message, sourceOrigin);
-    }
 
-    if (childIframe) {
-        send();
-        return;
-    }
-
-    // Child iframe is not cached here
-    if (currentState == STATE_CODES.Errored) return;
-
-    childIframe = document.getElementById("dissonity-child") as HTMLIFrameElement | null;
-  
-    if (childIframe == null) {
-        currentState = STATE_CODES.Errored;
-        throw new Error("[Dissonity BridgeLib]: Child iframe not found");
-    }
-
-    send();
-}
-
+//# INITIALIZE - - - - -
 function Handshake(): void {
 
     /*
     
     Process will be:
-    - Listen(initialBridge, iframeBridge, nonFrameOpcode);
+    - Listen(initialBridge, nonFrameOpcode);
     - (...)
     - RemoveListen(initialBridge); Listen(normalBridge)
 
@@ -139,17 +121,34 @@ function Handshake(): void {
     
     */
 
-    disableInfoLogs = ParseBuildVariable(disableInfoLogs as string, "boolean") as boolean;
+    //? Not browser
+    if (typeof window == "undefined") {
+        currentState = STATE_CODES.OutsideDiscord;
+        return;
+    }
 
-    AddListeners(InitialBridgeListener, IframeBridgeListener, NonFrameOpcode);
+    //? Loaded in web
+    const bridge = document.querySelector('script[data-web]')!;
+    const isWeb = bridge.getAttribute('data-web') == "true";
+
+    if (isWeb) {
+        window.outsideDiscord = true;
+        currentState = STATE_CODES.OutsideDiscord;
+        return;
+    }
 
     const query = RequestQuery();
 
     //? No query params
-    if (!query || !query.frame_id || !query.instance_id || !query.platform) {//todo left it here
+    if (!query || !query.frame_id || !query.instance_id || !query.platform) {
+        window.outsideDiscord = true;
         currentState = STATE_CODES.OutsideDiscord;
         return;
     }
+
+    disableInfoLogs = ParseBuildVariable(disableInfoLogs as string, "boolean") as boolean;
+
+    AddListeners(InitialBridgeListener, NonFrameOpcode);
 
     const clientIdVariable = "[[[ CLIENT_ID ]]]§";
     
@@ -180,70 +179,11 @@ function Handshake(): void {
 }
 
 
-//# LISTENERS - - - - -
-//@iframe-bridge
-function IframeBridgeListener(message: MessageEvent): void {
-
-    if (!ALLOWED_ORIGINS.has(message.origin)) return;
-    
-    //? Send from the IframeBridge
-    if (!message.data.iframeBridge) return;
-
-    const { command, nonce, payload } = message.data; // payload is a stringified message
-        
-    switch (command as RpcBridgeCommands) {
-
-        case "Send": {
-            Send(payload);
-            break;
-        }
-
-        case "RequestQuery": {
-
-            const query = RequestQuery();
-            
-            const formattedPayload = {
-                nonce,
-                payload: {
-                    str: JSON.stringify(query)
-                }
-            };
-
-            SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(formattedPayload) });
-            break;
-        }
-
-        case "RequestState": {
-            RequestState(nonce);
-            break;
-        }
-
-        case "RequestPatchUrlMappings": {
-            const parsedPayload = JSON.parse(payload);
-            RequestPatchUrlMappings(nonce, parsedPayload.str);
-            break;
-        }
-
-        case "RequestFormatPrice": {
-            const parsedPayload = JSON.parse(payload);
-            RequestFormatPrice(nonce, parsedPayload.str);
-            break;
-        }
-
-        case "StopListening": {
-            StopListening();
-            break;
-        }
-    }
-}
-
+//# DISCORD LISTENERS - - - - -
 //@discord-rpc
 function NonFrameOpcode(message: MessageEvent): void {
 
     if (!ALLOWED_ORIGINS.has(message.origin)) return;
-
-    //? Sent from the IFrameBridge
-    if (message.data.iframeBridge) return;
 
     const opcode = message.data?.[0];
 
@@ -264,7 +204,7 @@ function NonFrameOpcode(message: MessageEvent): void {
     
             //? Forward message to Unity
             if (unityReady) {
-                SendToIframeBridge({ method: "_HandleMessage", payload: SerializePayload(message.data) })
+                SendToUnity({ method: "_HandleMessage", payload: SerializePayload(message.data) })
             }
             break;
         }
@@ -279,9 +219,6 @@ function NonFrameOpcode(message: MessageEvent): void {
 async function InitialBridgeListener(message: MessageEvent): Promise<void> {
 
     if (!ALLOWED_ORIGINS.has(message.origin)) return;
-
-    //? Sent from the IFrameBridge
-    if (message.data.iframeBridge) return;
 
     const opcode = message.data?.[0];
 
@@ -318,6 +255,24 @@ async function InitialBridgeListener(message: MessageEvent): Promise<void> {
 
             if (!disableLogOverride) {
                 OverrideConsoleLogging();
+            }
+
+            //# PATCH URL MAPPINGS - - - - -
+            const mappingsVariable = "[[[ MAPPINGS ]]]§"; // Mappings have a custom format, no JSON serialized here
+            const patchUrlMappingsConfigVariable = "[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§";
+
+            const mappingsMap = ParseBuildVariable(mappingsVariable, "map") as Map<string, string>;
+            const patchUrlMappingsConfigMap = ParseBuildVariable(patchUrlMappingsConfigVariable, "map") as Map<string, boolean>;
+
+            const mappings = MapToMappingArray(mappingsMap);
+            const patchUrlMappingsConfig = MapToConfig(patchUrlMappingsConfigMap);
+
+            //? Patch url mappings
+            if (mappings.length > 0) {
+
+                if (!disableInfoLogs) console.log(`[Dissoniy BridgeLib]: Patching (${mappings.length}) url mappings...`);
+
+                patchUrlMappings(mappings, patchUrlMappingsConfig);
             }
 
             //# AUTHORIZE - - - - -
@@ -372,24 +327,6 @@ async function InitialBridgeListener(message: MessageEvent): Promise<void> {
             authorizeData = serializedData;
 
             if (!disableInfoLogs) console.log("[Dissoniy BridgeLib]: Authorized!");
-
-            //\ Read user variables (patch url mappings)
-            const mappingsVariable = "[[[ MAPPINGS ]]]§"; // Mappings have a custom format, no JSON serialized here
-            const patchUrlMappingsConfigVariable = "[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§";
-
-            const mappingsMap = ParseBuildVariable(mappingsVariable, "map") as Map<string, string>;
-            const patchUrlMappingsConfigMap = ParseBuildVariable(patchUrlMappingsConfigVariable, "map") as Map<string, boolean>;
-
-            const mappings = MapToMappingArray(mappingsMap);
-            const patchUrlMappingsConfig = MapToConfig(patchUrlMappingsConfigMap);
-
-            //? Patch url mappings
-            if (mappings.length > 0) {
-
-                if (!disableInfoLogs) console.log(`[Dissoniy BridgeLib]: Patching (${mappings.length}) url mappings...`);
-
-                patchUrlMappings(mappings, patchUrlMappingsConfig);
-            }
 
             //# REQUEST TOKEN - - - - -
             const tokenRequestPathVariable = "[[[ TOKEN_REQUEST_PATH ]]]§";
@@ -486,7 +423,7 @@ function Bridge(message: MessageEvent): void {
 
     const data = SerializePayload(message.data);
 
-    SendToIframeBridge({ method: "_HandleMessage", payload: data })
+    SendToUnity({ method: "_HandleMessage", payload: data })
 }
 
 
@@ -508,6 +445,13 @@ function RemoveListeners(...args: ((message: MessageEvent) => void)[]): void {
     }
 }
 
+function SendToUnity(message: { method: DissonityBridgeMethods, payload: string }): void {
+
+    const { method, payload } = message;
+
+    _unityInstance?.SendMessage("_DissonityBridge", method, payload);
+}
+
 function ParseBuildVariable(variable: string, type: ParseVariableType = "string"): string | boolean | string[] | Map<string, string | boolean> | Record<string, unknown> | null {
 
     const raw = variable.split("]]] ")[1].slice(0, -1);
@@ -522,7 +466,9 @@ function ParseBuildVariable(variable: string, type: ParseVariableType = "string"
     }
 
     if (type == "string[]") {
-        return raw.split(",");
+        const array = raw.split(",");
+        if (array.length == 1 && array[0] == "") return [];
+        return array;
     }
 
     if (type == "json") {
@@ -684,7 +630,7 @@ function DispatchMultiEvent(): void {
         }
     };
 
-    SendToIframeBridge({ method: "_ReceiveMultiEvent", payload: JSON.stringify(sendMessage) });
+    SendToUnity({ method: "_ReceiveMultiEvent", payload: JSON.stringify(sendMessage) });
 
     ClearData();
 }
@@ -710,8 +656,68 @@ function ParseMajorMobileVersion(): number {
 }
 
 
-//# USED BY IFRAME BRIDGE - - - - -
-//@indirect:iframe-bridge
+//# USED BY INDEX - - - - -
+//@index
+export function SetUnityInstance (instance: any): void {
+    if (_unityInstance) return;
+
+    _unityInstance = instance;
+}
+
+
+//# USED BY INTERFACE BRIDGE - - - - -
+//@interface-bridge
+export function InterfaceBridgeListener(message: RpcBridgeMessage): void {
+
+    const { command, nonce, payload } = message; // payload is a stringified message
+        
+    switch (command as RpcBridgeCommands) {
+
+        case "Send": {
+            Send(payload!);
+            break;
+        }
+
+        case "RequestQuery": {
+
+            const query = RequestQuery();
+            
+            const formattedPayload = {
+                nonce,
+                payload: {
+                    str: JSON.stringify(query)
+                }
+            };
+
+            SendToUnity({ method: "_ReceiveString", payload: JSON.stringify(formattedPayload) });
+            break;
+        }
+
+        case "RequestState": {
+            RequestState(nonce!);
+            break;
+        }
+
+        case "RequestPatchUrlMappings": {
+            const parsedPayload = JSON.parse(payload!);
+            RequestPatchUrlMappings(nonce!, parsedPayload.str);
+            break;
+        }
+
+        case "RequestFormatPrice": {
+            const parsedPayload = JSON.parse(payload!);
+            RequestFormatPrice(nonce!, parsedPayload.str);
+            break;
+        }
+
+        case "StopListening": {
+            StopListening();
+            break;
+        }
+    }
+}
+
+//@indirect:interface-bridge
 // Send data to the client RPC
 // UTF8 handling occurs in the IframeBridge
 function Send(stringifiedMessage: string): void {
@@ -724,7 +730,7 @@ function Send(stringifiedMessage: string): void {
     source.postMessage(message, sourceOrigin);
 }
 
-//@indirect:iframe-bridge
+//@indirect:interface-bridge
 function StopListening(): void {
 
     currentState = STATE_CODES.Closed;
@@ -734,7 +740,7 @@ function StopListening(): void {
     }
 }
 
-//@indirect:iframe-bridge
+//@indirect:interface-bridge
 function RequestQuery(): Record<string, string> {
 
     function getQueryData() {
@@ -757,7 +763,7 @@ function RequestQuery(): Record<string, string> {
     return getQueryData();
 }
 
-//@indirect:iframe-bridge
+//@indirect:interface-bridge
 function RequestState(nonce: string): void {
 
     const sendMessage = {
@@ -767,7 +773,7 @@ function RequestState(nonce: string): void {
         }
     };
 
-    SendToIframeBridge({ method: "_ReceiveState",  payload: JSON.stringify(sendMessage) });
+    SendToUnity({ method: "_ReceiveState",  payload: JSON.stringify(sendMessage) });
 
     if (!unityReady) {
 
@@ -780,7 +786,7 @@ function RequestState(nonce: string): void {
     }
 }
 
-//@indirect:iframe-bridge
+//@indirect:interface-bridge
 function RequestPatchUrlMappings(nonce: string, stringifiedMessage: string): void {
 
     const { mappings, config } = JSON.parse(stringifiedMessage);
@@ -793,10 +799,10 @@ function RequestPatchUrlMappings(nonce: string, stringifiedMessage: string): voi
         nonce
     };
 
-    SendToIframeBridge({ method: "_ReceiveEmpty", payload: JSON.stringify(sendMessage) });
+    SendToUnity({ method: "_ReceiveEmpty", payload: JSON.stringify(sendMessage) });
 }
 
-//@indirect:iframe-bridge
+//@indirect:interface-bridge
 function RequestFormatPrice(nonce: string, stringifiedMessage: string): void {
 
     const { amount, currency, locale } = JSON.parse(stringifiedMessage);
@@ -810,8 +816,7 @@ function RequestFormatPrice(nonce: string, stringifiedMessage: string): void {
         }
     };
 
-    SendToIframeBridge({ method: "_ReceiveString", payload: JSON.stringify(sendMessage) });
+    SendToUnity({ method: "_ReceiveString", payload: JSON.stringify(sendMessage) });
 }
-//todo left it here, with underscores added ^
 
-document.addEventListener("DOMContentLoaded", Handshake);
+Handshake();
