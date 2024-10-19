@@ -47,7 +47,7 @@ This alpha progress version is centered on QoL changes, internal overhauls, supp
 
 - Removed MockDictionary and other obsolete classes
 
-# Dissonity (API)
+## Dissonity (API)
 
 - Added Api.SyncedUser and Api.SyncedGuildMemberRpc
 
