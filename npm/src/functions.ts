@@ -84,7 +84,7 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
 }
 
 //\ Handle received message
-async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser, messageData: MessageData) {
+async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, messageData: MessageData) {
 
     const { nonce, event, command } = messageData;
     let { args } = messageData;
@@ -181,13 +181,15 @@ async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser, mess
 
         case "GET_USER_ID": {
 
-            getChildIframe().contentWindow?.postMessage({ nonce, command, data: user!.id, args }, "*");
+            if (user == null) throw new Error("You need to be authenticated to get the current user id");
+            getChildIframe().contentWindow?.postMessage({ nonce, command, data: user.id, args }, "*");
             break;
         }
 
         case "GET_USER": {
 
-            getChildIframe().contentWindow?.postMessage({ nonce, command, data: user!, args }, "*");
+            if (user == null) throw new Error("You need to be authenticated to get the current user");
+            getChildIframe().contentWindow?.postMessage({ nonce, command, data: user, args }, "*");
             break;
         }
 
@@ -424,7 +426,7 @@ export async function useSdk(dataPromise: DataPromise) {
             await dataPromise;
         }
 
-        receiveMessage(discordSdk!, user!, messageData);
+        receiveMessage(discordSdk!, user, messageData);
     }
 
     //\ Setup message event handler
@@ -434,10 +436,13 @@ export async function useSdk(dataPromise: DataPromise) {
     const resolvedData = await dataPromise;
     discordSdk = resolvedData.discordSdk;
 
-    // Better compatibility with the SDKBridge
-    user = {...resolvedData.user} as CompatibleUser;
-    user.flags = user.public_flags;
-    user.bot = false;
+    if (resolvedData.user != null) {
+
+        // Better compatibility with the SDKBridge
+        user = {...resolvedData.user} as CompatibleUser;
+        user.flags = user.public_flags;
+        user.bot = false;
+    }
 
     getChildIframe().contentWindow?.postMessage({ command: "LOADED", data: PACKAGE_VERSION }, "*");
 }

@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/Furnyr/Dissonity#readme",
   "dependencies": {
-    "@discord/embedded-app-sdk": "^1.4.0",
+    "@discord/embedded-app-sdk": "^1.5.0",
     "cross-fetch": "^4.0.0"
   },
   "devDependencies": {

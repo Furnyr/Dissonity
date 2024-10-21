@@ -47,5 +47,5 @@ export interface CompatibleUser {
 
 export type DataPromise = Promise<{
   discordSdk: DiscordSDK,
-  user: AuthUser
+  user: AuthUser | null
 }>;
