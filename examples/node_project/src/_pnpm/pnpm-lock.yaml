@@ -12,14 +12,14 @@ dependencies:
     specifier: ^0.15.1
     version: 0.15.2(@colyseus/schema@2.0.35)
   colyseus:
-    specifier: ^0.15.15
-    version: 0.15.17(@colyseus/schema@2.0.35)(express@4.21.0)
+    specifier: ^0.15.13
+    version: 0.15.17(@colyseus/schema@2.0.35)(express@4.21.1)
   cross-fetch:
     specifier: ^3.1.5
     version: 3.1.8
   dissonity:
-    specifier: ^1.2.3
-    version: 1.2.3
+    specifier: ^1.3.0
+    version: 1.3.0
   dotenv:
     specifier: ^16.0.3
     version: 16.4.5
@@ -28,7 +28,7 @@ dependencies:
     version: 0.17.11
   express:
     specifier: ^4.18.2
-    version: 4.21.0
+    version: 4.21.1
 
 devDependencies:
   '@types/express':
@@ -36,37 +36,37 @@ devDependencies:
     version: 4.17.21
   '@types/node':
     specifier: ^20.12.5
-    version: 20.16.10
+    version: 20.16.13
   glob:
     specifier: ^9.2.1
     version: 9.3.5
   typescript:
     specifier: ^5.2.2
-    version: 5.6.2
+    version: 5.6.3
 
 packages:
 
-  /@colyseus/auth@0.15.10(@colyseus/core@0.15.51)(express@4.21.0):
+  /@colyseus/auth@0.15.10(@colyseus/core@0.15.53)(express@4.21.1):
     resolution: {integrity: sha512-2RsbqtS2WTsjDlY5BDxpjC4OGm0HvvaNlZYMPGLD5vN8gJoQGnU9SEl1OWmcvlrxqFY0tEk1d4Wux10G4U8ifw==}
     engines: {node: '>= 14.x'}
     peerDependencies:
       '@colyseus/core': ^0.15.23
       express: ^4.17.1
     dependencies:
-      '@colyseus/core': 0.15.51
+      '@colyseus/core': 0.15.53
       '@types/jsonwebtoken': 9.0.7
-      connect-redis: 7.1.1(express-session@1.18.0)
-      express: 4.21.0
+      connect-redis: 7.1.1(express-session@1.18.1)
+      express: 4.21.1
       express-jwt: 8.4.1
-      express-session: 1.18.0
+      express-session: 1.18.1
       grant: 5.4.23
       jsonwebtoken: 9.0.2
     transitivePeerDependencies:
       - supports-color
     dev: false
 
-  /@colyseus/core@0.15.51:
-    resolution: {integrity: sha512-Y4Aso/GFO/XLyg7J5rv7qLmR8dC+AixMA0FsE8Yar3v++H1YJAnkqmzbzO4tyZ2vXXhcwzlGgo+op1OzZ7199w==}
+  /@colyseus/core@0.15.53:
+    resolution: {integrity: sha512-09tcOCZTCDL/o0uo7ysz3HjW7EYiAFIDNstCSMGX0ua/Ul+gQj9YO8J43rRZIe3vKExHtrWm0zOU2uquhRjY1A==}
     engines: {node: '>= 14.x'}
     dependencies:
       '@colyseus/greeting-banner': 2.0.2
@@ -89,7 +89,7 @@ packages:
   /@colyseus/redis-driver@0.15.6:
     resolution: {integrity: sha512-nLNb1/e0KcK3wgVX1DQdC+bV86BIJWlVtxDrQW23aED+4ih6fIr0Iwfre3DlSke+DXa8oGwp5n3/s7A62q/4gQ==}
     dependencies:
-      '@colyseus/core': 0.15.51
+      '@colyseus/core': 0.15.53
       ioredis: 5.4.1
     transitivePeerDependencies:
       - bufferutil
@@ -100,7 +100,7 @@ packages:
   /@colyseus/redis-presence@0.15.5:
     resolution: {integrity: sha512-ClJDPMP1JZlemuGMmefrW2QPmfdz2Po6FMJ9Ln/EQ9UvEdrFpgylCzOgbKzMyZ4BQFRDlnIy8lE/WUZ4Yb7Sfw==}
     dependencies:
-      '@colyseus/core': 0.15.51
+      '@colyseus/core': 0.15.53
       ioredis: 5.4.1
     transitivePeerDependencies:
       - bufferutil
@@ -118,7 +118,7 @@ packages:
     peerDependencies:
       '@colyseus/schema': '>=1.0.0'
     dependencies:
-      '@colyseus/core': 0.15.51
+      '@colyseus/core': 0.15.53
       '@colyseus/schema': 2.0.35
       '@types/ws': 7.4.7
       ws: 7.5.10
@@ -405,19 +405,19 @@ packages:
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
     dev: true
 
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
     dev: true
 
   /@types/express-serve-static-core@4.19.6:
     resolution: {integrity: sha512-N4LZ2xG7DatVqhCZzOGb1Yi5lMbXSZcmdLDe9EzSndPV2HpWYWzRbaerl2n27irrm94EPpprqa8KpskPT085+A==}
     dependencies:
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
       '@types/qs': 6.9.16
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -439,25 +439,25 @@ packages:
   /@types/jsonwebtoken@9.0.7:
     resolution: {integrity: sha512-ugo316mmTYBl2g81zDFnZ7cfxlut3o+/EQdaP7J8QN2kY6lJ22hmQYCK5EHcJHbrW+dkCGSCPgbG8JtYj6qSrg==}
     dependencies:
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
     dev: false
 
   /@types/lodash.transform@4.6.9:
     resolution: {integrity: sha512-1iIn+l7Vrj8hsr2iZLtxRkcV9AtjTafIyxKO9DX2EEcdOgz3Op5dhwKQFhMJgdfIRbYHBUF+SU97Y6P+zyLXNg==}
     dependencies:
-      '@types/lodash': 4.17.9
+      '@types/lodash': 4.17.12
     dev: false
 
-  /@types/lodash@4.17.9:
-    resolution: {integrity: sha512-w9iWudx1XWOHW5lQRS9iKpK/XuRhnN+0T7HvdCCd802FYkT1AMTnxndJHGrNJwRoRHkslGr4S29tjm1cT7x/7w==}
+  /@types/lodash@4.17.12:
+    resolution: {integrity: sha512-sviUmCE8AYdaF/KIHLDJBQgeYzPBI0vf/17NaYehBJfYD1j6/L95Slh07NlyK2iNyBNaEkb3En2jRt+a8y3xZQ==}
     dev: false
 
   /@types/mime@1.3.5:
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
     dev: true
 
-  /@types/node@20.16.10:
-    resolution: {integrity: sha512-vQUKgWTjEIRFCvK6CyriPH3MZYiYlNy0fKiEYHWbcoWLEgs4opurGGKlebrTLqdSMIbXImH6XExNiIyNUv3WpA==}
+  /@types/node@20.16.13:
+    resolution: {integrity: sha512-GjQ7im10B0labo8ZGXDGROUl9k0BNyDgzfGpb4g/cl+4yYDWVKcozANF4FGr4/p0O/rAkQClM6Wiwkije++1Tg==}
     dependencies:
       undici-types: 6.19.8
 
@@ -473,14 +473,14 @@ packages:
     resolution: {integrity: sha512-x2EM6TJOybec7c52BX0ZspPodMsQUd5L6PRwOunVyVUhXiBSKf3AezDL8Dgvgt5o0UfKNfuA0eMLr2wLT4AiBA==}
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
     dev: true
 
   /@types/serve-static@1.15.7:
     resolution: {integrity: sha512-W8Ym+h8nhuRwaKPaDw34QUkwsGi6Rc4yYqvKFo5rm2FUEhCFbzVWrxXUxuKK8TASjWsysJY0nsmNCGhCOIsrOw==}
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
       '@types/send': 0.17.4
     dev: true
 
@@ -491,7 +491,7 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 20.16.10
+      '@types/node': 20.16.13
     dev: false
 
   /accepts@1.3.8:
@@ -589,12 +589,12 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /colyseus@0.15.17(@colyseus/schema@2.0.35)(express@4.21.0):
+  /colyseus@0.15.17(@colyseus/schema@2.0.35)(express@4.21.1):
     resolution: {integrity: sha512-9RDi8fbikCQ8tb9ptNQ0MBsP3dOR9ltxQGhkg6f0RGnQ+tkzcXEfwtIuO6nbGJm75bmSFPmRH40uoG6qlvBlIw==}
     engines: {node: '>= 14.x'}
     dependencies:
-      '@colyseus/auth': 0.15.10(@colyseus/core@0.15.51)(express@4.21.0)
-      '@colyseus/core': 0.15.51
+      '@colyseus/auth': 0.15.10(@colyseus/core@0.15.53)(express@4.21.1)
+      '@colyseus/core': 0.15.53
       '@colyseus/redis-driver': 0.15.6
       '@colyseus/redis-presence': 0.15.5
       '@colyseus/ws-transport': 0.15.2(@colyseus/schema@2.0.35)
@@ -606,13 +606,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  /connect-redis@7.1.1(express-session@1.18.0):
+  /connect-redis@7.1.1(express-session@1.18.1):
     resolution: {integrity: sha512-M+z7alnCJiuzKa8/1qAYdGUXHYfDnLolOGAUjOioB07pP39qxjG+X9ibsud7qUBc4jMV5Mcy3ugGv8eFcgamJQ==}
     engines: {node: '>=16'}
     peerDependencies:
       express-session: '>=1'
     dependencies:
-      express-session: 1.18.0
+      express-session: 1.18.1
     dev: false
 
   /content-disposition@0.5.4:
@@ -644,6 +644,18 @@ packages:
 
   /cookie@0.6.0:
     resolution: {integrity: sha512-U71cyTamuh1CRNCfpGY6to28lxvNwPG4Guz/EVjgf3Jmzv0vlDp1atT9eS5dDjMYHucpHbWns6Lwf3BKz6svdw==}
+    engines: {node: '>= 0.6'}
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /cookie@0.7.1:
+    resolution: {integrity: sha512-6DnInpx7SJ2AK3+CTUE/ZM0vWTUboZCegxhC2xiIydHR9jNuTAASBrfEpHhiGOZw/nX51bHt6YQl8jsGo4y/0w==}
+    engines: {node: '>= 0.6'}
+    dev: false
+
+  /cookie@0.7.2:
+    resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
     dev: false
 
@@ -721,8 +733,8 @@ packages:
     dev: false
     optional: true
 
-  /dissonity@1.2.3:
-    resolution: {integrity: sha512-nbn+HUcSOblrPsG7cFhBThC8sy7LIyObRmCNhLVkN0/y9mNB8TsYTiRJhHg8o5DRXsTEw4YjRqqMVYXmqAoV+Q==}
+  /dissonity@1.3.0:
+    resolution: {integrity: sha512-ehx+9e2DtwSODyC/5R5HhWJmm9XBPj+DYhgNYFN3oCFDyv/5lMEwb8MlThxMsB77RmozmmBkXOCmpkXoEizSMw==}
     dependencies:
       '@discord/embedded-app-sdk': 1.5.0
       cross-fetch: 4.0.0
@@ -833,11 +845,11 @@ packages:
       jsonwebtoken: 9.0.2
     dev: false
 
-  /express-session@1.18.0:
-    resolution: {integrity: sha512-m93QLWr0ju+rOwApSsyso838LQwgfs44QtOP/WBiwtAgPIo/SAh1a5c6nn2BR6mFNZehTpqKDESzP+fRHVbxwQ==}
+  /express-session@1.18.1:
+    resolution: {integrity: sha512-a5mtTqEaZvBCL9A9aqkrtfz+3SMDhOVUnjafjo+s7A9Txkq+SVX2DLvSp1Zrv4uCXa3lMSK3viWnh9Gg07PBUA==}
     engines: {node: '>= 0.8.0'}
     dependencies:
-      cookie: 0.6.0
+      cookie: 0.7.2
       cookie-signature: 1.0.7
       debug: 2.6.9
       depd: 2.0.0
@@ -853,8 +865,8 @@ packages:
     resolution: {integrity: sha512-wj4tLMyCVYuIIKHGt0FhCtIViBcwzWejX0EjNxveAa6dG+0XBCQhMbx+PnkLkFCxLC69qoFrxds4pIyL88inaQ==}
     dev: false
 
-  /express@4.21.0:
-    resolution: {integrity: sha512-VqcNGcj/Id5ZT1LZ/cfihi3ttTn+NJmkli2eZADigjq29qTlWi/hAQ43t/VLPq8+UX06FCEx3ByOYet6ZFblng==}
+  /express@4.21.1:
+    resolution: {integrity: sha512-YSFlK1Ee0/GC8QaO91tHcDxJiE/X4FbpAyQWkxAvG6AXCuR65YzK8ua6D9hvi/TzUfZMpc+BwuM1IPw8fmQBiQ==}
     engines: {node: '>= 0.10.0'}
     dependencies:
       accepts: 1.3.8
@@ -862,7 +874,7 @@ packages:
       body-parser: 1.20.3
       content-disposition: 0.5.4
       content-type: 1.0.5
-      cookie: 0.6.0
+      cookie: 0.7.1
       cookie-signature: 1.0.6
       debug: 2.6.9
       depd: 2.0.0
@@ -1475,8 +1487,8 @@ packages:
       mime-types: 2.1.35
     dev: false
 
-  /typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
+  /typescript@5.6.3:
+    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
