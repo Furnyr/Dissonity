@@ -8,7 +8,7 @@
 
 # About
 
-Dissonity allows you to easily create Discord activities with Unity. The npm and Unity packages share data to provide functionality.
+Dissonity allows you to easily create Discord activities with Unity. In version 1, the npm and Unity packages share data to provide functionality.
 
 It's designed for a structure similar to the [nested-messages](https://github.com/discord/embedded-app-sdk/tree/main/examples/nested-messages) example from Discord. You may want to familiarize with that project structure first.
 
@@ -25,7 +25,7 @@ pnpm add dissonity
 When running the activity, your game build will be inside a nested iframe that we will call "child".
 The child iframe must have the id "dissonity-child", like:
 ```html
-<iframe id="dissonity-child" src="nested/index.html"></iframe>
+<iframe id="dissonity-child" src=".proxy/nested/index.html"></iframe>
 ```
 Instead of manually creating an SDK instance, call `setupSdk` inside the parent index.js with your options:
 
@@ -77,3 +77,4 @@ That's all the configuration you need inside Node.js! Now, in your Unity project
 - [NPM Package Source](https://github.com/Furnyr/Dissonity/tree/main/npm)
 - [Unity Package](https://github.com/Furnyr/Dissonity/tree/main/unity#readme)
 - [Unity Package Documentation](https://github.com/Furnyr/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
+- [Examples](https://github.com/Furnyr/Dissonity/tree/main/examples)

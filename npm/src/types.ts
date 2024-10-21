@@ -13,6 +13,7 @@ export type ConfigOptions = {
 //# DISCORD DATA - - - - -
 export type DiscordSDKEvents = Parameters<DiscordSDK["subscribe"]>[0];
 export type ScopeArgument = Parameters<DiscordSDK["commands"]["authorize"]>[0]["scope"];
+export type AuthUser = Awaited<ReturnType<DiscordSDK["commands"]["authenticate"]>>["user"];
 
 // Represents the commands sent to the parent iframe or the child iframe
 export type MessageChildCommand = "LOADED" | "DISPATCH" | "GET_INSTANCE_ID" | "SET_ACTIVITY" | "GET_CHANNEL_ID" | "GET_GUILD_ID" | "GET_USER" | "GET_USER_ID"
@@ -43,3 +44,8 @@ export interface CompatibleUser {
   flags: number;
   bot: boolean;
 }
+
+export type DataPromise = Promise<{
+  discordSdk: DiscordSDK,
+  user: AuthUser | null
+}>;

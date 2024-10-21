@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@discord/embedded-app-sdk':
-    specifier: ^1.4.0
-    version: 1.4.0
+    specifier: ^1.5.0
+    version: 1.5.0
   cross-fetch:
     specifier: ^4.0.0
     version: 4.0.0
@@ -25,8 +25,8 @@ devDependencies:
 
 packages:
 
-  /@discord/embedded-app-sdk@1.4.0:
-    resolution: {integrity: sha512-R+xyr5WNNTulSZrhvRQURKtd0Q/mm0ghjMHGnMWyimrKB0UJ0c6K9YbSZZgN/lADJSJiqEW+PEpvvzd3Ldxkfw==}
+  /@discord/embedded-app-sdk@1.5.0:
+    resolution: {integrity: sha512-3BeDBEiioQwPR5hWf43twAd+2zGi3emRDTnYFF8QIl7GOmJ+XNb53WLB7Mr1Rds+wjus1TaRGkxQ+XeDDaiBKQ==}
     dependencies:
       '@types/lodash.transform': 4.6.9
       '@types/uuid': 10.0.0
@@ -442,11 +442,11 @@ packages:
   /@types/lodash.transform@4.6.9:
     resolution: {integrity: sha512-1iIn+l7Vrj8hsr2iZLtxRkcV9AtjTafIyxKO9DX2EEcdOgz3Op5dhwKQFhMJgdfIRbYHBUF+SU97Y6P+zyLXNg==}
     dependencies:
-      '@types/lodash': 4.17.7
+      '@types/lodash': 4.17.12
     dev: false
 
-  /@types/lodash@4.17.7:
-    resolution: {integrity: sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==}
+  /@types/lodash@4.17.12:
+    resolution: {integrity: sha512-sviUmCE8AYdaF/KIHLDJBQgeYzPBI0vf/17NaYehBJfYD1j6/L95Slh07NlyK2iNyBNaEkb3En2jRt+a8y3xZQ==}
     dev: false
 
   /@types/node@20.12.7:
