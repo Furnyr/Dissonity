@@ -69,9 +69,9 @@ namespace Dissonity
 
         //# PROPERTIES - - - - -
         /// <summary>
-        /// Embedded App SDK version that Dissonity is simulating.
+        /// Embedded App SDK version that Dissonity is mirroring. Note that some patch versions may not apply here.
         /// </summary>
-        public const string SdkVersion = "1.5.0";
+        public const string SdkVersion = "1.6.1";
         public const string ProxyDomain = "discordsays.com";
 
         /// <summary>

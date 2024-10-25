@@ -2,6 +2,26 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-10-25 - feat: mirror v1.6.1
+
+Staying up to date with the official SDK.
+
+## Wiki
+
+- Renamed Permission to [PermissionFlags](https://github.com/Furnyr/Dissonity/wiki/Namespaces#dissonitymodels)
+
+## Dissonity (API)
+
+- Updated Api.SdkVersion to 1.6.1
+
+- Added every permission flag
+
+## Note
+
+I made a [project](https://github.com/users/Furnyr/projects/2) to keep track of the remaining tasks.
+
+---
+
 # 2024-10-19 - alpha progress 3
 
 This alpha progress version is centered on QoL changes, internal overhauls, support for app resolution config and other fixes.
