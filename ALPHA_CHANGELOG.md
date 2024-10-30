@@ -2,6 +2,16 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-10-30 - allow for null accent color
+
+Authored by JadenH.
+
+## Dissonity (API)
+
+- Fixed User and AuthenticatedUser `AccentColor` type
+
+---
+
 # 2024-10-25 - feat: mirror v1.6.1
 
 Staying up to date with the official SDK.
