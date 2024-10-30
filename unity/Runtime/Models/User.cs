@@ -13,7 +13,7 @@ namespace Dissonity.Models
         public string? GlobalName { get; set; }
 
         [JsonProperty("accent_color")]
-        public int AccentColor { get; set; }
+        public int? AccentColor { get; set; }
 
         [JsonProperty("avatar_decoration_data")]
         public AvatarDecoration? AvatarDecoration { get; set; }
