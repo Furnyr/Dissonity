@@ -1270,7 +1270,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> CurrentGuildMemberUpdate(string guildId, Action<GuildMemberRpc> listener)
+            public static async Task<SubscriptionReference> CurrentGuildMemberUpdate(long guildId, Action<GuildMemberRpc> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1285,7 +1285,7 @@ namespace Dissonity
                     }
                 }
 
-                var reference = await SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(listener, new EventArguments{ GuildId = guildId });
+                var reference = await SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(listener, new EventArguments{ GuildId = guildId.ToString() });
 
                 return reference;
             }
@@ -1373,7 +1373,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> SpeakingStart(string channelId, Action<SpeakingData> listener)
+            public static async Task<SubscriptionReference> SpeakingStart(long channelId, Action<SpeakingData> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1388,7 +1388,7 @@ namespace Dissonity
                     }
                 }
 
-                var reference = await SubscribeCommandFactory<SpeakingStart, SpeakingData>(listener, new EventArguments{ ChannelId = channelId });
+                var reference = await SubscribeCommandFactory<SpeakingStart, SpeakingData>(listener, new EventArguments{ ChannelId = channelId.ToString() });
 
                 return reference;
             }
@@ -1400,7 +1400,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> SpeakingStop(string channelId, Action<SpeakingData> listener)
+            public static async Task<SubscriptionReference> SpeakingStop(long channelId, Action<SpeakingData> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1415,7 +1415,7 @@ namespace Dissonity
                     }
                 }
 
-                var reference = await SubscribeCommandFactory<SpeakingStop, SpeakingData>(listener, new EventArguments{ ChannelId = channelId });
+                var reference = await SubscribeCommandFactory<SpeakingStop, SpeakingData>(listener, new EventArguments{ ChannelId = channelId.ToString() });
 
                 return reference;
             }
@@ -1450,7 +1450,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> VoiceStateUpdate(string channelId, Action<UserVoiceState> listener)
+            public static async Task<SubscriptionReference> VoiceStateUpdate(long channelId, Action<UserVoiceState> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1465,7 +1465,7 @@ namespace Dissonity
                     }
                 }
 
-                var reference = await SubscribeCommandFactory<VoiceStateUpdate, UserVoiceState>(listener, new EventArguments{ ChannelId = channelId });
+                var reference = await SubscribeCommandFactory<VoiceStateUpdate, UserVoiceState>(listener, new EventArguments{ ChannelId = channelId.ToString() });
 
                 return reference;
             }
@@ -2075,6 +2075,7 @@ namespace Dissonity
             }
         }
         
+        // This method takes longs directly, unlike SendCommand, that takes the stringified long
         private static Task<TResponse> MockSendCommand<TResponse>(object? arg = null) where TResponse : DiscordEvent
         {
             if (!_mock) throw new InvalidOperationException("This method can only be called in mock mode");
