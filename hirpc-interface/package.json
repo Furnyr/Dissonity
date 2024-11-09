@@ -1,0 +1,14 @@
+{
+  "name": "@dissonity/hirpc-interface",
+  "version": "0.1.0",
+  "description": "Bridge between Unity and hiRPC",
+  "scripts": {
+    "build": "pnpm tsc"
+  },
+  "author": "Furnyr",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "^5.4.4"
+  },
+  "private": true
+}

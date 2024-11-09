@@ -2,6 +2,53 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-09 - chore(hirpc): initial commit
+
+This progress version changes nothing from the Unity package, but adds some workflows and the work-in-progress hiRPC code.
+
+## What is hiRPC?
+
+It's essentially the Embedded App SDK for game engines. While most of the development has been centered around the C# side of the project, the RpcBridge was the "core" that handled the RPC connection.
+
+But the RpcBridge failed in some aspects:
+
+- It was possible to mess with it from the console
+- Some parts of the API weren't exposed at the JavaScript level (so no compatibility with frameworks)
+
+This new core makes it harder to access restricted functionality from the console, while exposing the API to the JavaScript level securely.
+
+## Other differences
+
+Another point that differentiates hiRPC with the RpcBridge is that hiRPC could theoretically be used within other game engines. The only thing that changes between engines is the JS interface used to interact with the hiRPC module.
+
+So instead of:
+
+- RpcBridge
+- InterfaceBridge
+- Official utils
+
+Now there is:
+
+- @dissonity/hirpc
+- @dissonity/hirpc-interface
+- @dissonity/utils
+
+And a utility package to allow third parties to interact with the hiRPC:
+
+- @dissonity/hirpc-sdk
+
+Which seems like the right direction for the project, but I'll keep experimenting and see if it's right. The end goal is not depending on Node.js for development inside Unity.
+
+---
+
+# 2024-11-02 - fix: long snowflakes in subscriptions
+
+## Dissonity (API)
+
+- Fixed snowflake type in some subscription methods
+
+---
+
 # 2024-10-30 - allow for null accent color
 
 Authored by JadenH.

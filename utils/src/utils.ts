@@ -1,19 +1,50 @@
 
 /*
 
-This file will contain official code that requires little to no modifications to
-work with Dissonity.
-
-Hence, the following code doesn't belong to Dissonity. It belongs to its
-corresponding contributors at https://github.com/discord/embedded-app-sdk
+This utils file is accessed by the hirpc in [root]/snippets/dissonity-hirpc-[hash]/pkg/utils.js
 
 */
 
-// [Patch url mappings functionality] commit source: https://github.com/discord/embedded-app-sdk/pull/252/commits/02b54b71250e2f970709d798fdb132cad3d8d758
-// [PriceUtils functionality] commit source: https://github.com/discord/embedded-app-sdk/commit/f05161893b9f1592439a4ff5d5aa0177d9cf985d
-
 import type { Mapping, RemapInput, PatchUrlMappingsConfig, MatchAndRewriteURLInputs } from "./official_types";
 
+const importBuildVariables = await import("../../../build_variables.js" as string);
+
+let accessKey = "";
+
+//# SECURE EXPORTS - - - - -
+export function setKey(key: string): void {
+  if (accessKey) return;
+
+  accessKey = key;
+}
+
+export function importModule(key: string) {
+
+  if (key != accessKey) return;
+
+  return {
+    formatPrice,
+    patchUrlMappings,
+    buildVariables: (importBuildVariables.default)()
+  };
+}
+
+//# UTILS - - - - -
+export function logObject(obj: unknown) {
+  console.log(JSON.stringify(obj, null, 4));
+}
+
+/*
+
+The following code is part of the official Embedded App SDK and required little to no
+modifications to work with Dissonity.
+
+It belongs to its corresponding contributors at https://github.com/discord/embedded-app-sdk
+
+*/
+
+
+//# FORMAT PRICE - - - - -
 enum CurrencyCodes {
   AED = 'aed',
   AFN = 'afn',
@@ -384,8 +415,8 @@ const CurrencyExponents = {
   [CurrencyCodes.ZWL]: 2,
 };
 
-//@rpc-bridge
-export function formatPrice(price: {amount: number; currency: string}, locale: string = 'en-US'): string {
+//@hirpc
+function formatPrice(price: {amount: number; currency: string}, locale: string = 'en-US'): string {
   const {amount, currency} = price;
   const formatter = Intl.NumberFormat(locale, {style: 'currency', currency});
   return formatter.format(convertToMajorCurrencyUnits(amount, currency as CurrencyCodes));
@@ -403,12 +434,13 @@ function convertToMajorCurrencyUnits(minorUnitValue: number, currency: CurrencyC
   return minorUnitValue / 10 ** exponent;
 }
 
+
+//# PATCH URL MAPPINGS - - - - -
 const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
 const PROXY_PREFIX = '/.proxy';
 
-
-//@rpc-bridge
-export function patchUrlMappings(
+//@hirpc
+function patchUrlMappings(
     mappings: Mapping[],
     {patchFetch = true, patchWebSocket = true, patchXhr = true, patchSrcAttributes = false}: PatchUrlMappingsConfig = {},
   ) {

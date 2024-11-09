@@ -1,0 +1,19 @@
+{
+  "name": "@dissonity/utils",
+  "version": "0.1.0",
+  "description": "Utility files for hiRPC, implementing part of the Embedded App SDK",
+  "scripts": {
+    "build": "pnpm tsc",
+    "novar_build": "pnpm tsc -p ./tsconfig.novar.json",
+    "variables": "node update_variables.js"
+  },
+  "author": "Furnyr",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "chalk": "^5.3.0",
+    "prompt-sync": "^4.2.0",
+    "typescript": "^5.4.4"
+  },
+  "type": "module",
+  "private": true
+}

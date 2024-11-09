@@ -1,0 +1,75 @@
+name: hiRPC
+on: 
+  push:
+    branches:
+      - dev
+    paths:
+      - "hirpc/**/*.rs"
+      - "hirpc/Cargo.toml"
+      - "utils/**/*.ts"
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - "hirpc/**/*.rs"
+      - "hirpc/Cargo.toml"
+      - "utils/**/*.ts"
+jobs:
+  hirpc_tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "./hirpc"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install Utils node_modules
+        working-directory: "./utils"
+        run: pnpm install --frozen-lockfile --prefer-offline --loglevel error
+
+      - name: Build JS Utils
+        working-directory: "./utils"
+        run: pnpm build
+
+      - name: Update Build Variables
+        working-directory: "./utils"
+        run: pnpm variables ci
+
+      - name: Setup Rust
+        run: rustup update stable && rustup default stable
+
+      - name: Verify Rust version
+        run: rustc --version
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build wasm
+        run: wasm-pack build --target web
+
+      - name: Lint
+        run: cargo clippy
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          install-chromedriver: true
+          install-dependencies: true
+
+      - name: Verify Chrome version
+        run: chrome --version
+
+      - name: Tests (Chrome)
+        run: wasm-pack test --headless --chrome

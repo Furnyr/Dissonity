@@ -1,16 +1,15 @@
 
 /*
 
-This is the "InterfaceBridge". It receives messages from the "DissonityBridge" inside the Unity build
-and passes them to the "RpcBridge".
+This is the hiRPC Interface. It receives messages from the DissonityBridge inside the Unity build
+and interacts with the hiRPC.
 
 Function names are PascalCase, C# method conventions.
 
 */
 
-
 // Types
-import type { RpcBridgeMessage } from "./types";
+import type { RpcBridgeMessage } from "./old.types";
 type RpcBridgeInterface = (message: RpcBridgeMessage) => void;
 
 
@@ -35,7 +34,7 @@ mergeInto(LibraryManager.library, {
 
         this.rpcInterfacePromise = new Promise((resolve, reject) => {
 
-            if (window.outsideDiscord) {
+            if (window.dso_outside_discord) {
 
                 import("web_bridge" as string)
                 .then(module => {

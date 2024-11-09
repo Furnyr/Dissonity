@@ -1,7 +1,8 @@
 
 // Global
 interface Window {
-    outsideDiscord: boolean
+    dso_outside_discord: boolean
+    dso_hirpc: unknown
 }
 
 // Unity methods

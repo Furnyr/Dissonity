@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="importmap">
+      {
+        "imports": {
+            "dso_build/": "/pkg/",
+            "dso_proxy_build/": "/.proxy/pkg/"
+        }
+      }
+    </script>
+    <meta charset="utf-8">
+    <title>hiRPC test!</title>
+  </head>
+  <body>
+    <noscript>This page contains WebAssembly and JavaScript content, please enable JavaScript in your browser.</noscript>
+    <script type="module">
+
+      globalThis.dso_hirpc = new Promise(async (resolve, reject) => {
+
+        console.log("Attempting to load from .proxy/...");
+
+        import("dso_proxy_build/dissonity_hirpc.js")
+          .then(mod => {
+
+            console.log("Loaded from proxy!");
+
+            load(mod)
+          })
+          .catch((_) => {
+
+            console.log("Attempting to load directly...");
+  
+            import("dso_build/dissonity_hirpc.js")
+              .then(mod => {
+
+                console.log("Loaded directly!");
+
+                load(mod)
+              })
+              .catch(err => {
+                reject(err);
+            });
+        });
+
+        async function load(mod) {
+          await mod.default();
+          resolve(mod);
+        }
+      });
+    </script>
+    <script type="module" src="/www/build/client/index.js"></script>
+  </body>
+</html>
