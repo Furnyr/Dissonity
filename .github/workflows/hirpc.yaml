@@ -30,6 +30,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          install-chromedriver: true
+          install-dependencies: true
+          chrome-version: "130.0.6723.116"
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -66,13 +73,6 @@ jobs:
 
       - name: Lint
         run: cargo clippy
-
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          install-chromedriver: true
-          install-dependencies: true
-          chrome-version: 120
 
       - name: Cargo test
         run: cargo test
