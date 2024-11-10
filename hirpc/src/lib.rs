@@ -9,7 +9,7 @@ Its purpose is:
 
 std is only used for essential functionality.
 
-- - - - -
+- - - - - -
 
 modules/rpc.rs -> Connection with the RPC protocol
 modules/public.rs -> Exposed API and hashes
