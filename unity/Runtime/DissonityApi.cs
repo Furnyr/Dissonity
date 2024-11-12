@@ -873,7 +873,9 @@ namespace Dissonity
         {
             // POST - - - - -
             /// <summary>
-            /// Sends an HTTPS post request with a JSON payload to the Discord proxy.
+            /// Sends an HTTPS post request with a JSON payload to the Discord proxy. <br/> <br/>
+            /// You can pass a relative <c> /cat </c> or absolute <c> https://... </c> path. <br/> <br/>
+            /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="OutsideDiscordException"></exception>
@@ -883,13 +885,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendPostRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPostRequest(uri, payload, tcs, headers) );
 
                 return tcs.Task;
             }
@@ -897,7 +899,9 @@ namespace Dissonity
 
             // GET - - - - -
             /// <summary>
-            /// Sends an HTTPS get request to the Discord proxy.
+            /// Sends an HTTPS get request to the Discord proxy. <br/> <br/>
+            /// You can pass a relative <c> /cat </c> or absolute <c> https://... </c> path. <br/> <br/>
+            /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="OutsideDiscordException"></exception>
@@ -907,13 +911,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendGetRequest(uri, tcs) );
+                bridge!.StartCoroutine( SendGetRequest(uri, tcs, headers) );
 
                 return tcs.Task;
             }
@@ -921,7 +925,9 @@ namespace Dissonity
 
             // PATCH - - - - -
             /// <summary>
-            /// Sends an HTTPS patch request with a JSON payload to the Discord proxy.
+            /// Sends an HTTPS patch request with a JSON payload to the Discord proxy. <br/> <br/>
+            /// You can pass a relative <c> /cat </c> or absolute <c> https://... </c> path. <br/> <br/>
+            /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="OutsideDiscordException"></exception>
@@ -931,13 +937,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendPatchRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPatchRequest(uri, payload, tcs, headers) );
 
                 return tcs.Task;
             }
@@ -945,7 +951,9 @@ namespace Dissonity
 
             // PUT - - - - -
             /// <summary>
-            /// Sends an HTTPS put request with a JSON payload to the Discord proxy.
+            /// Sends an HTTPS put request with a JSON payload to the Discord proxy. <br/> <br/>
+            /// You can pass a relative <c> /cat </c> or absolute <c> https://... </c> path. <br/> <br/>
+            /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="OutsideDiscordException"></exception>
@@ -955,13 +963,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendPutRequest(uri, payload, tcs) );
+                bridge!.StartCoroutine( SendPutRequest(uri, payload, tcs, headers) );
 
                 return tcs.Task;
             }
@@ -969,7 +977,9 @@ namespace Dissonity
 
             // DELETE - - - - -
             /// <summary>
-            /// Sends an HTTPS delete request to the Discord proxy.
+            /// Sends an HTTPS delete request to the Discord proxy. <br/> <br/>
+            /// You can pass a relative <c> /cat </c> or absolute <c> https://... </c> path. <br/> <br/>
+            /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="OutsideDiscordException"></exception>
@@ -979,13 +989,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendDeleteRequest(uri, tcs) );
+                bridge!.StartCoroutine( SendDeleteRequest(uri, tcs, headers) );
 
                 return tcs.Task;
             }

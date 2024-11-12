@@ -2,6 +2,16 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-12 - fix(api/proxy): editor check and headers
+
+## Dissonity (API)
+
+- Allow requests to full urls inside Unity
+- Use headers
+- Document valid arguments
+
+---
+
 # 2024-11-12 - feat(api): allow full urls in proxy methods
 
 ## Dissonity (API)
