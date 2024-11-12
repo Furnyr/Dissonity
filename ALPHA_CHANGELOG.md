@@ -2,6 +2,16 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-12 - feat(api): allow full urls in proxy methods
+
+## Dissonity (API)
+
+- `Api.Proxy.Https<Method>Request` now allows full urls as an argument:
+- - If the path is relative (/cat), the request is sent through the proxy (/.proxy/cat)
+- - If the path is absolute (https://...), the request is left as is and the developer is expected to patch the url mappings.
+
+---
+
 # 2024-11-09 - chore(hirpc): initial commit
 
 This progress version changes nothing from the Unity package, but adds some workflows and the work-in-progress hiRPC code.

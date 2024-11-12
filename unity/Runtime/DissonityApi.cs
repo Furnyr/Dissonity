@@ -885,13 +885,7 @@ namespace Dissonity
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
-                path = path.StartsWith("/")
-                    ? path
-                    : $"/{path}";
-
-                string uri = path.StartsWith("/.proxy/")
-                    ? $"https://{_clientId}.{ProxyDomain}{path}"
-                    : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
@@ -915,13 +909,7 @@ namespace Dissonity
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
-                path = path.StartsWith("/")
-                    ? path
-                    : $"/{path}";
-
-                string uri = path.StartsWith("/.proxy/")
-                    ? $"https://{_clientId}.{ProxyDomain}{path}"
-                    : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
@@ -945,13 +933,7 @@ namespace Dissonity
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
-                path = path.StartsWith("/")
-                    ? path
-                    : $"/{path}";
-
-                string uri = path.StartsWith("/.proxy/")
-                    ? $"https://{_clientId}.{ProxyDomain}{path}"
-                    : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
@@ -975,13 +957,7 @@ namespace Dissonity
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
-                path = path.StartsWith("/")
-                    ? path
-                    : $"/{path}";
-
-                string uri = path.StartsWith("/.proxy/")
-                    ? $"https://{_clientId}.{ProxyDomain}{path}"
-                    : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
@@ -1005,19 +981,35 @@ namespace Dissonity
 
                 if (isEditor) throw new OutsideDiscordException("You can't make requests to the Discord proxy while inside Unity");
 
-                path = path.StartsWith("/")
-                    ? path
-                    : $"/{path}";
-
-                string uri = path.StartsWith("/.proxy/")
-                    ? $"https://{_clientId}.{ProxyDomain}{path}"
-                    : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
                 bridge!.StartCoroutine( SendDeleteRequest(uri, tcs) );
 
                 return tcs.Task;
+            }
+
+            private static string GetFormattedUri(string path)
+            {
+                string uri;
+
+                if (!path.ToLower().StartsWith("http"))
+                {
+                    path = path.StartsWith("/")
+                        ? path
+                        : $"/{path}";
+
+                    uri = path.StartsWith("/.proxy/")
+                        ? $"https://{_clientId}.{ProxyDomain}{path}"
+                        : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                }
+                else
+                {
+                    uri = path;
+                }
+
+                return uri;
             }
 
             private static IEnumerator SendPostRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs, Dictionary<string, string>? headers = null)
