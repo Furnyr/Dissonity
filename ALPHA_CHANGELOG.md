@@ -2,6 +2,14 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-17 - feat(unity): support unity 6
+
+## Dissonity (internal)
+
+- Replace deprecated methods
+
+---
+
 # 2024-11-17 - feat(hirpc, api): facade and uppercase url
 
 ## hiRPC

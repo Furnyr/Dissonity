@@ -96,7 +96,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return GameObject.FindObjectOfType<DiscordMock>()._query.InstanceId;
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.InstanceId;
 
                 return _instanceId!;
             }
@@ -111,7 +111,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return MockUtils.ToPlatformString(GameObject.FindObjectOfType<DiscordMock>()._query.Platform);
+                if (_mock) return MockUtils.ToPlatformString(GameObject.FindAnyObjectByType<DiscordMock>()._query.Platform);
 
                 return _platform!;
             } 
@@ -126,7 +126,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return GameObject.FindObjectOfType<DiscordMock>()._query.GuildId;
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.GuildId;
 
                 return (long) _guildId!;
             }
@@ -141,7 +141,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return GameObject.FindObjectOfType<DiscordMock>()._query.ChannelId;
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.ChannelId;
 
                 return (long) _channelId!;
             }
@@ -156,7 +156,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
 
-                if (_mock) return GameObject.FindObjectOfType<DiscordMock>()._query.FrameId;
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.FrameId;
 
                 return _frameId!;
             }
@@ -173,7 +173,7 @@ namespace Dissonity
 
                 if (_mock)
                 {
-                    var mock = GameObject.FindObjectOfType<DiscordMock>();
+                    var mock = GameObject.FindAnyObjectByType<DiscordMock>();
 
                     if (mock._query.Platform == MockPlatform.Desktop) return null;
                     else return mock._query.MobileAppVersion;
@@ -201,7 +201,7 @@ namespace Dissonity
                         return null;
                     }
 
-                    return GameObject.FindObjectOfType<DiscordMock>()._currentPlayer.Participant.Id;
+                    return GameObject.FindAnyObjectByType<DiscordMock>()._currentPlayer.Participant.Id;
                 }
 
                 if (!_configuration!.DisableDissonityInfoLogs && _userId == null)
@@ -255,7 +255,7 @@ namespace Dissonity
                         return null;
                     }
 
-                    return GameObject.FindObjectOfType<DiscordMock>()._currentPlayer.Participant.ToUser();
+                    return GameObject.FindAnyObjectByType<DiscordMock>()._currentPlayer.Participant.ToUser();
                 }
 
                 if (!_configuration!.DisableDissonityInfoLogs && _user == null)
@@ -287,7 +287,7 @@ namespace Dissonity
                         return null;
                     }
 
-                    return GameObject.FindObjectOfType<DiscordMock>().GetGuildMemberRpc();
+                    return GameObject.FindAnyObjectByType<DiscordMock>().GetGuildMemberRpc();
                 }
 
                 if (!_configuration!.DisableDissonityInfoLogs && _guildMemberRpc == null)
@@ -1597,7 +1597,7 @@ namespace Dissonity
                 if (_mock)
                 {
                     //\ Query data
-                    var mock = GameObject.FindObjectOfType<DiscordMock>();
+                    var mock = GameObject.FindAnyObjectByType<DiscordMock>();
 
                     //? No mock
                     if (!mock)
@@ -2087,7 +2087,7 @@ namespace Dissonity
             }
 
             var tcs = new TaskCompletionSource<TResponse>();
-            DiscordMock mock = GameObject.FindObjectOfType<DiscordMock>();
+            DiscordMock mock = GameObject.FindAnyObjectByType<DiscordMock>();
 
             if (typeof(TResponse) == typeof(NoResponse))
             {

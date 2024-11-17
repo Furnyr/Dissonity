@@ -6,9 +6,9 @@ namespace Dissonity.Editor
     internal class MenuMock : MonoBehaviour
     {
         [MenuItem("GameObject/Dissonity/Discord Mock", priority = 2)]
-        static bool CreateDiscordMock() {
+        public static bool CreateDiscordMock() {
 
-            DiscordMock existing = FindObjectOfType<DiscordMock>();
+            DiscordMock existing = FindAnyObjectByType<DiscordMock>();
 
             //? Mock found
             if (existing != null) {
@@ -26,9 +26,9 @@ namespace Dissonity.Editor
         }
 
         [MenuItem("GameObject/Dissonity/Discord Mock", true, 2)]
-        static bool CheckDiscordMock() {
+        public static bool CheckDiscordMock() {
 
-            DiscordMock existing = FindObjectOfType<DiscordMock>();
+            DiscordMock existing = FindAnyObjectByType<DiscordMock>();
 
             //? Mock found
             if (existing != null) {

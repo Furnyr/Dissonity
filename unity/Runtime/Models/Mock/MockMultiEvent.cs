@@ -55,7 +55,7 @@ namespace Dissonity.Models.Mock
 
         private void SetMockUser()
         {
-            var mock = GameObject.FindObjectOfType<DiscordMock>();
+            var mock = GameObject.FindAnyObjectByType<DiscordMock>();
 
             AuthenticateData.User.Id = mock._currentPlayer.Participant.Id;
             AuthenticateData.User.Username = mock._currentPlayer.Participant.Username;
