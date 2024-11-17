@@ -4,132 +4,100 @@
 
 use core::str;
 use wasm_bindgen::prelude::*;
-use web_sys::{js_sys, MessageEvent};
-use js_sys::Reflect;
+use web_sys::js_sys;
+use web_sys::{MessageEvent, Window};
+use serde::Serialize;
 
+use crate::constants::*;
 use crate::structs::*;
 use crate::enums::*;
-use crate::constants::*;
-use crate::modules::public::*;
+use super::public::*;
+use super::facade::*;
 
-// Module data
-static mut ALLOWED_ORIGINS: [&str; 11] = [
-    "origin_ph",
-    "https://discord.com",
-    "https://discordapp.com",
-    "https://ptb.discord.com",
-    "https://ptb.discordapp.com",
-    "https://canary.discord.com",
-    "https://canary.discordapp.com",
-    "https://staging.discord.co",
-    "http://localhost:3333",
-    "https://pax.discord.com",
-    "null"
-];
-static mut LISTENERS: Vec<Closure<dyn FnMut(MessageEvent)>> = Vec::new();
-static mut STATE_CODE: StateCode = StateCode::Loading;
-static mut UTILS: Option<JsValue> = None;
-static mut BUILD_VARIABLES: Option<JsValue> = None;
-static mut MOBILE_APP_VERSION: Option<&str> = None;
 
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
     fn log(s: &str);
-}
 
-// JavaScript utils
-#[wasm_bindgen(module = "/pkg/utils.js")]
-extern "C" {
-    #[wasm_bindgen(js_name="setKey")]
-    fn utils_set_key(key: &str);
-
-    #[wasm_bindgen(js_name="importModule")]
-    fn utils_import(key: &str) -> JsValue;
-
-    #[wasm_bindgen(js_name="logObject")]
-    fn utils_log_object(data: &JsValue);
+    #[wasm_bindgen(js_namespace = console, js_name = error)]
+    fn log_error(s: &str);
 }
 
 /// Attempts to establish a connection with the Discord RPC protocol.
 /// 
 /// **Returns**: A boolean indicating success.
 /// 
-/// **Tip**: Check if there's already a established connection through `globalThis.dso_hirpc`
+/// **Tip**: Check if there's already a established connection through `globalThis.dso_connected`
 #[wasm_bindgen]
 pub fn connect() -> bool {
 
-    //todo not connect if there's already a connection established
+    //? Ready
+    if ready() {
+        return false;
+    }
 
     //? Not browser
     let window = match web_sys::window() {
         Some(window) => window,
         None => {
 
-            unsafe {
-                STATE_CODE = StateCode::Unfunctional
-            }
+            update_state(StateCode::Unfunctional);
 
             return false;
         }
     };
 
-    log("inside a browser!");
+    //\ Import utils
+    let hash = match generate_hash() {
+        Some(data) => data,
+        None => return false
+    };
 
-    //\ Update allowed origins
-    unsafe {
+    let hash_string = match str::from_utf8(&hash) {
+        Ok(data) => data,
+        Err(_) => return false
+    };
 
-        let origin = match window.location().origin() {
-            Ok(data) => data,
-            Err(_) => {
-    
-                STATE_CODE = StateCode::Unfunctional;
-    
-                return false;
-            }
-        };
+    initialize(&window, hash_string);
 
-        let boxed = Box::leak(Box::new(origin));
-
-        ALLOWED_ORIGINS[0] = boxed;
-
-        log(&("updated allowed origins with ".to_owned() + boxed));
-    }
-
-
-    //\ Get global variable
-    let is_web = match Reflect::get(&window, &JsValue::from_str("dso_outside_discord")) {
+    //\ Get global variables
+    let is_web = match js_sys::Reflect::get(&window, &JsValue::from_str("dso_outside_discord")) {
         Ok(data) => data,
         Err(_) => {
 
-            unsafe {
-                STATE_CODE = StateCode::Unfunctional
-            }
+            update_state(StateCode::Errored);
 
             return false;
         }
     };
 
-    log("outside discord:");
-    log(&is_web.is_truthy().to_string());
+    let is_connected = match js_sys::Reflect::get(&window, &JsValue::from_str("dso_connected")) {
+        Ok(data) => data,
+        Err(_) => {
+
+            update_state(StateCode::Errored);
+
+            return false;
+        }
+    };
 
     //? Outside Discord
     if is_web.is_truthy() {
 
-        unsafe {
-            STATE_CODE = StateCode::OutsideDiscord;
-        }
+        update_state(StateCode::OutsideDiscord);
 
         return false;
-    }
+    }    
 
-    let query = match query() {
+    // Query parameters needed for handshake
+    let query = match query(&window) {
         Ok(data) => data,
-        Err(_) => {
+        Err(err) => {
 
-            unsafe {
-                STATE_CODE = StateCode::Unfunctional;
-            }
+            update_state(StateCode::Errored);
+
+            log_error(err);
 
             return false;
         }
@@ -141,11 +109,7 @@ pub fn connect() -> bool {
     //? No query params
     if !query.has("frame_id") || !query.has("instance_id") || !query.has("platform") {
 
-        log("no query");
-
-        unsafe {
-            STATE_CODE = StateCode::OutsideDiscord;
-        }
+        update_state(StateCode::OutsideDiscord);
 
         return false;
     }
@@ -165,203 +129,124 @@ pub fn connect() -> bool {
 
     //\ Update mobile app version
     if let Some(v) = query.find("mobile_app_version") {
-        unsafe {
-            let boxed = Box::leak(Box::new(v.to_owned()));
-            MOBILE_APP_VERSION = Some(boxed);
-        }
+        let boxed = Box::leak(Box::new(v.to_owned()));
+        update_mobile_app_version(boxed);
     }
 
-    log("importing utils");
-
-    //\ Import utils
-    let hash = match generate_hash() {
-        Some(data) => data,
-        None => return false
-    };
-
-    let hash_string = match str::from_utf8(&hash) {
-        Ok(data) => data,
-        Err(_) => return false
-    };
-
-    utils_set_key(hash_string);
-
-    let disable_info_logs: bool;
-    let client_id: String;
-    let handshake_sdk_version: String;
-
-    unsafe {
-
-        UTILS = Some(utils_import(hash_string));
-
-        if let Some(ref utils) = UTILS {
-            BUILD_VARIABLES = match Reflect::get(utils, &"buildVariables".into()) {
-                Ok(data) => Some(data),
-                Err(_) => return false
-            }
-        }
-
-        if let Some(ref vars) = BUILD_VARIABLES {
-            disable_info_logs = match Reflect::get(vars, &"DISABLE_INFO_LOGS".into()) {
-                Ok(data) => match data.as_bool() {
-                    Some(b) => b,
-                    None => return false
-                },
-                Err(_) => return false
-            };
-
-            client_id = match Reflect::get(vars, &"CLIENT_ID".into()) {
-                Ok(data) => match data.as_string() {
-                    Some(s) => s,
-                    None => return false
-                },
-                Err(_) => return false
-            };
-
-            handshake_sdk_version = match Reflect::get(vars, &"HANDSHAKE_SDK_VERSION".into()) {
-                Ok(data) => match data.as_string() {
-                    Some(s) => s,
-                    None => return false
-                },
-                Err(_) => return false
-            };
-        }
-
-        else { return false; }
-
-    }
-
-    log("utils imported");
-
-    log("logging data:");
-    log(&(disable_info_logs.to_string()));
-    log(&(client_id.to_string()));
-    log(&(handshake_sdk_version.to_string()));
-
-    let major_mobile_version = parse_major_mobile_version();
-
-    let mut payload = HandshakePayload {
-        v: HANDSHAKE_VERSION,
-        encoding: HANDSHAKE_ENCODING,
-        client_id: &client_id,
-        frame_id,
-        sdk_version: None
-    };
-
-    if platform == PLATFORM_DESKTOP || major_mobile_version >= HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION {
-        payload.sdk_version = Some(&handshake_sdk_version);
-    }
-
+    //\ Setup listener
+    //todo change listener if ready
     let cb = Closure::wrap(Box::new(callback) as Box<dyn FnMut(_)>);
-    
-    _ = window.add_event_listener_with_callback("message", cb.as_ref().unchecked_ref());
 
-    unsafe {
-        LISTENERS.push(cb);
+    match window.add_event_listener_with_callback("message", cb.as_ref().unchecked_ref()) {
+        Ok(data) => data,
+        Err(_) => {
+            log("[hirpc] Something went wrong in an event listener");
+        }
+    };
+
+    let wrapper = ListenerWrapper {
+        closure: cb,
+        id: TEST_LISTENER_ID
+    };
+
+    add_listener(wrapper);
+
+    //? No connection
+    if is_connected.is_falsy() {
+
+        let client_id = build::client_id().unwrap();
+        let handshake_sdk_version = SDK_VERSION;
+    
+        log(&(client_id.to_string()));
+        log(handshake_sdk_version);
+    
+        let major_mobile_version = parse_major_mobile_version();
+    
+        let mut payload = HandshakePayload {
+            v: HANDSHAKE_VERSION,
+            encoding: HANDSHAKE_ENCODING,
+            client_id: &client_id,
+            frame_id,
+            sdk_version: None
+        };
+    
+        if platform == PLATFORM_DESKTOP || major_mobile_version >= HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION {
+            payload.sdk_version = Some(handshake_sdk_version);
+        }
+
+        rpc_send(Opcode::Handshake, payload);
     }
 
-    log("listener added");
-
-    let arr = js_sys::Array::new();
-    arr.push(&0.into());
-    arr.push(&payload.to_js());
-
-    log("sending first payload");
-
-    internal_send(arr.into());
+    set_ready();
 
     true
 }
 
-fn internal_send(message: JsValue) {
+fn rpc_send<T: Serialize>(opcode: Opcode, payload: T) {
+
+    // Needs access to: window, window.parent (source), document and source origin
 
     let window = match web_sys::window() {
         Some(window) => window,
         None => {
-
-            unsafe {
-                STATE_CODE = StateCode::Unfunctional
-            }
+            update_state(StateCode::Unfunctional);
 
             return;
         }
     };
 
-    let source = window.parent().unwrap().unwrap();
+    let source = match window.parent() {
+        Ok(option) => {
+            match option {
+                Some(data) => data,
+                None => return
+            }
+        }
+        Err(_) => return
+    };
 
-    let doc = window.document().unwrap();
+    let doc = match window.document() {
+        Some(data) => data,
+        None => return
+    };
 
-    let source_ori: String = if doc.referrer().is_empty() {
-        "*".to_owned()
+    let source_origin: String = if doc.referrer().is_empty() {
+        String::from("*")
     }
 
     else {
         doc.referrer()
     };
 
-    _ = source.post_message(&message, &source_ori);
-}
+    let serialized_payload = match serde_wasm_bindgen::to_value(&payload) {
+        Ok(data) => data,
+        Err(_) => return
+    };
 
-fn parse_major_mobile_version() -> f64 {
+    // Format message for RPC:
+    // [Opcode, Payload]
+    let array = js_sys::Array::new();
+    array.push(&(opcode as i32).into());
+    array.push(&serialized_payload);
 
-    unsafe {
-
-        if let Some(version) = MOBILE_APP_VERSION {
-
-            if version.contains('.') {
-
-                let major_version = match version.split('.').next(){
-                    Some(data) => data,
-                    None => return HANDSHAKE_UNKNOWN_VERSION_NUMBER
-                };
-
-                let num: f64 = match major_version.parse() {
-                    Ok(data) => data,
-                    Err(_) => HANDSHAKE_UNKNOWN_VERSION_NUMBER
-                };
-
-                return num;
-            }
+    match source.post_message(&array, &source_origin) {
+        Ok(data) => data,
+        Err(_) => {
+            log_error("[hirpc] Something went wrong sending a message to RPC");
         }
-
-        HANDSHAKE_UNKNOWN_VERSION_NUMBER
-    }
+    };
 }
 
 fn callback(e: MessageEvent) {
 
     log("received message from the RPC!");
 
-    utils_log_object(&e.data());
+    log_object(&e.data());
 
     //let data: JsValue = js_sys::Reflect::get(&e.data(), &JsValue::from_str("field")).unwrap();
 }
 
-#[wasm_bindgen(js_name = getQuery)]
-pub fn wrap_query() -> Option<String> {
-
-    let mut str: String = String::new();
-
-    let query = match query() {
-        Ok(data) => data,
-        Err(_) => return None
-    };
-
-    for i in 0..query.keys.len() {
-        let element = (query.keys.get(i).expect("no key"), query.values.get(i).expect("no value"));
-        str.push_str(&("[ ".to_string() + element.0 + " ]: " + element.1 + "\n"));
-    }
-
-    Some(str)
-}
-
-fn query() -> Result<QueryData, &'static str> {
-
-    let window = match web_sys::window() {
-        Some(window) => window,
-        None => return Err("no global window exists")
-    };
-
+fn query(window: &Window) -> Result<QueryData, &'static str> {
     let search: String = window.location().search().unwrap_or_default();
 
     let is_parent = search.contains('?');
@@ -373,14 +258,14 @@ fn query() -> Result<QueryData, &'static str> {
             let parent_window = match window.parent() {
                 Ok(window) => match window {
                     Some(window) => window,
-                    None => return Err("no parent window exists")
+                    None => return Err("[hirpc] No parent window exists")
                 },
-                Err(_) => return Err("can't get parent window")
+                Err(_) => return Err("[hirpc] Can't get parent window")
             };
 
             let parent_search = match parent_window.location().search() {
                 Ok(search) => search,
-                Err(_) => return Err("can't get parent search")
+                Err(_) => return Err("[hirpc] Can't get parent search")
             };
 
             parent_search.replace('?', "")
@@ -388,7 +273,7 @@ fn query() -> Result<QueryData, &'static str> {
 
     let query_key_value = search.split('&');
 
-    let mut map = QueryData {
+    let mut query_data = QueryData {
         keys: Vec::new(),
         values: Vec::new()
     };
@@ -397,9 +282,9 @@ fn query() -> Result<QueryData, &'static str> {
 
         let split: Vec<&str> = pair.split('=').collect();
         if split.len() == 2 {
-            map.insert(split[0].to_string(), split[1].to_string());
+            query_data.insert(split[0].to_string(), split[1].to_string());
         }
     }
 
-    Ok(map)
+    Ok(query_data)
 }

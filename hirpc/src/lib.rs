@@ -23,4 +23,5 @@ mod utils;
 mod constants;
 mod structs;
 mod enums;
-mod modules;
+pub mod modules;
+pub mod ci;

@@ -6,19 +6,41 @@ This utils file is accessed by the hirpc in [root]/snippets/dissonity-hirpc-[has
 */
 
 import type { Mapping, RemapInput, PatchUrlMappingsConfig, MatchAndRewriteURLInputs } from "./official_types";
+import type * as buildVariablesModule from "./build_variables";
 
-const importBuildVariables = await import("../../../build_variables.js" as string);
+let importBuildVariables: typeof buildVariablesModule;
+
+// When running tests, build_variables.js is located at the same level
+importBuildVariables = await new Promise((resolve, reject) => {
+
+  import("../../../build_variables.js" as string)
+  .then(data => {
+    resolve(data)
+  })
+  .catch(() => {
+      import("./build_variables.js" as string)
+      .then(data => {
+        resolve(data);
+      })
+      .catch(err => {
+        reject(err);
+      })
+  });
+})
 
 let accessKey = "";
 
 //# SECURE EXPORTS - - - - -
-export function setKey(key: string): void {
-  if (accessKey) return;
+function setKey(key: string): void {
+
+  if (!key) throw new Error("Access key can't be falsy");
 
   accessKey = key;
 }
 
 export function importModule(key: string) {
+
+  if (!accessKey) setKey(key);
 
   if (key != accessKey) return;
 

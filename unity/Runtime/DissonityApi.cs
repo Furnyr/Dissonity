@@ -885,7 +885,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
@@ -911,7 +911,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
@@ -937,7 +937,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
@@ -963,7 +963,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 
@@ -989,7 +989,7 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
+                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
 
                 string uri = GetFormattedUri(path);
 

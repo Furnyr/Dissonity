@@ -5,7 +5,7 @@
   <strong>A Rust and WebAssembly library for the Discord RPC within game engines.</strong>
 
   <p>
-    <img src="https://img.shields.io/badge/version-v0.1.0-red" alt="Version Badge" />
+    <img src="https://img.shields.io/badge/version-v0.2.0-red" alt="Version Badge" />
   </p>
 
   <h3>

@@ -4,16 +4,12 @@
 //todo comms with game build will use a special hash
 
 use core::str;
-
 use wasm_bindgen::prelude::*;
 use web_sys::js_sys;
 use sha256::digest;
 
 use crate::constants::*;
-
-// Module data
-static mut LOCKED: bool = false;
-static mut HASHES: Vec<&[u8]> = Vec::new();
+use super::facade::*;
 
 #[wasm_bindgen]
 extern "C" {
@@ -26,11 +22,9 @@ pub fn validate_hash(bytes: &[u8]) -> bool {
 
     let mut found = false;
 
-    unsafe {
-        for hash in HASHES.iter() {
-            if *hash == bytes {
-                found = true;
-            }
+    for hash in hashes().iter() {
+        if *hash == bytes {
+            found = true;
         }
     }
 
@@ -40,10 +34,8 @@ pub fn validate_hash(bytes: &[u8]) -> bool {
 #[wasm_bindgen]
 pub fn generate_hash() -> Option<Vec<u8>> {
 
-    unsafe {
-        if LOCKED {
-            return None
-        }
+    if locked() {
+        return None;
     }
 
     let window = match web_sys::window() {
@@ -69,10 +61,7 @@ pub fn generate_hash() -> Option<Vec<u8>> {
     let key = ((now as i64) << (HASH_RANDOM_BYTES * 8)) | random_array[0] as i64;
     let hash = digest(key.to_string());
 
-    unsafe {
-        let boxed_hash = Box::leak(Box::new(hash.clone()));
-        HASHES.push(boxed_hash.as_bytes());
-    }
+    add_hash(&hash);
 
     Some(hash.as_bytes().to_vec())
 }

@@ -2,6 +2,20 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-17 - feat(hirpc, api): facade and uppercase url
+
+## hiRPC
+
+- Added facade, a module that holds all the unsafe code
+- Added tests
+- Handshake sdk version is now here
+
+## Dissonity (API)
+
+- Allow uppercase urls in Api.Proxy methods
+
+---
+
 # 2024-11-12 - fix(api/proxy): editor check and headers
 
 ## Dissonity (API)

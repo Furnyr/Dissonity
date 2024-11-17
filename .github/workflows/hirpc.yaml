@@ -74,11 +74,8 @@ jobs:
       - name: Lint
         run: cargo clippy
 
-      - name: Cargo test
-        run: cargo test
-
       - name: Verify Chrome version
         run: chrome --version
 
       - name: Tests (Chrome)
-        run: wasm-pack test --headless --chrome
+        run: wasm-pack test --headless --chrome --features ci

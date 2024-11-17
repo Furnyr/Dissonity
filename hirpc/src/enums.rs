@@ -1,5 +1,5 @@
+#![allow(dead_code)] //todo remove
 
-#[allow(dead_code)]
 pub enum StateCode {
     Unfunctional = -2,      // Outside a web environment
     OutsideDiscord = -1,    // In a web environment, connected to the game but not Discord
@@ -7,4 +7,11 @@ pub enum StateCode {
     Loading = 1,            // Not errored but not ready
     Ready = 2,              // Up and running!
     Closed = 3              // Process ended
+}
+
+pub enum Opcode {
+    Handshake = 0,
+    Frame = 1,
+    Close = 2,
+    Hello = 3
 }

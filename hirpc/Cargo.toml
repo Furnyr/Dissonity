@@ -1,6 +1,6 @@
 [package]
 name = "dissonity-hirpc"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Furnyr <developnyrrr@gmail.com>"]
 edition = "2018"
 description = "Crate that handles the Discord RPC inside game engines like Unity"
@@ -9,10 +9,11 @@ license = "Apache-2.0"
 publish = false
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [features]
 default = ["console_error_panic_hook"]
+ci = []
 
 [dependencies]
 wasm-bindgen = "0.2.84"
@@ -34,11 +35,12 @@ web-sys = { version = "0.3.72", features = [
 # code size when deploying.
 console_error_panic_hook = { version = "0.1.7", optional = true }
 sha256 = { version = "1.5.0", default-features = false }
+serde = { version = "1.0.215", features = ["derive"] }
+serde-wasm-bindgen = "0.6.5"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
 
 [profile.release]
-# Tell `rustc` to optimize for small code size.
-# opt-level = "s"
+# Tell `rustc` to optimice for performance
 opt-level = 3

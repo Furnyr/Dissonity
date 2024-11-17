@@ -1,5 +1,8 @@
-use wasm_bindgen::JsValue;
-use web_sys::js_sys::{Object, Reflect};
+#![allow(dead_code)] //todo remove
+
+use wasm_bindgen::prelude::Closure;
+use web_sys::MessageEvent;
+use serde::{Serialize, Deserialize};
 
 pub struct QueryData {
     pub keys: Vec<String>,
@@ -41,31 +44,37 @@ impl QueryData {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct HandshakePayload<'a> {
-    pub v: f64,
+    pub v: i32,
     pub encoding: &'a str,
     pub client_id: &'a str,
     pub frame_id: &'a str,
     pub sdk_version: Option<&'a str>
 }
 
-impl HandshakePayload<'_> {
-    pub fn to_js(&self) -> JsValue {
-        let obj = Object::new();
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Mapping {
+    pub prefix: String,
+    pub target: String
+}
 
-        _ = Reflect::set(&obj, &"v".into(), &self.v.into());
-        _ = Reflect::set(&obj, &"encoding".into(), &self.encoding.into());
-        _ = Reflect::set(&obj, &"client_id".into(), &self.client_id.into());
-        _ = Reflect::set(&obj, &"frame_id".into(), &self.frame_id.into());
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PatchUrlMappingsConfig {
+    #[serde(rename = "patchFetch")]
+    pub patch_fetch: bool,
 
-        if let Some(version) = self.sdk_version {
-            _ = Reflect::set(&obj, &"sdk_version".into(), &version.into());
-        }
+    #[serde(rename = "patchWebSocket")]
+    pub patch_web_socket: bool,
 
-        else {
-            _ = Reflect::set(&obj, &"sdk_version".into(), &JsValue::UNDEFINED);
-        }
-        
-        JsValue::from(obj)
-    }
+    #[serde(rename = "patchXhr")]
+    pub patch_xhr: bool,
+
+    #[serde(rename = "patchSrcAttributes")]
+    pub patch_src_attributes: bool
+}
+
+pub struct ListenerWrapper {
+    pub closure: Closure<dyn FnMut(MessageEvent)>,
+    pub id: &'static str
 }
