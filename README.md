@@ -2,36 +2,21 @@
 > [!WARNING]
 > Dissonity Version 2 is still in alpha and will break your code between updates. Use it only for testing or preview!
 
-<style>
-    .card {
-        border: 1px solid rgb(69, 66, 78);
-        border-radius: 10px;
-        padding: 25px;
-        padding-top: 0px;
-        margin: 20px;
-        margin-bottom: 0px;
-        transition: .2s;
-        text-align: center;
-        max-width: 300px;
-        display: inline-block;
-    }
-</style>
-
 <div align="center">
     <img src="https://i.imgur.com/60Sv0ak.png" width="650">
 </div>
 
 <div align="center">
-<div class="card">
+    <div>
         <h3>Unity Package</h3>
         <img src="https://img.shields.io/badge/version-alpha%20v2.0.0-red">
     </div>
-    <div class="card">
+    <div>
         <h3>hiRPC</h3>
         <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red
         ">
-        <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
     </div>
+    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
 </div>
 
 # About
