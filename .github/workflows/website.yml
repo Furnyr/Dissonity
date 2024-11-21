@@ -7,6 +7,8 @@ on:
     branches:
       - dev
     paths:
+      - "website/**/*.ts"
+      - "website/**/*.tsx"
       - "website/**/*.js"
       - "website/**/*.jsx"
       - "website/**/*.html"

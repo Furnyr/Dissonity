@@ -19,7 +19,7 @@ const router = createHashRouter([
     path: '/docs',
     element: <Docs />,
   }
-])//
+])
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
