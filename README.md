@@ -1,16 +1,160 @@
+
 > [!WARNING]
-> Hi! You are looking at unstable software right now. <br> This is for testing purposes, if you don't know what you're doing, go back.
+> Dissonity Version 2 is still in alpha and will break your code between updates. Use it only for testing or preview!
 
----
+<style>
+    .card {
+        border: 1px solid rgb(69, 66, 78);
+        border-radius: 10px;
+        padding: 25px;
+        padding-top: 0px;
+        margin: 20px;
+        margin-bottom: 0px;
+        transition: .2s;
+        text-align: center;
+        max-width: 300px;
+        display: inline-block;
+    }
+</style>
 
-If you do know what you're doing, thank you for helping me test version 2!
+<div align="center">
+    <img src="https://i.imgur.com/60Sv0ak.png" width="650">
+</div>
 
-The documentation is in the [repository wiki.](https://github.com/Furnyr/Dissonity/wiki)
+<div align="center">
+<div class="card">
+        <h3>Unity Package</h3>
+        <img src="https://img.shields.io/badge/version-alpha%20v2.0.0-red">
+    </div>
+    <div class="card">
+        <h3>hiRPC</h3>
+        <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red
+        ">
+        <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
+    </div>
+</div>
 
-## Contact
+# About
 
-If you want to report an issue, suggest a new feature or contact me in general, you can:
+[Dissonity](https://dissonity.dev) is a Unity SDK that allows you to easily make Discord activities!
 
-- Open an issue with the `v2` tag
-- Send a message in the testing server
-- DM me on Discord (nyrrren)
+# Examples
+
+Update the current activity:
+
+```cs
+using UnityEngine;
+using Dissonity.Models;
+using Dissonity.Models.Builders;
+using static Dissonity.Api;
+
+public class MyScript : MonoBehaviour
+{
+    async void Start()
+    {
+        // Initialize Dissonity
+        await Initialize();
+
+        // Update activity
+        await Commands.SetActivity(new ActivityBuilder {
+            Type = ActivityType.Playing,
+            Details = "In the lobby",
+            State = "Level 10"
+        });
+    }
+}
+```
+
+Get all participants:
+
+```cs
+using UnityEngine;
+using Dissonity.Models;
+using static Dissonity.Api;
+
+public class MyScript : MonoBehaviour
+{
+    async void Start()
+    {
+        // Initialize Dissonity
+        await Initialize();
+
+        // Get all the participants in the activity
+        Participant[] participants = await Commands.GetInstanceConnectedParticipants();
+
+        foreach (Participant participant in participants)
+        {
+            Debug.Log($"{participant.DisplayName} is playing!");
+        }
+    }
+}
+```
+
+Listen to `SpeakingStart`:
+
+```cs
+using UnityEngine;
+using static Dissonity.Api;
+
+public class MyScript : MonoBehaviour
+{
+    async void Start()
+    {
+        // Initialize Dissonity
+        await Initialize();
+
+        // Subscribe to speaking start
+        await Subscribe.SpeakingStart(ChannelId, (data) =>
+        {
+            Debug.Log($"User with id {data.UserId} is talking!");
+        });
+    }
+}
+```
+
+## Installation
+
+1. Create a Unity project (Unity 2021.3 or later, Unity 6 recommended)
+2. Open the package manager and install the package from https://github.com/Furnyr/Dissonity.git?path=/unity#dev
+3. Set the build platform to Web / WebGL
+4. Player settings > Resolution and Presentation > Set the WebGL template to Dissonity
+
+Dissonity is now installed! But you still need to configure a few components:
+
+## Configuration
+
+1. Right click your project assets > Create > Dissonity > Configuration
+2. Set your app id in `<SdkConfiguration>.ClientId` (find it [here](https://discord.com/developers/applications))
+
+Up and running! If you want to test your activity within Unity:
+
+## Testing
+
+1. Right click the hierarchy > Dissonity > Discord Mock
+
+If you run the game in a scene where there's a `@DiscordMock` object, it will act as a Discord simulator within Unity.
+
+## Production
+
+Dissonity handles the game-making process. You will still need to host the backend that will serve the activity to Discord and handle the authentication process ([read the documentation](#documentation)).
+
+
+# Documentation
+
+https://github.com/Furnyr/Dissonity/wiki
+
+https://dissonity.dev (not done yet)
+
+# Contact
+
+DM me on Discord: `nyrrren`
+
+# License
+
+Licensed under the [Apache License, Version 2.0](LICENSE)
+
+# Disclaimer
+
+This project is not affiliated, endorsed, or sponsored by Discord Inc. or Unity Technologies.
+
+The Discord Developer Terms of Service, Discord Developer Policy and Unity Terms of Service apply to you and the applications you develop utilizing this SDK.

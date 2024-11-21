@@ -1,0 +1,16 @@
+.button-container {
+    margin-top: 30px;
+    font-size: 25px;
+    text-align: center;
+}
+
+.button-box {
+    display: inline;
+    text-align: center;
+    margin-right: 20px;
+}
+
+.button-disabled {
+    transition: none;
+    cursor:not-allowed;
+}

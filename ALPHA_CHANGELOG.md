@@ -2,6 +2,13 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-21 - feat: website
+
+- Updated README
+- Added website (wip) and workflow
+
+---
+
 # 2024-11-17 - feat(unity): support unity 6
 
 ## Dissonity (internal)
