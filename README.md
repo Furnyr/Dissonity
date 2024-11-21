@@ -7,17 +7,25 @@
 </div>
 
 <div align="center">
-    <div>
-        <h3>Unity Package</h3>
-        <img src="https://img.shields.io/badge/version-alpha%20v2.0.0-red">
-    </div>
-    <div>
-        <h3>hiRPC</h3>
-        <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red
-        ">
-    </div>
-    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
+<table>
+<tr>
+    <td>
+        <div align="center">
+            <h3>Unity Package</h3>
+            <img src="https://img.shields.io/badge/version-alpha%20v2.0.0-red">
+        </div>
+    </td>
+    <td>
+        <div align="center">
+            <h3>hiRPC</h3>
+            <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red">
+            <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
+        </div>
+    </td>
+</tr>
+</table>
 </div>
+
 
 # About
 
