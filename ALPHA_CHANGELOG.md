@@ -2,6 +2,34 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-11-24 - fix: use url overrides
+
+This commit modifies the `index.html` main script and some "compiled" TypeScript. This is a transitory change, since it fixes code that will soon be replaced by the hiRPC.
+
+And URL overrides don't seem to work on Discord's end either.
+
+## Next
+
+Small update on upcoming changes in progress:
+
+### Confirmed
+
+- (alpha 4) Move the main script to its own file
+- (alpha 4) Support calling `Initialize` in `Awake`
+- (alpha 4) Remove RpcBridge in favor of hiRPC
+
+### Possible
+
+- (alpha 5?) Add `SyncedParticipants`?
+- (alpha 5?) Add `Max` screen resolution?
+
+### Miscellaneous
+
+- Write the hiRPC SDK
+- Start writing documentation in the website
+
+---
+
 # 2024-11-21 - feat: website
 
 - Updated README

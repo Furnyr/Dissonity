@@ -9,8 +9,8 @@ mergeInto(LibraryManager.library, {
             this.rpcInterface(data);
         };
         this.rpcInterfacePromise = new Promise((resolve, reject) => {
-            if (window.outsideDiscord) {
-                import("web_bridge")
+            if (window.dso_needs_suffix) {
+                import("proxy_bridge")
                     .then(module => {
                     this.rpcInterface = module.InterfaceBridgeListener;
                     resolve(true);

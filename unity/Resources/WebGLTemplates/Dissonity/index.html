@@ -41,8 +41,8 @@
     <script type="importmap">
       {
         "imports": {
-          "bridge": "./.proxy/Files/Scripts/rpc_bridge.js",
-          "web_bridge": "./Files/Scripts/rpc_bridge.js"
+          "proxy_bridge": "./.proxy/Files/Scripts/rpc_bridge.js",
+          "bridge": "./Files/Scripts/rpc_bridge.js"
         }
       }
     </script>
@@ -53,23 +53,44 @@
           const response = await fetch(url, { method: "HEAD" });
           return response.ok;
         }
-        
-        // Script paths
-        const officialPath = ".proxy/Files/Scripts/official_utils.js";
-        const webBridgePath = "Files/Scripts/rpc_bridge.js";
-        const bridgePath = ".proxy/Files/Scripts/rpc_bridge.js";
-        const webLoaderPath = "Files/Build/{{{ LOADER_FILENAME }}}";
-        const loaderPath = ".proxy/Files/Build/{{{ LOADER_FILENAME }}}";
-        const checkPath = ".proxy/discord.check.js";
 
-        const outsideDiscord = !(await fileExists(checkPath));
+        const { pathname } = window.location;
+
+        const baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}/`;
+
+        // Script paths
+        let officialPath = "Files/Scripts/official_utils.js";
+        let bridgePath = "Files/Scripts/rpc_bridge.js";
+        let loaderPath = "Files/Build/client.loader.js";
+        let checkPath = baseUrl + ".proxy/discord.check.js";
+
+        // Handle URL override
+        const pathSegments = pathname.split("/"); // "/.proxy/staging" -> ["", ".proxy", "staging"]
+        pathSegments.shift();
+
+        const proxySuffixAdded = pathSegments[0] == ".proxy";
+        const needsProxySuffix = await fileExists(checkPath);
+        const insideDiscord = proxySuffixAdded || needsProxySuffix;
+
+        // Add .proxy
+        if (needsProxySuffix) {
+          officialPath = ".proxy" + officialPath;
+          bridgePath = ".proxy" + bridgePath;
+          loaderPath = ".proxy" + loaderPath;
+
+          window.dso_needs_suffix = true;
+        }
+
+        officialPath = baseUrl + officialPath;
+        bridgePath = baseUrl + bridgePath;
+        loaderPath = baseUrl + loaderPath;
 
         // Outside Discord
-        if (outsideDiscord) {
+        if (!insideDiscord) {
 
           // Loader
           const loader = document.createElement("script");
-          loader.setAttribute("src", webLoaderPath);
+          loader.setAttribute("src", loaderPath);
           loader.setAttribute("type", "text/javascript");
           
           const loadPromise = new Promise(resolve => {
@@ -78,7 +99,7 @@
 
           // Closed RpcBridge
           const bridge = document.createElement("script");
-          bridge.setAttribute("src", webBridgePath);
+          bridge.setAttribute("src", bridgePath);
           bridge.setAttribute("type", "module");
           bridge.setAttribute("data-web", true);
 
@@ -124,9 +145,9 @@
         // Background
         let background = "{{{ BACKGROUND_FILENAME ? 'Files/Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
         if (background != "#000000") {
-          background = outsideDiscord
-            ? "url('" + background
-            : "url('.proxy/" + background;
+          background = needsProxySuffix
+            ? "url('.proxy/" + background
+            : "url('" + background;
         }
         canvas.style.background = background;
 
@@ -172,7 +193,7 @@
         webResolution = Number( parseVariable(webResolution) );
 
         // Web
-        if (outsideDiscord) resolution = webResolution;
+        if (!insideDiscord) resolution = webResolution;
 
         // Mobile
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -242,12 +263,12 @@
           });
         }
 
-        const dataUrl = outsideDiscord ? "Files/Build/{{{ DATA_FILENAME }}}" : ".proxy/Files/Build/{{{ DATA_FILENAME }}}";
-        const frameworkUrl = outsideDiscord ? "Files/Build/{{{ FRAMEWORK_FILENAME }}}" : ".proxy/Files/Build/{{{ FRAMEWORK_FILENAME }}}";
-        const workerUrl = outsideDiscord ? "Files/Build/{{{ WORKER_FILENAME }}}" : ".proxy/Files/Build/{{{ WORKER_FILENAME }}}";
-        const codeUrl = outsideDiscord ? "Files/Build/{{{ CODE_FILENAME }}}" : ".proxy/Files/Build/{{{ CODE_FILENAME }}}";
-        const memoryUrl = outsideDiscord ? "Files/Build/{{{ MEMORY_FILENAME }}}" : ".proxy/Files/Build/{{{ MEMORY_FILENAME }}}";
-        const symbolsUrl = outsideDiscord ? "Files/Build/{{{ SYMBOLS_FILENAME }}}" : ".proxy/Files/Build/{{{ SYMBOLS_FILENAME }}}";
+        const dataUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ DATA_FILENAME }}}" : "Files/Build/{{{ DATA_FILENAME }}}";
+        const frameworkUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ FRAMEWORK_FILENAME }}}" : "Files/Build/{{{ FRAMEWORK_FILENAME }}}";
+        const workerUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ WORKER_FILENAME }}}" : "Files/Build/{{{ WORKER_FILENAME }}}";
+        const codeUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ CODE_FILENAME }}}" : "Files/Build/{{{ CODE_FILENAME }}}";
+        const memoryUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ MEMORY_FILENAME }}}" : "Files/Build/{{{ MEMORY_FILENAME }}}";
+        const symbolsUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ SYMBOLS_FILENAME }}}" : "Files/Build/{{{ SYMBOLS_FILENAME }}}";
   
         createUnityInstance(document.querySelector("#dissonity-canvas"), {
           dataUrl,
@@ -272,9 +293,9 @@
           // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
         }).then(instance => {
 
-          if (outsideDiscord) {
+          if (needsProxySuffix) {
 
-            import("web_bridge")
+            import("proxy_bridge")
             .then(module => {
               module.SetUnityInstance(instance);
             });
