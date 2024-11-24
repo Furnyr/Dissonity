@@ -35,6 +35,7 @@ namespace Dissonity
         //# FIELDS - - - - -
         internal static long? _clientId;
         internal static string? _instanceId;
+        internal static string? _accessToken;
         internal static string? _platform;
         internal static long? _guildId;
         internal static long? _channelId;
@@ -99,6 +100,19 @@ namespace Dissonity
                 if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.InstanceId;
 
                 return _instanceId!;
+            }
+        }
+        
+        /// <summary>
+        /// Your client access token
+        /// </summary>
+        public static string? AccessToken
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                return _accessToken;
             }
         }
         
@@ -1946,7 +1960,8 @@ namespace Dissonity
 
                 // OverrideConsoleLogging is done in the BridgeLib
                 _userId = multiEvent.AuthenticateData.User.Id;
-
+                _accessToken = multiEvent.AuthenticateData.AccessToken;
+                
                 //? Synchronize user
                 if (_configuration!.SynchronizeUser)
                 {
