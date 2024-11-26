@@ -6,7 +6,7 @@ import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, 
 
 // The package version is 1.3.x, but these changes
 // only affects the NPM side and it's completely compatible with Dissonity Unity 1.1.x
-const PACKAGE_VERSION = "1.1.6";
+const PACKAGE_VERSION = "1.1.7";
 
 let initialized = false;
 
@@ -87,7 +87,7 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
 async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, messageData: MessageData) {
 
     const { nonce, event, command } = messageData;
-    let { args } = messageData;
+    let args = messageData.args ?? {};
 
     // Sends a message to child iframe
     function handleSubscribeEvent(eventData: Record<string, unknown>) {
