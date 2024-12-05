@@ -86,7 +86,7 @@ if (process.env.COLYSEUS!.toLowerCase() == "true") {
     .filterBy(["instanceId"]);
     
   colyseusServer.define("game", GameRoom)
-  .filterBy(["instanceId", "userId"]);
+  .filterBy(["instanceId"]);
   
   //\ Listen to port
   colyseusServer.listen(Number(process.env.PORT!));
