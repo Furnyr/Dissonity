@@ -80,10 +80,6 @@ if (process.env.COLYSEUS!.toLowerCase() == "true") {
       server: createServer(app)
     })
   });
-  
-  //\ Expose the rooms
-  colyseusServer.define("matchmaking", MatchmakingRoom)
-    .filterBy(["instanceId"]);
     
   colyseusServer.define("game", GameRoom)
   .filterBy(["instanceId"]);
