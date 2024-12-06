@@ -9,7 +9,7 @@ import express from "express";
 import { Server } from "colyseus";
 import { createServer } from "http";
 import { WebSocketTransport } from "@colyseus/ws-transport";
-import { MatchmakingRoom, GameRoom } from "./utils/rooms";
+import { GameRoom } from "./utils/rooms";
 
 
 //\ Prepare express server
@@ -81,6 +81,7 @@ if (process.env.COLYSEUS!.toLowerCase() == "true") {
     })
   });
     
+  //\ Expose room
   colyseusServer.define("game", GameRoom)
   .filterBy(["instanceId"]);
   

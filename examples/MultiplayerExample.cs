@@ -17,13 +17,12 @@ public class MyScript : MonoBehaviour
         string instanceId = await GetSDKInstanceId();
         string userId = await GetUserId();
 
-        //\ Connect to matchmaking room
-        // (This implementation can be improved, but this should do)
+        //\ Connect to server
         client = new ColyseusClient("wss://<your-app-id>.discordsays.com/.proxy");
 
         //\ Create or join the activity room
         room = await client.JoinOrCreate<GameState>("game", new Dictionary<string, object>{
-            { "instanceId", instanceId }, 
+            { "instanceId", instanceId },
             { "userId", userId }
         });
 

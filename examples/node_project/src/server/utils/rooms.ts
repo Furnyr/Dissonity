@@ -4,7 +4,7 @@
  */
 
 import { Room } from "colyseus";
-import { GameState, MatchmakingState, Player } from "./structures";
+import { GameState, Player } from "./structures";
 
 import type { Client } from "colyseus";
 import type { ExpectedCreateOptions, ExpectedJoinOptions } from "./types";
@@ -12,7 +12,7 @@ import type { ExpectedCreateOptions, ExpectedJoinOptions } from "./types";
 // Used to keep track of existing rooms. The keys are activity instance ids.
 const roomsMap = new Map<string, boolean>();
 
-// This is your actual game room!
+// This is your game room!
 export class GameRoom extends Room {
 
     override onCreate(options: ExpectedCreateOptions): void | Promise<any> {
