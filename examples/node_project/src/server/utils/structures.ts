@@ -16,9 +16,6 @@ export class Player extends Schema {
     userId: string = "";
 }
 
-// Matchmaking doesn't require state
-export class MatchmakingState extends Schema {}
-
 // Example game state
 export class GameState extends Schema {
 

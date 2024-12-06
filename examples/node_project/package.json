@@ -1,6 +1,6 @@
 {
   "name": "dissonity-base-project",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Dissonity example Node.js app",
   "scripts": {
     "colyseus": "npx schema-codegen src/server/utils/structures.ts --csharp --output _unity_colyseus/",

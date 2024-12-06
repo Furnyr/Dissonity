@@ -4,7 +4,7 @@
  */
 
 import { Room } from "colyseus";
-import { GameState, MatchmakingState, Player } from "./structures";
+import { GameState, Player } from "./structures";
 
 import type { Client } from "colyseus";
 import type { ExpectedCreateOptions, ExpectedJoinOptions } from "./types";
@@ -12,40 +12,7 @@ import type { ExpectedCreateOptions, ExpectedJoinOptions } from "./types";
 // Used to keep track of existing rooms. The keys are activity instance ids.
 const roomsMap = new Map<string, boolean>();
 
-// Users can connect to this room to know whether they have to create a new room
-// or connect to an existing one. They'll connect, receive instructions and disconnect.
-export class MatchmakingRoom extends Room {
-    override maxClients: number = 1;
-
-    private disconnectTimeout: NodeJS.Timeout | null = null;
-
-    override onCreate(options: ExpectedCreateOptions): void | Promise<any> {
-        
-        //? Check validity
-        if (typeof options.instanceId != "string") return this.disconnect();
-
-        //\ Set state
-        this.setState(new MatchmakingState());
-    }
-
-    override onJoin(client: Client, options: Required<ExpectedCreateOptions>): void | Promise<any> {
-
-        // Client should receive the instructions and disconnect before 5s
-        this.disconnectTimeout = setTimeout(() => { client.leave(); }, 5_000);
-        
-        //? Room exists
-        const roomValue = roomsMap.get(options.instanceId);
-        client.send("matchmake", {
-            exists: roomValue ?? false,
-        });
-    }
-
-    override onLeave(_client: Client, _consented?: boolean): void | Promise<any> {
-        clearTimeout(this.disconnectTimeout as NodeJS.Timeout);
-    }
-}
-
-// This is your actual game room!
+// This is your game room!
 export class GameRoom extends Room {
 
     override onCreate(options: ExpectedCreateOptions): void | Promise<any> {

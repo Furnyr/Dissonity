@@ -17,34 +17,15 @@ public class MyScript : MonoBehaviour
         string instanceId = await GetSDKInstanceId();
         string userId = await GetUserId();
 
-        //\ Connect to matchmaking room
-        // (This implementation can be improved, but this should do)
+        //\ Connect to server
         client = new ColyseusClient("wss://<your-app-id>.discordsays.com/.proxy");
-        var matchmakingRoom = await client.Create<MatchmakingState>("matchmaking", new Dictionary<string, object>{{ "instanceId", instanceId }});
 
-        // Listen for matchmaking room instructions
-        matchmakingRoom.OnMessage<Dictionary<string, object>>("matchmake", async data => {
-
-            //\ Leave matchmaking room
-            await matchmakingRoom.Leave();
-
-            //? Room already exists
-            if ((bool) data["exists"]) {
-
-                //\ Join the existing activity room
-                room = await client.JoinById<GameState>(instanceId, new Dictionary<string, object>{{ "userId", userId }});
-
-                // Client is now connected to the room!
-            }
-
-            //? Doesn't exist
-            else {
-
-                //\ Create the activity room
-                room = await client.Create<GameState>("game", new Dictionary<string, object>{{ "instanceId", instanceId }, { "userId", userId }});
-
-                // Client is now connected to the room!
-            }
+        //\ Create or join the activity room
+        room = await client.JoinOrCreate<GameState>("game", new Dictionary<string, object>{
+            { "instanceId", instanceId },
+            { "userId", userId }
         });
+
+        // Client is now connected to the room!
     }
 }
