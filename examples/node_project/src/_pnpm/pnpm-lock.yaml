@@ -13,32 +13,32 @@ importers:
         version: 2.0.36
       '@colyseus/ws-transport':
         specifier: ^0.15.1
-        version: 0.15.3(@colyseus/core@0.15.55)(@colyseus/schema@2.0.36)
+        version: 0.15.3(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(@colyseus/schema@2.0.36)
       colyseus:
         specifier: ^0.15.13
-        version: 0.15.17(@colyseus/schema@2.0.36)(express@4.21.1)
+        version: 0.15.57(@colyseus/schema@2.0.36)(express@4.21.2)
       cross-fetch:
         specifier: ^3.1.5
         version: 3.1.8
       dissonity:
-        specifier: ^1.3.1
-        version: 1.3.1
+        specifier: ^1.3.2
+        version: 1.3.2
       dotenv:
         specifier: ^16.0.3
-        version: 16.4.5
+        version: 16.4.7
       esbuild:
         specifier: 0.17.11
         version: 0.17.11
       express:
         specifier: ^4.18.2
-        version: 4.21.1
+        version: 4.21.2
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
       '@types/node':
         specifier: ^20.12.5
-        version: 20.17.8
+        version: 20.17.9
       glob:
         specifier: ^9.2.1
         version: 9.3.5
@@ -55,9 +55,11 @@ packages:
       '@colyseus/core': 0.15.x
       express: ^4.17.1
 
-  '@colyseus/core@0.15.55':
-    resolution: {integrity: sha512-d9SxDJLcmtUcBymStEXTPtY6zgkKn8EHosYe4DmLuXG30MhtVqePXdERi5pYP4X9ktss9HQpUdMDiBerljOcmA==}
+  '@colyseus/core@0.15.57':
+    resolution: {integrity: sha512-tAKNaFSFOpRH2ayLva9hQBVPQu0eKxDxaZJYugZMQ5i6yQ2RTvcbk/5Up7OZn/bfdk9THvBYnh6WfdZAOctK+g==}
     engines: {node: '>= 14.x'}
+    peerDependencies:
+      '@colyseus/schema': ^2.0.4
 
   '@colyseus/greeting-banner@2.0.2':
     resolution: {integrity: sha512-BjcOIiVUyPecK5U93TIi6O0QtrejGajitH1zRqHu6ytBhzKvR40GpKLuKfsUXrUWNEY7ytKRuEQLF9akBYRqMw==}
@@ -78,8 +80,8 @@ packages:
       '@colyseus/core': 0.15.x
       '@colyseus/schema': '>=1.0.0'
 
-  '@discord/embedded-app-sdk@1.7.0':
-    resolution: {integrity: sha512-lHoDTtNzJlrajlmXhbjQukl07GwUKH91CqVqr8lEYyOPu8uiAZJZ3E7yx6EX53kert2z8w7ksYVnE9TZzbvb2Q==}
+  '@discord/embedded-app-sdk@1.7.1':
+    resolution: {integrity: sha512-9IYpXt7kEogmMIAzsu8ImN7puhidPr+py5rgVZVaoaRDh4w4I7alvmQjF/r0MxdpXiEgQxQek1KMl2HsNq/mFA==}
 
   '@esbuild/android-arm64@0.17.11':
     resolution: {integrity: sha512-QnK4d/zhVTuV4/pRM4HUjcsbl43POALU2zvBynmrrqZt9LPcLA3x1fTZPBg2RRguBQnJcnU059yKr+bydkntjg==}
@@ -279,8 +281,8 @@ packages:
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
 
-  '@types/node@20.17.8':
-    resolution: {integrity: sha512-ahz2g6/oqbKalW9sPv6L2iRbhLnojxjYWspAqhjvqSWBgGebEJT5GvRmk0QXPj3sbC6rU0GTQjPLQkmR8CObvA==}
+  '@types/node@20.17.9':
+    resolution: {integrity: sha512-0JOXkRyLanfGPE2QRCwgxhzlBAvaRdCNMcvbd7jFfpmD4eEXll7LRwy5ymJmyeZqk7Nh7eD2LeUyQ68BbndmXw==}
 
   '@types/qs@6.9.17':
     resolution: {integrity: sha512-rX4/bPcfmvxHDv0XjfJELTTr+iB+tn032nPILqHm5wbthUUUuVtNGGqzhya9XUxjTP8Fpr0qYgSZZKxGY++svQ==}
@@ -337,17 +339,23 @@ packages:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
 
-  call-bind@1.0.7:
-    resolution: {integrity: sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==}
+  call-bind-apply-helpers@1.0.0:
+    resolution: {integrity: sha512-CCKAP2tkPau7D3GE8+V8R6sQubA9R5foIzGp+85EXCVSCivuxBNAWqcpn72PKYiIcqoViv/kcUDpaEIMBVi1lQ==}
+    engines: {node: '>= 0.4'}
+
+  call-bind@1.0.8:
+    resolution: {integrity: sha512-oKlSFMcMwpUg2ednkhQ454wfWiU/ul3CkJe/PEHcTKuiX6RpbehUiFMXu13HalGZxfUwCQzZG747YXBn1im9ww==}
     engines: {node: '>= 0.4'}
 
   cluster-key-slot@1.1.2:
     resolution: {integrity: sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==}
     engines: {node: '>=0.10.0'}
 
-  colyseus@0.15.17:
-    resolution: {integrity: sha512-9RDi8fbikCQ8tb9ptNQ0MBsP3dOR9ltxQGhkg6f0RGnQ+tkzcXEfwtIuO6nbGJm75bmSFPmRH40uoG6qlvBlIw==}
+  colyseus@0.15.57:
+    resolution: {integrity: sha512-h9hkmXOvcreRhJxdu73BJctGEPYW36ImHByjiMhEOIuSQLcNSlkcwaqCll/7Oc/cTELHStTa5eyOnI640mOe8A==}
     engines: {node: '>= 14.x'}
+    peerDependencies:
+      '@colyseus/schema': ^2.0.0
 
   connect-redis@7.1.1:
     resolution: {integrity: sha512-M+z7alnCJiuzKa8/1qAYdGUXHYfDnLolOGAUjOioB07pP39qxjG+X9ibsud7qUBc4jMV5Mcy3ugGv8eFcgamJQ==}
@@ -399,8 +407,8 @@ packages:
       supports-color:
         optional: true
 
-  debug@4.3.7:
-    resolution: {integrity: sha512-Er2nc/H7RrMXZBFCEim6TCmMk02Z8vLC2Rbi1KEBggpo0fS6l0S1nnapwmIi3yW/+GOJap1Krg4w0Hg80oCqgQ==}
+  debug@4.4.0:
+    resolution: {integrity: sha512-6WTZ/IxCY/T6BALoZHaE4ctp9xm+Z5kY/pzYaCHRFeyVhojxlrm+46y68HA6hr0TcwEssoxNiDEUJQjfPZ/RYA==}
     engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
@@ -431,12 +439,16 @@ packages:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
 
-  dissonity@1.3.1:
-    resolution: {integrity: sha512-Nq3Ez5iZLGW0BCbDCgQfqwAh0Jryy2DSZHWp1z0XXUB4GxauIG3TaIKFkFNXh0oUooHHFbXS2/6q1HQl6doI8A==}
+  dissonity@1.3.2:
+    resolution: {integrity: sha512-8uGMXvsUNMkgxYLNi2g+hYbuohTq+iD3iMERKOLveBhmp7qzlqr138x+GFjzyse2GFA+697/VktjJ7gwocCUhw==}
 
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+  dotenv@16.4.7:
+    resolution: {integrity: sha512-47qPchRCykZC03FhkYAhrvwU4xDBFIj1QPqaarj6mdM/hgUzfPHcpkHJOn3mJAufFeeAxAzeGsr5X0M4k6fLZQ==}
     engines: {node: '>=12'}
+
+  dunder-proto@1.0.0:
+    resolution: {integrity: sha512-9+Sj30DIu+4KvHqMfLUGLFYL2PkURSYMVXJyXe92nFRvlYq5hBjLEhblKB+vkd/WVlUYMWigiY07T91Fkk0+4A==}
+    engines: {node: '>= 0.4'}
 
   ecdsa-sig-formatter@1.0.11:
     resolution: {integrity: sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==}
@@ -455,8 +467,8 @@ packages:
     resolution: {integrity: sha512-Q0n9HRi4m6JuGIV1eFlmvJB7ZEVxu93IrMyiMsGC0lrMJMWzRgx6WGquyfQgZVb31vhGgXnfmPNNXmxnOkRBrg==}
     engines: {node: '>= 0.8'}
 
-  es-define-property@1.0.0:
-    resolution: {integrity: sha512-jxayLKShrEqqzJ0eumQbVhTYQM27CfT1T35+gCgDFoL82JLsXqTJ76zv6A0YLOgEnLUMvLzsDsGIrl8NFpT2gQ==}
+  es-define-property@1.0.1:
+    resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
     engines: {node: '>= 0.4'}
 
   es-errors@1.3.0:
@@ -489,8 +501,8 @@ packages:
   express-unless@2.1.3:
     resolution: {integrity: sha512-wj4tLMyCVYuIIKHGt0FhCtIViBcwzWejX0EjNxveAa6dG+0XBCQhMbx+PnkLkFCxLC69qoFrxds4pIyL88inaQ==}
 
-  express@4.21.1:
-    resolution: {integrity: sha512-YSFlK1Ee0/GC8QaO91tHcDxJiE/X4FbpAyQWkxAvG6AXCuR65YzK8ua6D9hvi/TzUfZMpc+BwuM1IPw8fmQBiQ==}
+  express@4.21.2:
+    resolution: {integrity: sha512-28HqgMZAmih1Czt9ny7qr6ek2qddF4FclbMzwhCREB6OFfH+rXAnuNCwo1/wFvrtbgsQDb4kSbX9de9lFbrXnA==}
     engines: {node: '>= 0.10.0'}
 
   finalhandler@1.3.1:
@@ -511,16 +523,17 @@ packages:
   function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==}
 
-  get-intrinsic@1.2.4:
-    resolution: {integrity: sha512-5uYhsJH8VJBTv7oslg4BznJYhDoRI6waYCxMmCdnTrcCrHA/fCFKoTFz2JKKE0HdDFUF7/oQuhzumXJK7paBRQ==}
+  get-intrinsic@1.2.5:
+    resolution: {integrity: sha512-Y4+pKa7XeRUPWFNvOOYHkRYrfzW07oraURSvjDmRVOJ748OrVmeXtpE4+GCEHncjCjkTxPNRt8kEbxDhsn6VTg==}
     engines: {node: '>= 0.4'}
 
   glob@9.3.5:
     resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  gopd@1.0.1:
-    resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
+  gopd@1.2.0:
+    resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
+    engines: {node: '>= 0.4'}
 
   grant@5.4.23:
     resolution: {integrity: sha512-lEMfgem990lWTU+j9jbOKmIsvvetVlwGzsWjoCgKz9zKcP7edI6mjyUA5QUSn7aeBYONTE3WnfhBhvONQGP1Hg==}
@@ -529,12 +542,8 @@ packages:
   has-property-descriptors@1.0.2:
     resolution: {integrity: sha512-55JNKuIW+vq4Ke1BjOTjM2YctQIvCT7GFzHwmfZPGo5wnrgkid0YQtnAleFSqumZm4az3n2BS+erby5ipJdgrg==}
 
-  has-proto@1.0.3:
-    resolution: {integrity: sha512-SJ1amZAJUiZS+PhsVLf5tGydlaVB8EdFpaSO4gmiUKUOxk8qzn5AIy4ZeJUmh22znIdk/uMAUT2pl3FxzVUH+Q==}
-    engines: {node: '>= 0.4'}
-
-  has-symbols@1.0.3:
-    resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
+  has-symbols@1.1.0:
+    resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
     engines: {node: '>= 0.4'}
 
   hash.js@1.1.7:
@@ -716,8 +725,8 @@ packages:
     resolution: {integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==}
     engines: {node: '>=16 || 14 >=14.18'}
 
-  path-to-regexp@0.1.10:
-    resolution: {integrity: sha512-7lf7qcQidTku0Gu3YDPc8DJ1q7OOucfa/BSsIwjuh56VU7katFvuM8hULfkwB3Fns/rsVF7PwPKVw1sl5KQS9w==}
+  path-to-regexp@0.1.12:
+    resolution: {integrity: sha512-RA1GjUVMnvYFxuqovrEqZoxxW5NUZqbwKtYz/Tt7nXerk0LbLblQmrsgdeOxV5SFHf0UDggjS/bSeOZwt1pmEQ==}
 
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -874,12 +883,12 @@ packages:
 
 snapshots:
 
-  '@colyseus/auth@0.15.11(@colyseus/core@0.15.55)(express@4.21.1)':
+  '@colyseus/auth@0.15.11(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(express@4.21.2)':
     dependencies:
-      '@colyseus/core': 0.15.55
+      '@colyseus/core': 0.15.57(@colyseus/schema@2.0.36)
       '@types/jsonwebtoken': 9.0.7
       connect-redis: 7.1.1(express-session@1.18.1)
-      express: 4.21.1
+      express: 4.21.2
       express-jwt: 8.4.1
       express-session: 1.18.1
       grant: 5.4.23
@@ -887,12 +896,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@colyseus/core@0.15.55':
+  '@colyseus/core@0.15.57(@colyseus/schema@2.0.36)':
     dependencies:
       '@colyseus/greeting-banner': 2.0.2
       '@colyseus/schema': 2.0.36
       '@gamestdio/timer': 1.4.2
-      debug: 4.3.7
+      debug: 4.4.0
       msgpackr: 1.11.2
       nanoid: 2.1.11
       ws: 7.5.10
@@ -903,29 +912,31 @@ snapshots:
 
   '@colyseus/greeting-banner@2.0.2': {}
 
-  '@colyseus/redis-driver@0.15.6':
+  '@colyseus/redis-driver@0.15.6(@colyseus/schema@2.0.36)':
     dependencies:
-      '@colyseus/core': 0.15.55
+      '@colyseus/core': 0.15.57(@colyseus/schema@2.0.36)
       ioredis: 5.4.1
     transitivePeerDependencies:
+      - '@colyseus/schema'
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@colyseus/redis-presence@0.15.5':
+  '@colyseus/redis-presence@0.15.5(@colyseus/schema@2.0.36)':
     dependencies:
-      '@colyseus/core': 0.15.55
+      '@colyseus/core': 0.15.57(@colyseus/schema@2.0.36)
       ioredis: 5.4.1
     transitivePeerDependencies:
+      - '@colyseus/schema'
       - bufferutil
       - supports-color
       - utf-8-validate
 
   '@colyseus/schema@2.0.36': {}
 
-  '@colyseus/ws-transport@0.15.3(@colyseus/core@0.15.55)(@colyseus/schema@2.0.36)':
+  '@colyseus/ws-transport@0.15.3(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(@colyseus/schema@2.0.36)':
     dependencies:
-      '@colyseus/core': 0.15.55
+      '@colyseus/core': 0.15.57(@colyseus/schema@2.0.36)
       '@colyseus/schema': 2.0.36
       '@types/ws': 7.4.7
       ws: 8.18.0
@@ -933,7 +944,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@discord/embedded-app-sdk@1.7.0':
+  '@discord/embedded-app-sdk@1.7.1':
     dependencies:
       '@types/lodash.transform': 4.6.9
       '@types/uuid': 10.0.0
@@ -1039,15 +1050,15 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
       '@types/qs': 6.9.17
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -1063,7 +1074,7 @@ snapshots:
 
   '@types/jsonwebtoken@9.0.7':
     dependencies:
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
 
   '@types/lodash.transform@4.6.9':
     dependencies:
@@ -1073,7 +1084,7 @@ snapshots:
 
   '@types/mime@1.3.5': {}
 
-  '@types/node@20.17.8':
+  '@types/node@20.17.9':
     dependencies:
       undici-types: 6.19.8
 
@@ -1084,19 +1095,19 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
       '@types/send': 0.17.4
 
   '@types/uuid@10.0.0': {}
 
   '@types/ws@7.4.7':
     dependencies:
-      '@types/node': 20.17.8
+      '@types/node': 20.17.9
 
   accepts@1.3.8:
     dependencies:
@@ -1148,25 +1159,29 @@ snapshots:
 
   bytes@3.1.2: {}
 
-  call-bind@1.0.7:
+  call-bind-apply-helpers@1.0.0:
     dependencies:
-      es-define-property: 1.0.0
       es-errors: 1.3.0
       function-bind: 1.1.2
-      get-intrinsic: 1.2.4
+
+  call-bind@1.0.8:
+    dependencies:
+      call-bind-apply-helpers: 1.0.0
+      es-define-property: 1.0.1
+      get-intrinsic: 1.2.5
       set-function-length: 1.2.2
 
   cluster-key-slot@1.1.2: {}
 
-  colyseus@0.15.17(@colyseus/schema@2.0.36)(express@4.21.1):
+  colyseus@0.15.57(@colyseus/schema@2.0.36)(express@4.21.2):
     dependencies:
-      '@colyseus/auth': 0.15.11(@colyseus/core@0.15.55)(express@4.21.1)
-      '@colyseus/core': 0.15.55
-      '@colyseus/redis-driver': 0.15.6
-      '@colyseus/redis-presence': 0.15.5
-      '@colyseus/ws-transport': 0.15.3(@colyseus/core@0.15.55)(@colyseus/schema@2.0.36)
+      '@colyseus/auth': 0.15.11(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(express@4.21.2)
+      '@colyseus/core': 0.15.57(@colyseus/schema@2.0.36)
+      '@colyseus/redis-driver': 0.15.6(@colyseus/schema@2.0.36)
+      '@colyseus/redis-presence': 0.15.5(@colyseus/schema@2.0.36)
+      '@colyseus/schema': 2.0.36
+      '@colyseus/ws-transport': 0.15.3(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(@colyseus/schema@2.0.36)
     transitivePeerDependencies:
-      - '@colyseus/schema'
       - bufferutil
       - express
       - supports-color
@@ -1212,7 +1227,7 @@ snapshots:
     dependencies:
       ms: 2.0.0
 
-  debug@4.3.7:
+  debug@4.4.0:
     dependencies:
       ms: 2.1.3
 
@@ -1220,9 +1235,9 @@ snapshots:
 
   define-data-property@1.1.4:
     dependencies:
-      es-define-property: 1.0.0
+      es-define-property: 1.0.1
       es-errors: 1.3.0
-      gopd: 1.0.1
+      gopd: 1.2.0
 
   denque@2.1.0: {}
 
@@ -1233,14 +1248,20 @@ snapshots:
   detect-libc@2.0.3:
     optional: true
 
-  dissonity@1.3.1:
+  dissonity@1.3.2:
     dependencies:
-      '@discord/embedded-app-sdk': 1.7.0
+      '@discord/embedded-app-sdk': 1.7.1
       cross-fetch: 4.0.0
     transitivePeerDependencies:
       - encoding
 
-  dotenv@16.4.5: {}
+  dotenv@16.4.7: {}
+
+  dunder-proto@1.0.0:
+    dependencies:
+      call-bind-apply-helpers: 1.0.0
+      es-errors: 1.3.0
+      gopd: 1.2.0
 
   ecdsa-sig-formatter@1.0.11:
     dependencies:
@@ -1263,9 +1284,7 @@ snapshots:
 
   encodeurl@2.0.0: {}
 
-  es-define-property@1.0.0:
-    dependencies:
-      get-intrinsic: 1.2.4
+  es-define-property@1.0.1: {}
 
   es-errors@1.3.0: {}
 
@@ -1321,7 +1340,7 @@ snapshots:
 
   express-unless@2.1.3: {}
 
-  express@4.21.1:
+  express@4.21.2:
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
@@ -1342,7 +1361,7 @@ snapshots:
       methods: 1.1.2
       on-finished: 2.4.1
       parseurl: 1.3.3
-      path-to-regexp: 0.1.10
+      path-to-regexp: 0.1.12
       proxy-addr: 2.0.7
       qs: 6.13.0
       range-parser: 1.2.1
@@ -1377,12 +1396,15 @@ snapshots:
 
   function-bind@1.1.2: {}
 
-  get-intrinsic@1.2.4:
+  get-intrinsic@1.2.5:
     dependencies:
+      call-bind-apply-helpers: 1.0.0
+      dunder-proto: 1.0.0
+      es-define-property: 1.0.1
       es-errors: 1.3.0
       function-bind: 1.1.2
-      has-proto: 1.0.3
-      has-symbols: 1.0.3
+      gopd: 1.2.0
+      has-symbols: 1.1.0
       hasown: 2.0.2
 
   glob@9.3.5:
@@ -1392,9 +1414,7 @@ snapshots:
       minipass: 4.2.8
       path-scurry: 1.11.1
 
-  gopd@1.0.1:
-    dependencies:
-      get-intrinsic: 1.2.4
+  gopd@1.2.0: {}
 
   grant@5.4.23:
     dependencies:
@@ -1409,11 +1429,9 @@ snapshots:
 
   has-property-descriptors@1.0.2:
     dependencies:
-      es-define-property: 1.0.0
+      es-define-property: 1.0.1
 
-  has-proto@1.0.3: {}
-
-  has-symbols@1.0.3: {}
+  has-symbols@1.1.0: {}
 
   hash.js@1.1.7:
     dependencies:
@@ -1450,7 +1468,7 @@ snapshots:
     dependencies:
       '@ioredis/commands': 1.2.0
       cluster-key-slot: 1.1.2
-      debug: 4.3.7
+      debug: 4.4.0
       denque: 2.1.0
       lodash.defaults: 4.2.0
       lodash.isarguments: 3.1.0
@@ -1606,7 +1624,7 @@ snapshots:
       lru-cache: 10.4.3
       minipass: 7.1.2
 
-  path-to-regexp@0.1.10: {}
+  path-to-regexp@0.1.12: {}
 
   proxy-addr@2.0.7:
     dependencies:
@@ -1684,17 +1702,17 @@ snapshots:
       define-data-property: 1.1.4
       es-errors: 1.3.0
       function-bind: 1.1.2
-      get-intrinsic: 1.2.4
-      gopd: 1.0.1
+      get-intrinsic: 1.2.5
+      gopd: 1.2.0
       has-property-descriptors: 1.0.2
 
   setprototypeof@1.2.0: {}
 
   side-channel@1.0.6:
     dependencies:
-      call-bind: 1.0.7
+      call-bind: 1.0.8
       es-errors: 1.3.0
-      get-intrinsic: 1.2.4
+      get-intrinsic: 1.2.5
       object-inspect: 1.13.3
 
   standard-as-callback@2.1.0: {}
