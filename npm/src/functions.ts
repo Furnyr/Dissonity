@@ -6,7 +6,7 @@ import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, 
 
 // The package version is 1.3.x, but these changes
 // only affects the NPM side and it's completely compatible with Dissonity Unity 1.1.x
-const PACKAGE_VERSION = "1.1.7";
+const PACKAGE_VERSION = "1.1.8";
 
 let initialized = false;
 
@@ -271,8 +271,8 @@ async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | nul
         case "IMAGE_UPLOAD": {
 
             try {
-                const url = await discordSdk!.commands.initiateImageUpload();
-                getChildIframe().contentWindow?.postMessage({ nonce, command, data: { image_url: url, canceled: false }, args }, "*");
+                const data = await discordSdk!.commands.initiateImageUpload();
+                getChildIframe().contentWindow?.postMessage({ nonce, command, data: { image_url: data.image_url, canceled: false }, args }, "*");
 
             } catch (_err) {
                 getChildIframe().contentWindow?.postMessage({ nonce, command, data: { image_url: "", canceled: true }, args }, "*");
