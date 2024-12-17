@@ -10,6 +10,9 @@ namespace Dissonity.Models.Builders
     public class ActivityBuilder
     {
         #nullable enable annotations
+        
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
         [JsonProperty("type")]
         public ActivityType Type { get; set; }
@@ -39,7 +42,7 @@ namespace Dissonity.Models.Builders
         {
             return new Activity()
             {
-                Name = "Activity Name",
+                Name = Name,
                 Type = Type,
                 Timestamps = Timestamps,
                 Details = Details,
