@@ -386,7 +386,7 @@ function OverrideConsoleLogging() {
 }
 function InternalSend(message) {
     const source = window.parent.opener ?? window.parent;
-    const sourceOrigin = !!document.referrer ? document.referrer : "*";
+    const sourceOrigin = !!document.referrer ? new URL(document.referrer).origin : "*";
     source.postMessage(message, sourceOrigin);
 }
 function DispatchMultiEvent() {
