@@ -2082,8 +2082,11 @@ namespace Dissonity
             {
                 payload = command;
             }
-
-            string stringifiedMessage = JsonConvert.SerializeObject(new object[2] { command.Opcode, payload });
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+            };
+            string stringifiedMessage = JsonConvert.SerializeObject(new object[2] { command.Opcode, payload }, settings);
 
             if (!isEditor)
             {
