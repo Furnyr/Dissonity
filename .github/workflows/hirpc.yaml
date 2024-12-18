@@ -35,7 +35,7 @@ jobs:
         with:
           install-chromedriver: true
           install-dependencies: true
-          chrome-version: "130.0.6723.116"
+          chrome-version: "131.0.6778.154"
 
       - name: Install Node.js
         uses: actions/setup-node@v4
