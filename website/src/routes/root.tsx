@@ -1,6 +1,7 @@
 import '../styles/root.css'
 import Brand from '../components/Brand';
 import Button from '../components/Button';
+import Footer from '../components/Footer';
 
 function App () {
   return (
@@ -12,6 +13,7 @@ function App () {
           <Button text='Docs (soon™)' disabled={true}/>
           <Button text='GitHub' link='https://github.com/Furnyr/Dissonity/tree/dev'/>
         </div>
+        <Footer />
       </div>
     </>
   );

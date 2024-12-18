@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "description": "Bridge between Unity and hiRPC",
   "scripts": {
-    "build": "pnpm tsc"
+    "build": "pnpm tsc && node build.js"
   },
   "author": "Furnyr",
   "license": "Apache-2.0",
   "devDependencies": {
     "typescript": "^5.4.4"
   },
+  "type": "module",
   "private": true
 }

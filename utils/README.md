@@ -40,6 +40,14 @@ pnpm variables
 
 Build the utility files and don't update the variables, the files that must be included are documented in the hiRPC folder.
 
+## Moving the files to Dissonity (Unity package)
+
+You can move the resources (hiRPC, interface and utils) to the Unity folder once you are done working on them.
+
+```
+pnpm bundle
+```
+
 ## License
 
 Dissonity is licensed under the Apache License, Version 2.0

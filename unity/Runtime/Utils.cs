@@ -12,17 +12,17 @@ namespace Dissonity
 
         public static void DissonityLog(object message)
         {
-            Debug.Log($"[Dissonity]: {message}");
+            Debug.Log($"[Dissonity] {message}");
         }
 
         public static void DissonityLogWarning(object message)
         {
-            Debug.LogWarning($"[Dissonity]: {message}");
+            Debug.LogWarning($"[Dissonity] {message}");
         }
 
         public static void DissonityLogError(object message)
         {
-            Debug.LogError($"[Dissonity]: {message}");
+            Debug.LogError($"[Dissonity] {message}");
         }
 
         public static long GetMockSnowflake()

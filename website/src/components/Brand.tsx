@@ -1,4 +1,3 @@
-import Footer from './Footer';
 import HeaderImage from '../assets/dissonity_header.png';
 import './Brand.css'
 
@@ -16,7 +15,6 @@ function Brand() {
                     </p>
                 </div>
             </header>
-            <Footer />
         </>
     );
 }

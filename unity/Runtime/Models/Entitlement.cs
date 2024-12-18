@@ -36,7 +36,7 @@ namespace Dissonity.Models
         /// ISO string
         /// </summary>
         [JsonProperty("ends_at")]
-        public string EndsAt { get; set; }
+        public string? EndsAt { get; set; }
 
         [JsonProperty("gift_code_batch_id")]
         public string? GiftCodeBatchId { get; set; }
@@ -48,7 +48,7 @@ namespace Dissonity.Models
         /// ISO string
         /// </summary>
         [JsonProperty("starts_at")]
-        public string StartsAt { get; set; }
+        public string? StartsAt { get; set; }
 
         // These properties are supported in the official SDK,
         // but I don't have enough information on how to maintain them.

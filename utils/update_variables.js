@@ -42,10 +42,10 @@ function main() {
             hasDefault + required + chalk.yellow("DISABLE_CONSOLE_LOG_OVERRIDE (True/False): "));
     
         variables.MAPPINGS = rl(
-            chalk.yellow("MAPPINGS (/foo,foo.com,/example,example.com): "));
+            chalk.yellow('MAPPINGS [{"prefix":"/foo","target":"foo.com"}]: '));
     
         variables.PATCH_URL_MAPPINGS_CONFIG = rl(
-            hasDefault + chalk.yellow(`PATCH_URL_MAPPINGS_CONFIG (patchFetch,true... ${chalk.blueBright("see src/official_types.d.ts")}): `));
+            hasDefault + chalk.yellow(`PATCH_URL_MAPPINGS_CONFIG {"patchFetch":true...} ${chalk.blueBright("see src/official_types.d.ts")}: `));
     
         variables.OAUTH_SCOPES = rl(
             required + chalk.yellow("OAUTH_SCOPES (identify,guilds): "));
@@ -83,7 +83,7 @@ function main() {
         if (variables[key].toLowerCase() == "d") {
             if (key == "DISABLE_INFO_LOGS") variables[key] = "False";
             if (key == "DISABLE_CONSOLE_LOG_OVERRIDE") variables[key] = "True";
-            if (key == "PATCH_URL_MAPPINGS_CONFIG") variables[key] = "patchFetch,true,patchWebSocket,true,patchXhr,false,patchSrcAttributes,true";
+            if (key == "PATCH_URL_MAPPINGS_CONFIG") variables[key] = '{"patchFetch":true,"patchWebSocket":true,"patchXhr":true,"patchSrcAttributes":false}';
         }
 
         buildString = buildString.replace(substring, `[[[ ${key} ]]] ${variables[key]}`);

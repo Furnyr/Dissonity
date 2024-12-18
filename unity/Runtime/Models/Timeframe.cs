@@ -7,9 +7,9 @@ namespace Dissonity.Models
     public class Timeframe
     {
         [JsonProperty("start")]
-        public int? Start { get; set; }
+        public long? Start { get; set; }
 
         [JsonProperty("end")]
-        public int? End { get; set; }
+        public long? End { get; set; }
     }
 }

@@ -12,16 +12,17 @@ std is only used for essential functionality.
 - - - - - -
 
 modules/rpc.rs -> Connection with the RPC protocol
-modules/public.rs -> Exposed API and hashes
+modules/public.rs -> Hashes for secure communication
 modules/interface.rs -> Communication with the game build
+modules/facade.rs -> Unsafe code and main JS interoperation
 
 */
 
-//todo exposed functions will follow js conventions
+include!(concat!(env!("CARGO_MANIFEST_DIR"), "/src/_version.rs"));
 
 mod utils;
 mod constants;
-mod structs;
-mod enums;
+pub mod structs;
+pub mod enums;
 pub mod modules;
 pub mod ci;

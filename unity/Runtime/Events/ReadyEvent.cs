@@ -22,7 +22,7 @@ namespace Dissonity.Events
         [JsonProperty("config")]
         public ReadyConfig Config { get; set; }
         
-        //todo when is this data sent? is is always null?
+        // This property seems to always be null in a normal RPC connection
         [JsonProperty("user")]
         public BaseUser? User { get; set; }
     }

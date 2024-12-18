@@ -19,6 +19,7 @@ using System.Linq;
 using System.Globalization;
 
 //todo main tasks
+// Test hiRPC
 // Test patch url mappings
 // Test real functionality
 // Test that everything users don't need to see is internal
@@ -41,6 +42,9 @@ namespace Dissonity
         internal static long? _userId = null;
         internal static string? _frameId;
         internal static string? _mobileAppVersion = null;
+        internal static string? _customId = null;
+        internal static string? _referrerId = null;
+        internal static string? _locationId = null;
         internal static ISdkConfiguration? _configuration;
         
         // Utility
@@ -63,8 +67,7 @@ namespace Dissonity
         private static bool _mock = false;
         private static bool disableMock = false;
 
-        // RpcVersion and RpcEncoding (handshake, overall) is handled in the RpcBridge
-        // HANDSHAKE_SDK_VERSION_MINIUM_MOBILE_VERSION is in the BridgeLib
+        // Handshake, authorization and authentication are handled in the app loader level.
 
 
         //# PROPERTIES - - - - -
@@ -183,6 +186,51 @@ namespace Dissonity
             }
         }
         
+        /// <summary>
+        /// Query custom id.
+        /// </summary>
+        public static string CustomId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.CustomId;
+
+                return _customId!;
+            }
+        }
+
+        /// <summary>
+        /// Query referrer id.
+        /// </summary>
+        public static string ReferrerId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.ReferrerId;
+
+                return _referrerId!;
+            }
+        }
+
+        /// <summary>
+        /// Query location id.
+        /// </summary>
+        public static string LocationId
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.LocationId;
+
+                return _locationId!;
+            }
+        }
+
         /// <summary>
         /// <c> ❄️ </c> The current user id.
         /// </summary>
@@ -314,19 +362,23 @@ namespace Dissonity
         //# JAVASCRIPT - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void LoadInterface();
+        private static extern void OpenDownwardCommunication();
 
         [DllImport("__Internal")]
         private static extern void StopListening();
 
         [DllImport("__Internal")]
-        private static extern void Send(string stringifiedMessage);
+        private static extern void SendRpc(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void SendHiRpc(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
-        private static void LoadInterface() {}
+        private static void OpenDownwardCommunication() {}
         private static void StopListening() {}
-        private static void Send(string _) {}
+        private static void SendRpc(string _) {}
+        private static void SendHiRpc(string _) {}
 #endif
 
 
@@ -610,17 +662,20 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task OpenExternalLink(string url)
+            public static async Task<OpenExternalLinkData> OpenExternalLink(string url)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
-                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                if (_mock)
                 {
-                    Utils.DissonityLog($"Open external link ({url}) sent");
-                    return;
+                    var mockResponse = await MockSendCommand<OpenExternalLinkResponse>();
+
+                    return mockResponse.Data;
                 }
 
-                await SendCommand<OpenExternalLink, NoResponse>(new (url));
+                var response = await SendCommand<OpenExternalLink, OpenExternalLinkResponse>(new (url));
+
+                return response.Data;
             }
 
 
@@ -1566,6 +1621,16 @@ namespace Dissonity
             }
         }
 
+        //# HIRPC - - - - -
+        //todo it would be nice to be able to subscribe to hirpc messages
+        public static class HiRpc
+        {
+            public static void Send(string data)
+            {
+                // Handled in the hiRPC interface plugin
+                SendHiRpc(data);
+            }
+        }
 
         //# METHODS - - - - -
         /// <summary>
@@ -1577,6 +1642,9 @@ namespace Dissonity
         /// <exception cref="ArgumentException"></exception>
         public static Task<MultiEvent> Initialize()
         {
+#if !UNITY_WEBGL
+            throw new OutsideDiscordException("Not a WebGL build");
+#endif
             if (_initialized) throw new InvalidOperationException("Already attempted to initialize");
             _initialized = true;
 
@@ -1594,28 +1662,23 @@ namespace Dissonity
             //? Not running inside Discord
             if (isEditor)
             {
-                if (_mock)
+                MockOn();
+
+                //\ Find mock
+                var mock = GameObject.FindAnyObjectByType<DiscordMock>();
+
+                //? Create mock
+                if (mock == null)
                 {
-                    //\ Query data
-                    var mock = GameObject.FindAnyObjectByType<DiscordMock>();
+                    var mockObject = new GameObject("@DiscordMock");
+                    mockObject.AddComponent<DiscordMock>();
 
-                    //? No mock
-                    if (!mock)
-                    {
-                        throw new InvalidOperationException("Mock mode is enabled but there's no DiscordMock object. Make sure to create one to access mock data.");
-                    }
-
-                    _ready = true;
-
-                    return Task.FromResult(new MockMultiEvent().ToMultiEvent());
+                    Utils.DissonityLog("Running inside the Unity editor, a Discord Mock has been generated. To manually create one: Right click hierarchy > Dissonity > Discord Mock");
                 }
 
-                else if (!_configuration.DisableDissonityInfoLogs)
-                {
-                    Utils.DissonityLogWarning("Running inside the Unity editor. You may debug using the Discord Mock object (Right click hierarchy > Dissonity > Discord Mock).");
-                }
+                _ready = true;
 
-                throw new OutsideDiscordException();
+                return Task.FromResult(new MockMultiEvent().ToMultiEvent());
             }
 
             // Mock is invalid here
@@ -1624,10 +1687,12 @@ namespace Dissonity
 
             UnityEngine.Application.runInBackground = true;
 
-            LoadInterface();
-
             async void HandleInteraction()
             {
+                var hashTask = bridge!.ExeHash();
+                OpenDownwardCommunication();
+                await hashTask;
+
                 string query = await bridge!.ExeQuery();
 
                 InitializeQuery(tcs, query);
@@ -1871,8 +1936,6 @@ namespace Dissonity
             // Frame id
             if (query.FrameId == null)
             {
-                // RpcBridge state should only be OutsideDiscord here
-
                 tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled."));
                 return;
             }
@@ -1917,6 +1980,24 @@ namespace Dissonity
                 _mobileAppVersion = query.MobileAppVersion;
             }
 
+            // Custom id
+            if (query.CustomId != null)
+            {
+                _customId = query.CustomId;
+            }
+
+            // Referrer id
+            if (query.ReferrerId != null)
+            {
+                _referrerId = query.ReferrerId;
+            }
+
+            // Location id
+            if (query.LocationId != null)
+            {
+                _locationId = query.LocationId;
+            }
+
             //\ Bridge interactions
             async void HandleState()
             {
@@ -1925,18 +2006,18 @@ namespace Dissonity
                 if (!_configuration!.DisableDissonityInfoLogs)
                 {
                     //? Problem
-                    if (code == BridgeStateCode.Errored || code == BridgeStateCode.OutsideDiscord)
+                    if (code == StateCode.Errored || code == StateCode.Unfunctional)
                     {
-                        Utils.DissonityLogError($"Bridge returned unexpected state code: {code}");
+                        Utils.DissonityLogError($"hiRPC returned unexpected state code: {code}");
                     }
 
-                    else Utils.DissonityLog($"Bridge returned state code: {code}");
+                    else Utils.DissonityLog($"hiRPC returned state code: {code}");
                 }
                 
                 //? OutsideDiscord
-                if (code == BridgeStateCode.OutsideDiscord)
+                if (code == StateCode.OutsideDiscord)
                 {
-                    tcs.TrySetException(new OutsideDiscordException("RpcBridge returned OutsideDiscord state"));
+                    tcs.TrySetException(new OutsideDiscordException("hiRPC returned OutsideDiscord state"));
                 }
             }
 
@@ -1950,7 +2031,6 @@ namespace Dissonity
                 //? Synchronize user
                 if (_configuration!.SynchronizeUser)
                 {
-
                     //? Invalid scopes
                     if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
                     {
@@ -2013,11 +2093,12 @@ namespace Dissonity
                 tcs.TrySetResult(multiEvent);
             }
 
-            // After requesting the state, the RpcBridge will send the multi event (once ready) through <DissonityBridge>.ReceiveMultiEvent
+            // After requesting the state, the hiRPC (app loader)
+            // will send the multi event (once ready) through <DissonityBridge>._HiRpcInput
             HandleMulti();
             HandleState();
 
-            // The handshake is handled by the RpcBridge even before the Unity build loads
+            // The handshake is handled by the hiRPC even before the Unity build loads
         }
 
         private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand where TResponse : DiscordEvent
@@ -2072,8 +2153,8 @@ namespace Dissonity
 
             if (!isEditor)
             {
-                //\ Send data to bridge
-                Send(stringifiedMessage);
+                //\ Send data to RPC
+                SendRpc(stringifiedMessage);
             }
         }
         
@@ -2221,6 +2302,19 @@ namespace Dissonity
                     ((TaskCompletionSource<InitiateImageUploadResponse>) (object) tcs).TrySetResult(response);
                 }
 
+                // OpenExternalLinkResponse
+                else if (typeof(TResponse) == typeof(OpenExternalLinkResponse))
+                {
+                    var response = new OpenExternalLinkResponse();
+
+                    response.Data = new()
+                    {
+                        Opened = true
+                    };
+
+                    ((TaskCompletionSource<OpenExternalLinkResponse>) (object) tcs).TrySetResult(response);
+                }
+
                 // SetActivityResponse
                 else if (typeof(TResponse) == typeof(SetActivityResponse))
                 {
@@ -2266,7 +2360,7 @@ namespace Dissonity
                                 UserId = mock._currentPlayer.Participant.Id,
                                 SkuId = (long) arg!,
                                 Id = id,
-                                __mock__name = $"{mockSku.Name} Entitlement"
+                                _mock_name = $"{mockSku.Name} Entitlement"
                             });
 
                             mock.EntitlementCreate(id);
@@ -2304,11 +2398,6 @@ namespace Dissonity
         {
             if (disableMock) return;
             _mock = true;
-        }
-
-        internal static void MockOff()
-        {
-            _mock = false;
         }
     }
 }

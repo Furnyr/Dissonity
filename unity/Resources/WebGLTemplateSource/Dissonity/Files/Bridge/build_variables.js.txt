@@ -1,0 +1,63 @@
+let loaded = false;
+let DISABLE_INFO_LOGS = '[[[ DISABLE_INFO_LOGS ]]]§';
+let CLIENT_ID = '[[[ CLIENT_ID ]]]§';
+let DISABLE_CONSOLE_LOG_OVERRIDE = '[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]§';
+let MAPPINGS = '[[[ MAPPINGS ]]]§';
+let PATCH_URL_MAPPINGS_CONFIG = '[[[ PATCH_URL_MAPPINGS_CONFIG ]]]§';
+let OAUTH_SCOPES = '[[[ OAUTH_SCOPES ]]]§';
+let TOKEN_REQUEST_PATH = '[[[ TOKEN_REQUEST_PATH ]]]§';
+let SERVER_REQUEST = '[[[ SERVER_REQUEST ]]]§';
+function parseBuildVariable(variable, type) {
+    let raw;
+    try {
+        raw = variable.split("]]] ")[1].slice(0, -1);
+    }
+    catch (err) {
+        throw (new Error("Build variable undefined"));
+    }
+    if (type == "string")
+        return raw;
+    if (type == "boolean") {
+        if (/1|true/i.test(variable))
+            return true;
+        else if (/0|false/i.test(variable))
+            return false;
+        throw new Error("Invalid boolean string");
+    }
+    if (type == "string[]") {
+        const array = raw.split(",");
+        if (array.length == 1 && array[0] == "")
+            return [];
+        return array;
+    }
+    if (type == "json") {
+        return JSON.parse(raw);
+    }
+    throw new Error("Invalid parse type");
+}
+function loadBuildVariables() {
+    if (loaded)
+        return;
+    loaded = true;
+    DISABLE_INFO_LOGS = parseBuildVariable(DISABLE_INFO_LOGS, "boolean");
+    CLIENT_ID = parseBuildVariable(CLIENT_ID, "string");
+    DISABLE_CONSOLE_LOG_OVERRIDE = parseBuildVariable(DISABLE_CONSOLE_LOG_OVERRIDE, "boolean");
+    MAPPINGS = parseBuildVariable(MAPPINGS, "json");
+    PATCH_URL_MAPPINGS_CONFIG = parseBuildVariable(PATCH_URL_MAPPINGS_CONFIG, "json");
+    OAUTH_SCOPES = parseBuildVariable(OAUTH_SCOPES, "string[]");
+    TOKEN_REQUEST_PATH = parseBuildVariable(TOKEN_REQUEST_PATH, "string");
+    SERVER_REQUEST = parseBuildVariable(SERVER_REQUEST, "string");
+}
+export default function () {
+    loadBuildVariables();
+    return {
+        DISABLE_INFO_LOGS,
+        CLIENT_ID,
+        DISABLE_CONSOLE_LOG_OVERRIDE,
+        MAPPINGS,
+        PATCH_URL_MAPPINGS_CONFIG,
+        OAUTH_SCOPES,
+        TOKEN_REQUEST_PATH,
+        SERVER_REQUEST
+    };
+}

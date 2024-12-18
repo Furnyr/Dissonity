@@ -1,43 +1,55 @@
+/*
 
-//todo hash checking isn't properly implemented yet to public functions
-//todo exposed for testing (greet, check, validate_hash)
-//todo comms with game build will use a special hash
+public.rs exposes general hash functionality
+
+*/
 
 use core::str;
 use wasm_bindgen::prelude::*;
 use web_sys::js_sys;
 use sha256::digest;
 
+use crate::HIRPC_VERSION;
 use crate::constants::*;
-use super::facade::*;
+use super::facade::public::*;
+use super::interface::validate_app_hash;
+
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
+    #[wasm_bindgen(js_namespace = console, js_name=log)]
+    fn style_log(string: &str, style1: &str, style2: &str);
+
+    #[wasm_bindgen(js_namespace = console, js_name=error)]
+    fn style_error(string: &str, style1: &str, style2: &str);
 }
 
-#[wasm_bindgen]
-pub fn validate_hash(bytes: &[u8]) -> bool {
+// META
 
-    let mut found = false;
-
-    for hash in hashes().iter() {
-        if *hash == bytes {
-            found = true;
-        }
-    }
-
-    found
+pub fn hirpc_log_error(string: &str) {
+    style_error(&format!("%c[DissonityHiRpc]%c {}", string), "color:#8177f6;font-weight: bold;", "color:initial;");
 }
 
+pub fn hirpc_log(string: &str) {
+    style_log(&format!("%c[DissonityHiRpc]%c {}", string), "color:#8177f6;font-weight: bold;", "color:initial;");
+}
+
+/// Log the hiRPC version.
 #[wasm_bindgen]
+pub fn greet() {
+    hirpc_log(&format!("hiRPC! version {}", HIRPC_VERSION));
+}
+
+/// Get the hiRPC version.
+#[wasm_bindgen]
+pub fn version() -> String {
+    HIRPC_VERSION.to_owned()
+}
+
+// HASHES
+
+/// Generate a hash. The exposed function is `request_hash`.
 pub fn generate_hash() -> Option<Vec<u8>> {
-
-    if locked() {
-        return None;
-    }
-
     let window = match web_sys::window() {
         Some(window) => window,
         None => return None
@@ -66,30 +78,42 @@ pub fn generate_hash() -> Option<Vec<u8>> {
     Some(hash.as_bytes().to_vec())
 }
 
-#[wasm_bindgen]
-pub fn check() -> Result<(), JsValue> {
+/// Request a hash to access restricted functionality.
+#[wasm_bindgen(js_name=requestHash)]
+pub fn request_hash() -> Option<Vec<u8>> {
 
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
-    let window = web_sys::window().expect("no global `window` exists");
-    let document = window.document().expect("should have a document on window");
-    let _body = document.body().expect("document should have a body");
-
-    let a = js_sys::Reflect::get(&window, &JsValue::from_str("outsideDiscord"))?;
-
-    let a = a.is_truthy();
-
-
-    if a {
-        log("outside discord!");
-    } else {
-        log("not outside discord!");
+    if locked() {
+        return None;
     }
 
-    Ok(())
+    generate_hash()
 }
 
-#[wasm_bindgen]
-pub fn greet() {
-    log("Hello, hirpc!");
+/// Lock hash generation.
+#[wasm_bindgen(js_name=lockHashes)]
+pub fn lock_hashes(bytes: &[u8]) {
+
+    if !validate_hash(bytes) {
+        return;
+    }
+
+    lock_module();
+}
+
+/// Check if the passed hash is valid.
+pub fn validate_hash(bytes: &[u8]) -> bool {
+
+    if validate_app_hash(bytes) {
+        return true;
+    }
+
+    let mut found = false;
+
+    for hash in hashes().iter() {
+        if *hash == bytes {
+            found = true;
+        }
+    }
+
+    found
 }

@@ -11,6 +11,9 @@ namespace Dissonity.Models.Interop
         [JsonProperty("instance_id")]
         public string? InstanceId { get; set; }
 
+        [JsonProperty("location_id")]
+        public string? LocationId { get; set; }
+
         [JsonProperty("channel_id")]
         public long? ChannelId { get; set; }
 
@@ -25,5 +28,11 @@ namespace Dissonity.Models.Interop
 
         [JsonProperty("mobile_app_version")]
         public string? MobileAppVersion { get; set; }
+
+        [JsonProperty("custom_id")]
+        public string? CustomId { get; set; }
+
+        [JsonProperty("referrer_id")]
+        public string? ReferrerId { get; set; }
     }
 }

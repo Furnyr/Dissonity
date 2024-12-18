@@ -2,6 +2,73 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2024-12-18 - alpha progress 4
+
+This alpha progress version is centered around migrating from RpcBridge to hiRPC and fixing a few bugs.
+
+- A Dissonity activity can now interact with the JS level
+- The "BridgeLib" term is now outdated (read the new wiki!)
+
+## Dissonity (internal)
+
+- Fixed some types (reported by JadenH)
+
+- Implemented hiRPC APIs
+
+- Mobile resolution fix
+
+- Changed "\[Dissonity\]:" to "\[Dissonity\]" in logs
+
+- Api.Initialize works inside Awake
+
+- The DiscordMock is generated if you don't add it manually
+
+- Merged all bridge public methods (that wouldn't be public if they didn't need to be) into \_HiRpcInput
+
+- Deleted classes only meant to be used with the Discord HTTP API. Dissonity will only handle the activity RPC, use another Unity SDK along with Dissonity if you need to use the Discord API.
+
+## Dissonity (WebGL Template)
+
+- Added a mechanism to automatically regenerate the template if the package.json version is higher than the template version (version.json).
+
+- The loader script is now part of the hiRPC interface. Also, I found a way to remove the errors caused by conditional compilation by wrapping the variables around strings.
+
+- Added thumbnail.png
+
+## Dissonity (API)
+
+- Added 1.7.0 to 1.8.0 features from the official SDK
+
+- Added Max resolution option
+
+## Dissonity (Node.js project)
+
+- Updated build script
+
+- Removed matchmaking room (contribution by Semanual)
+
+## CI
+
+Use `pnpm bundle` in `./utils` to compile hiRPC, hiRPC interface and hiRPC utils and move them to the Unity folder.
+
+## hiRPC
+
+It still needs to be polished, but it's functional. The current documentation only explains its purpose and the way it works. The hiRPC API will be documented once it's stable.
+
+## hiRPC Interface
+
+Added initial version. The .jslib plugin and the loader script are now in this folder.
+
+## Website
+
+- Fixed resizing issues
+
+## Next
+
+The next thing I'm working on is polishing and adding features to hiRPC, some QoL changes and more documentation.
+
+---
+
 # 2024-11-24 - fix: use url overrides
 
 This commit modifies the `index.html` main script and some "compiled" TypeScript. This is a transitory change, since it fixes code that will soon be replaced by the hiRPC.

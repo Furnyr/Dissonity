@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Dissonity.Models.Interop
 {
     /// <summary>
-    /// This is not a normal RPC event, this event is sent by the RpcBridge
+    /// This is not a normal RPC event, this event is sent through the hiRPC
     /// once the authentication process has finished successfully.
     /// </summary>
     [Serializable]

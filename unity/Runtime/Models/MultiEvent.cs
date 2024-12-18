@@ -4,7 +4,7 @@ using Dissonity.Events;
 namespace Dissonity.Models
 {
     /// <summary>
-    /// This is not a normal RPC event, this "event" is sent by the RpcBridge
+    /// This is not a normal RPC event, this "event" is sent through hiRPC
     /// once the authentication process has finished successfully and Unity has loaded.
     /// </summary>
     public class MultiEvent

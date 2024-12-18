@@ -1,31 +1,72 @@
-#![allow(dead_code)] //todo remove
+
+use wasm_bindgen::prelude::wasm_bindgen;
 
 // Hashes
 pub const HASH_RANDOM_BYTES: i32 = 1;   // Only controls left shift
 
-// Close
-pub const CLOSE_CODE_NORMAL: i32 = 1000;
-
-// Handled Commands
-pub const COMMAND_DISPATCH: &str = "DISPATCH";
-pub const COMMAND_AUTHORIZE: &str = "AUTHORIZE";
-pub const COMMAND_AUTHENTICATE: &str = "AUTHENTICATE";
-
-// Handled events
-pub const EVENT_READY: &str = "READY";
-pub const EVENT_ERROR: &str = "ERROR";
-
 // Handshake
-pub const SDK_VERSION: &str = "1.6.0";  // SDK mirroring version
+pub const SDK_VERSION: &str = "1.8.0";  // SDK mirroring version
 pub const HANDSHAKE_VERSION: i32 = 1;
 pub const HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION: i32 = 250;
 pub const HANDSHAKE_UNKNOWN_VERSION_NUMBER: i32 = -1;
 pub const HANDSHAKE_ENCODING: &str = "json";
-pub const PLATFORM_DESKTOP: &str = "desktop";
 
-// Authorize
-pub const AUTHORIZE_RESPONSE_TYPE: &str = "code";
-pub const AUTHORIZE_PROMPT: &str = "none";
+// Closures
+pub const MAIN_CLOSURE_ID: &str = "main";
+pub const CONNECTION_CLOSURE_ID: &str = "cono";
 
-// Listeners
-pub const TEST_LISTENER_ID: &str = "myid";
+#[wasm_bindgen]
+pub struct RpcCommands;
+
+#[wasm_bindgen]
+impl RpcCommands {
+
+    #[wasm_bindgen(getter, js_name=DISPATCH)]
+    pub fn dispatch() -> String {
+        "DISPATCH".to_string()
+    }
+
+    #[wasm_bindgen(getter, js_name=AUTHORIZE)]
+    pub fn authorize() -> String {
+        "AUTHORIZE".to_string()
+    }
+
+    #[wasm_bindgen(getter, js_name=AUTHENTICATE)]
+    pub fn authenticate() -> String {
+        "AUTHENTICATE".to_string()
+    }
+}
+
+#[wasm_bindgen]
+pub struct RpcEvents;
+
+#[wasm_bindgen]
+impl RpcEvents {
+
+    #[wasm_bindgen(getter, js_name=READY)]
+    pub fn ready() -> String {
+        "READY".to_string()
+    }
+
+    #[wasm_bindgen(getter, js_name=ERROR)]
+    pub fn error() -> String {
+        "ERROR".to_string()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Platform;
+
+#[wasm_bindgen]
+impl Platform {
+
+    #[wasm_bindgen(getter, js_name=MOBILE)]
+    pub fn mobile() -> String {
+        "mobile".to_string()
+    }
+
+    #[wasm_bindgen(getter, js_name=DESKTOP)]
+    pub fn desktop() -> String {
+        "desktop".to_string()
+    }
+}

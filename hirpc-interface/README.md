@@ -2,10 +2,10 @@
 
   <h1><code>@dissonity/hirpc-interface</code></h1>
 
-  <strong>A hiRPC bridge for Unity WebGL.</strong>
+  <strong>A hiRPC implementation for Unity WebGL.</strong>
 
   <p>
-    <img src="https://img.shields.io/badge/version-v0.1.0-red" alt="Version Badge" />
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc-interface%2Fpackage.json&query=version&prefix=v&label=version&color=red" alt="Version Badge" />
   </p>
 
   <h3>
@@ -17,10 +17,7 @@
 
 ## About
 
-> [!WARNING]
-This package is a work-in-progress and doesn't work yet
-
-Bridge implementation for interacting with the Dissonity hiRPC within Unity games.
+Unity plugin and loader for interacting with the Dissonity hiRPC within Unity games.
 
 ## Testing
 
@@ -40,7 +37,8 @@ pnpm build
 
 ## Production
 
-The file included in the game build is `build/interface.js`.
+- The Unity plugin is `build/plugin.js`
+- The loader script is `build/app_loader.js`
 
 ## License
 

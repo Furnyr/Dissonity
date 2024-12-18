@@ -321,7 +321,7 @@ namespace Dissonity.Editor
                     //? Not in runtime
                     if (!isPlaying)
                     {
-                        Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                        Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                         return;
                     }
 
@@ -365,7 +365,7 @@ namespace Dissonity.Editor
                             //? Not in runtime
                             if (!isPlaying)
                             {
-                                Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                                Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                                 return;
                             }
 
@@ -430,7 +430,7 @@ namespace Dissonity.Editor
                             //? Not in runtime
                             if (!isPlaying)
                             {
-                                Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                                Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                                 return;
                             }
 
@@ -495,7 +495,7 @@ namespace Dissonity.Editor
                             //? Not in runtime
                             if (!isPlaying)
                             {
-                                Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                                Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                                 return;
                             }
                             
@@ -634,7 +634,7 @@ namespace Dissonity.Editor
                     {
                         // Draw the array element
                         var entitlement = entitlementsProperty.GetArrayElementAtIndex(i);
-                        string name = entitlement.FindPropertyRelative(nameof(MockEntitlement.__mock__name)).stringValue;
+                        string name = entitlement.FindPropertyRelative(nameof(MockEntitlement._mock_name)).stringValue;
                         long id = entitlement.FindPropertyRelative(nameof(MockEntitlement.Id)).longValue;
                         
                         EditorGUILayout.PropertyField(entitlement, new GUIContent (name), false);
@@ -643,7 +643,7 @@ namespace Dissonity.Editor
                         {
                             EditorGUI.indentLevel++;
 
-                            DrawChildrenRecursively(entitlement, null, new Dictionary<string, string>{{ nameof(MockEntitlement.__mock__name), "Entitlements don't have names, this only changes the visual name in the mock." }});
+                            DrawChildrenRecursively(entitlement, null, new Dictionary<string, string>{{ nameof(MockEntitlement._mock_name), "Entitlements don't have names, this only changes the visual name in the mock." }});
 
                             StartSpace(40);
 
@@ -652,7 +652,7 @@ namespace Dissonity.Editor
                                 //? Not in runtime
                                 if (!isPlaying)
                                 {
-                                    Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                                    Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                                     return;
                                 }
 
@@ -683,7 +683,7 @@ namespace Dissonity.Editor
                             Id = Utils.GetMockSnowflake(),
 
                             // Unique name
-                            __mock__name = $"Mock Entitlement {mock._entitlements.Count + 1}"
+                            _mock_name = $"Mock Entitlement {mock._entitlements.Count + 1}"
                         };
 
                         mock._entitlements.Add(ent);
@@ -781,7 +781,7 @@ namespace Dissonity.Editor
                     //? Not in runtime
                     if (!isPlaying)
                     {
-                        Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                        Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                         return;
                     }
 
@@ -795,7 +795,7 @@ namespace Dissonity.Editor
                     //? Not in runtime
                     if (!isPlaying)
                     {
-                        Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                        Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                         return;
                     }
 
@@ -810,7 +810,7 @@ namespace Dissonity.Editor
                 //? Not in runtime
                 if (!isPlaying)
                 {
-                    Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                    Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                     return;
                 }
 
@@ -824,7 +824,7 @@ namespace Dissonity.Editor
                 //? Not in runtime
                 if (!isPlaying)
                 {
-                    Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                    Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                     return;
                 }
 
@@ -838,7 +838,7 @@ namespace Dissonity.Editor
                 //? Not in runtime
                 if (!isPlaying)
                 {
-                    Debug.Log("[Dissonity Editor]: You can only dispatch events during runtime!");
+                    Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                     return;
                 }
 

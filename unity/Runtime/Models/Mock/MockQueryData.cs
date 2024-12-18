@@ -18,5 +18,11 @@ namespace Dissonity.Models.Mock
         new public MockPlatform Platform = MockPlatform.Desktop;
 
         new public string MobileAppVersion = "250.0";
+
+        new public string CustomId = "custom-id";
+
+        new public string ReferrerId = "referrer-id";
+
+        new public string LocationId = "location-id";
     }
 }

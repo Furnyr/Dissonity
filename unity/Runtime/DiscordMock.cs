@@ -54,8 +54,6 @@ namespace Dissonity
             }
 
             DontDestroyOnLoad(gameObject);
-
-            Api.MockOn();
         }
 
         internal Participant[] GetParticipants()

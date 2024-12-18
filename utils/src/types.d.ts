@@ -1,2 +1,2 @@
 
-export type ParseVariableType = "string" | "boolean" | "string[]" | "mappings" | "json";
+export type ParseVariableType = "string" | "boolean" | "string[]" | "json";

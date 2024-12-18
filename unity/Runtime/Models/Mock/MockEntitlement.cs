@@ -36,7 +36,7 @@ namespace Dissonity.Models.Mock
 
         // Branches isn't exposed
 
-        public string __mock__name; // funky name so users know it's not normally there, just in case
+        public string _mock_name; // funky name so users know it's not normally there, just in case
 
         public Entitlement ToEntitlement()
         {

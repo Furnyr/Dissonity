@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 namespace Dissonity
 {
     /// <summary>
-    /// This class receives messages from the JavaScript Bridge Library. <br/> <br/>
+    /// This class receives messages from the JavaScript level (Dissonity hiRPC or Discord RPC). <br/> <br/>
     /// You do not need to interact with this class directly.
     /// </summary>
     public class DissonityBridge : MonoBehaviour
@@ -26,12 +26,17 @@ namespace Dissonity
         internal Dictionary<string, object> pendingTasks = new(); // TaskCompletionSource<>
 
         private const string Dispatch = "DISPATCH";
-        private const string Multi = "MULTI";
+        private const string MultiId = "MULTI";
+        private const string HashId = "HASH";
+        private const string DissonityChannel = "dissonity";
 
         //# JAVASCRIPT - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void RequestState(string stringifiedMessage);
+        private static extern void SaveAppHash(string hash);
+
+        [DllImport("__Internal")]
+        private static extern void RequestEmpty(string stringifiedMessage);
 
         [DllImport("__Internal")]
         private static extern void RequestQuery(string stringifiedMessage);
@@ -41,33 +46,41 @@ namespace Dissonity
 
         [DllImport("__Internal")]
         private static extern void RequestFormatPrice(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void SendHiRpc(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
-        private static void RequestState(string _) {}
+        private static void SaveAppHash(string _) {}
+        private static void RequestEmpty(string _) {}
         private static void RequestQuery(string _) {}
         private static void RequestPatchUrlMappings(string _) {}
         private static void RequestFormatPrice(string _) {}
+        private static void SendHiRpc(string _) {}
 #endif
 
 
-        //# INTERACTIONS - - - - -
-        // Bridge interactions occur between C# and JS, but they don't get to the client RPC protocol.
-        // They are useful to get data to the API level or execute actions,
-        // but any interaction can and will alter the RpcBridge state.
-        internal Task<BridgeStateCode> ExeState()
+        //# SEND (INTERACTIONS) - - - - -
+        // Bridge interactions occur between C# and JS through hiRPC messages. These messages don't get to the Discord RPC protocol,
+        // they are used to get data to the API level or execute actions.
+        // Any interaction can and will alter the state of the connection.
+        internal Task<StateCode> ExeState()
         {
-            string nonce = Guid.NewGuid().ToString();            
-            var tcs = new TaskCompletionSource<BridgeStateCode>();
+            string nonce = Guid.NewGuid().ToString(); 
+            var tcs = new TaskCompletionSource<StateCode>();
             pendingTasks.Add(nonce, tcs);
 
-            BridgeMessage<object?> data = new()
+            BridgeMessage data = new()
             {
-                Nonce = nonce,
-                Payload = null
+                Nonce = nonce
             };
 
-            RequestState(JsonConvert.SerializeObject(data));
+            // Get state
+            RequestEmpty(JsonConvert.SerializeObject(data));
+
+            // Notify Unity to be ready by sending empty data
+            SendHiRpc("");
 
             return tcs.Task;
         }
@@ -78,10 +91,9 @@ namespace Dissonity
             var tcs = new TaskCompletionSource<string>();
             pendingTasks.Add(nonce, tcs);
 
-            BridgeMessage<object?> data = new()
+            BridgeMessage data = new()
             {
-                Nonce = nonce,
-                Payload = null
+                Nonce = nonce
             };
 
             RequestQuery(JsonConvert.SerializeObject(data));
@@ -89,19 +101,16 @@ namespace Dissonity
             return tcs.Task;
         }
 
-        internal Task ExePatchUrlMappings(PatchUrlMappings payload)
+        internal Task<StateCode> ExePatchUrlMappings(PatchUrlMappings payload)
         {
             string nonce = Guid.NewGuid().ToString();            
-            var tcs = new TaskCompletionSource<object?>();
+            var tcs = new TaskCompletionSource<StateCode>();
             pendingTasks.Add(nonce, tcs);
 
-            BridgeMessage<BridgeStringPayload> data = new()
+            BridgeMessage data = new()
             {
                 Nonce = nonce,
-                Payload = new()
-                {
-                    Str = JsonConvert.SerializeObject(payload)
-                }
+                StringifiedData = JsonConvert.SerializeObject(payload)
             };
 
             RequestPatchUrlMappings(JsonConvert.SerializeObject(data));
@@ -115,13 +124,10 @@ namespace Dissonity
             var tcs = new TaskCompletionSource<string>();
             pendingTasks.Add(nonce, tcs);
 
-            BridgeMessage<BridgeStringPayload> data = new()
+            BridgeMessage data = new()
             {
                 Nonce = nonce,
-                Payload = new()
-                {
-                    Str = JsonConvert.SerializeObject(payload)
-                }
+                StringifiedData = JsonConvert.SerializeObject(payload)
             };
 
             RequestFormatPrice(JsonConvert.SerializeObject(data));
@@ -132,30 +138,26 @@ namespace Dissonity
         internal Task<MultiEvent> ExeMultiEvent()
         {
             var tcs = new TaskCompletionSource<MultiEvent>();
-            pendingTasks.Add(Multi, tcs); // Only one listener per multi event
+            pendingTasks.Add(MultiId, tcs); // Only one listener per multi event
+
+            return tcs.Task;
+        }
+
+        internal Task ExeHash()
+        {
+            var tcs = new TaskCompletionSource<object?>();
+            pendingTasks.Add(HashId, tcs);
 
             return tcs.Task;
         }
 
         //# RECEIVE (INTERACTIONS) - - - - -
-        /// <summary>
-        /// This method is used internally but must be public. <b> Don't </b> call it.
-        /// </summary>
-        public void _ReceiveMultiEvent(string stringifiedMessage)
+        private void HandleMultiEvent(RawMultiEvent payload)
         {
             //? No task
-            if (!pendingTasks.ContainsKey(Multi)) return;
+            if (!pendingTasks.ContainsKey(MultiId)) return;
 
-            var tcs = (TaskCompletionSource<MultiEvent>) pendingTasks[Multi];
-
-            //\ First deserialize
-            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeMultiPayload>>(stringifiedMessage);
-
-            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message (multi)");
-
-            var payload = message.Payload.RawMultiEvent;
-
-            if (payload == null) throw new JsonException("Something went wrong trying to deserialize the bridge message (multi)");
+            var tcs = (TaskCompletionSource<MultiEvent>) pendingTasks[MultiId];
 
             //\ Get user data
             var userConfig = DissonityConfigAttribute.GetUserConfig();
@@ -169,104 +171,148 @@ namespace Dissonity
             var serverPayload = genericDeserialize.Invoke(null, new object[] { payload.ServerResponse });
 
             //\ Deserialize RPC events
-            RpcMessage? readyMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.ReadyMessage);
-            RpcMessage? authorizeMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.AuthorizeMessage);
-            RpcMessage? authenticateMessage = JsonConvert.DeserializeObject<RpcMessage>(payload.AuthenticateMessage);     
+            ReadyEventData? readyEventData = JsonConvert.DeserializeObject<ReadyEventData>(payload.ReadyMessage);
+            AuthorizeData? authorizeData = JsonConvert.DeserializeObject<AuthorizeData>(payload.AuthorizeMessage);
+            AuthenticateData? authenticateData = JsonConvert.DeserializeObject<AuthenticateData>(payload.AuthenticateMessage);     
         
-            if (readyMessage == null || readyMessage == null || authorizeMessage == null || authenticateMessage == null) throw new JsonException("Something went wrong trying to deserialize the first RPC payload");
+            if (readyEventData == null || authorizeData == null || authenticateData == null) throw new JsonException("Something went wrong trying to deserialize the first hiRPC payload");
 
-            var readyEvent = (ReadyEvent) ((JObject) readyMessage.Data[1]).ToObject(typeof(ReadyEvent))!;
-            var authorizeResponse = (AuthorizeResponse) ((JObject) authorizeMessage.Data[1]).ToObject(typeof(AuthorizeResponse))!;
-            var authenticateResponse = (AuthenticateResponse) ((JObject) authenticateMessage.Data[1]).ToObject(typeof(AuthenticateResponse))!;
-        
             //\ Get data and dispatch
             MultiEvent multiEvent = new MultiEvent()
             {
-                ReadyData = readyEvent.Data,
-                AuthorizeData = authorizeResponse.Data,
-                AuthenticateData = authenticateResponse.Data,
+                ReadyData = readyEventData,
+                AuthorizeData = authorizeData,
+                AuthenticateData = authenticateData,
                 ServerResponse = serverPayload
             };
 
             tcs.TrySetResult(multiEvent);
-            pendingTasks.Remove(Multi);
+            pendingTasks.Remove(MultiId);
         }
 
-
-        /// <summary>
-        /// This method is used internally but must be public. <b> Don't </b> call it.
-        /// </summary>
-        public void _ReceiveState(string stringifiedMessage)
+        // PatchUrlMappings, State
+        private void HandleState(string nonce, StateCode stateCode)
         {
-            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeStatePayload>>(stringifiedMessage);
-
-            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
-
             //? No task
-            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
+            if (!pendingTasks.ContainsKey(nonce)) return;
 
-            var tcs = (TaskCompletionSource<BridgeStateCode>) pendingTasks[message.Nonce!];
-            tcs.TrySetResult(message.Payload.Code);
+            foreach (string key in pendingTasks.Keys)
+            {
+                Debug.Log(key);
+            }
 
-            pendingTasks.Remove(message.Nonce!);
+            var tcs = (TaskCompletionSource<StateCode>) pendingTasks[nonce];
+            tcs.TrySetResult(stateCode);
+
+            pendingTasks.Remove(nonce);
         }
-
-
-        // PatchUrlMappings
-        /// <summary>
-        /// This method is used internally but must be public. <b> Don't </b> call it.
-        /// </summary>
-        public void _ReceiveEmpty(string stringifiedMessage)
-        {
-            var message = JsonConvert.DeserializeObject<BridgeMessage<object>>(stringifiedMessage);
-
-            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
-
-            //? No task
-            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
-
-            var tcs = (TaskCompletionSource<object?>) pendingTasks[message.Nonce!];
-            tcs.TrySetResult(null);
-
-            pendingTasks.Remove(message.Nonce!);
-        }
-
 
         // Query and FormatPrice
-        /// <summary>
-        /// This method is used internally but must be public. <b> Don't </b> call it.
-        /// </summary>
-        public void _ReceiveString(string stringifiedMessage)
+        private void HandleString(string nonce, string stringData)
         {
-            var message = JsonConvert.DeserializeObject<BridgeMessage<BridgeStringPayload>>(stringifiedMessage);
+            //? No task
+            if (!pendingTasks.ContainsKey(nonce)) return;
 
-            if (message == null) throw new JsonException("Something went wrong trying to deserialize the bridge message");
+            var tcs = (TaskCompletionSource<string>) pendingTasks[nonce];
+            tcs.TrySetResult(stringData);
+
+            pendingTasks.Remove(nonce);
+        }
+
+        // App hash
+        private void HandleHash(string hash)
+        {
+            SaveAppHash(hash);
 
             //? No task
-            if (!pendingTasks.ContainsKey(message.Nonce!)) return;
+            if (!pendingTasks.ContainsKey(HashId)) return;
 
-            var tcs = (TaskCompletionSource<string>) pendingTasks[message.Nonce!];
-            tcs.TrySetResult(message.Payload.Str);
+            var tcs = (TaskCompletionSource<object?>) pendingTasks[HashId];
+            tcs.TrySetResult(null);
 
-            pendingTasks.Remove(message.Nonce!);
+            pendingTasks.Remove(HashId);
         }
 
 
         //# HANDLE - - - - -
         /// <summary>
-        /// This method is used internally but must be public. <b> Don't </b> call it.
+        /// This method is used for communication outside Unity. You don't have to call it.
         /// </summary>
-        public void _HandleMessage(string stringifiedMessage)
+        public void _HiRpcInput(string stringifiedData)
         {
-            var message = JsonConvert.DeserializeObject<RpcMessage>(stringifiedMessage);
+            AppPayload? message = JsonConvert.DeserializeObject<AppPayload>(stringifiedData);
 
-            if (message == null) return;
+            if (message == null) throw new JsonException("Something went wrong trying to deserialize the hiRPC input");
 
+            //? Is RPC message
+            if (message.RpcMessage != null)
+            {
+                HandleRpcMessage(message.RpcMessage);
+                return;
+            }
+
+            //? Is hiRPC message
+            if (message.HiRpcMessage == null) return;
+
+            // Handle app hash
+            if (message.HiRpcMessage.ActionCode == ActionCode.Hash)
+            {
+                HandleHash(message.HiRpcMessage.Data.Hash!);
+                return;
+            }
+
+            //? Not dissonity channel
+            if (message.HiRpcMessage.Data.Channel != DissonityChannel)
+            {
+                //todo implementation to receive hirpc messages
+
+                return;
+            }
+
+            HandleHiRpcMessage(message.HiRpcMessage.Data, message.HiRpcState);
+        }
+
+        private void HandleHiRpcMessage(HiRpcData message, StateCode stateCode)
+        {
+            //? Multi Event
+            if (message.RawMultiEvent != null)
+            {
+                HandleMultiEvent(message.RawMultiEvent);
+                return;
+            }
+
+            // From this point, a nonce is needed
+            if (message.Nonce == null)
+            {
+                throw new Exception("No nonce found in hiRPC message with channel 'dissonity'");
+            }
+
+            //? Query
+            else if (message.Query != null)
+            {
+                HandleString(message.Nonce, message.Query);
+            }
+
+            //? Formatted price
+            else if (message.FormattedPrice != null)
+            {
+                HandleString(message.Nonce, message.FormattedPrice);
+            }
+
+            //? Empty
+            else
+            {
+                HandleState(message.Nonce, stateCode);
+            }
+        }
+
+        private void HandleRpcMessage(object[] discordEvent)
+        {
             // Opcode
-            Opcode opcode = (Opcode) (long) message.Data[0];
+            Opcode opcode = (Opcode) (long) discordEvent[0];
 
             // Payload
-            JObject payload = (JObject) message.Data[1];
+            JObject payload = (JObject) discordEvent[1];
 
             switch (opcode)
             {

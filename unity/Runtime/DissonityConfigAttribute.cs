@@ -21,7 +21,7 @@ namespace Dissonity
             //? No classes with the attribute
             if (type == null)
             {
-                throw new Exception("[Dissonity]: No class with the DissonityConfigAttribute found. You can create a config file with (Right click > Create > Dissonity > Configuration)");
+                throw new Exception("[Dissonity] No class with the DissonityConfigAttribute found. You can create a config file with (Right click > Create > Dissonity > Configuration)");
             }
 
             var instance = Activator.CreateInstance(type);
@@ -29,7 +29,7 @@ namespace Dissonity
             //? Not inherited
             if (instance is not ISdkConfiguration)
             {
-                throw new Exception("[Dissonity]: The class with the DissonityConfigAttribute must inherit from SdkConfiguration");
+                throw new Exception("[Dissonity] The class with the DissonityConfigAttribute must inherit from SdkConfiguration");
             }
 
             //? More than one

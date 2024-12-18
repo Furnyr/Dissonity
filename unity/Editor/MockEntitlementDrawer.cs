@@ -12,7 +12,7 @@ namespace Dissonity.Editor
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            string name = property.FindPropertyRelative(nameof(MockEntitlement.__mock__name)).stringValue;
+            string name = property.FindPropertyRelative(nameof(MockEntitlement._mock_name)).stringValue;
             EditorGUI.PropertyField(position, property, new GUIContent(name));
 
             if (property.isExpanded)

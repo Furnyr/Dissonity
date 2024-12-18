@@ -2,10 +2,11 @@
 
   <h1><code>@dissonity/hirpc</code></h1>
 
-  <strong>A Rust and WebAssembly library for the Discord RPC within game engines.</strong>
+  <strong>A Rust and WebAssembly library for the Discord activities RPC within game engines.</strong>
 
   <p>
-    <img src="https://img.shields.io/badge/version-v0.2.0-red" alt="Version Badge" />
+    <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red" alt="Version Badge" />
+    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
   </p>
 
   <h3>
@@ -75,6 +76,15 @@ The files included in the game build are:
 - `pkg/dissonity_hirpc_bg.wasm`
 - `pkg/build_variables.js`
 - `pkg/snippets`
+
+### Optimize the WebAssembly file
+
+Using wasm-opt:
+
+```
+cd ./pkg
+wasm-opt -Oz -o dissonity_hirpc_bg.wasm dissonity_hirpc_bg.wasm
+```
 
 ## License
 

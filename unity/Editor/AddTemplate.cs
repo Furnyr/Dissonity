@@ -1,5 +1,6 @@
 
 using System.IO;
+using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,73 +9,197 @@ namespace Dissonity.Editor
     internal class AddTemplate : AssetPostprocessor
     {
         static bool loaded = false;
+        static string pathToPackage = "";
+
+        private class PackageData
+        {
+            [JsonProperty("version")]
+            public string Version { get; set; }
+        }
 
         static void OnPostprocessAllAssets(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload)
         {
             if (loaded) return;
             loaded = true;
 
+            ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload);
+        }
+
+        static void ExecuteProcess(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload)
+        {
+            // To access package.json we need the folder where Dissonity is.
+            // This is achieved by accessing the resources folder.
+            pathToPackage = "";
+            string indexAssetPath = AssetDatabase.GetAssetPath(Resources.Load<TextAsset>("WebGLTemplateSource/Dissonity/index.html"));
+            pathToPackage = GetPathToPackage(indexAssetPath);
+
+            // Target where the WebGL Template should be
+            string targetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity");
+            string metaTargetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity.meta");
+
             //# DIRECTORIES - - - - -
-            string pathToTemplates = Path.Combine(Application.dataPath, "WebGLTemplates");
+            string pathToTemplates = CombinePath(Application.dataPath, "WebGLTemplates");
 
             if (!Directory.Exists(pathToTemplates))
             {
                 Directory.CreateDirectory(pathToTemplates);
             }
 
-            string pathToDissonityTemplate = Path.Combine(pathToTemplates, "Dissonity");
+            string pathToDissonityTemplate = CombinePath(pathToTemplates, "Dissonity");
 
             if (!Directory.Exists(pathToDissonityTemplate))
             {
                 Directory.CreateDirectory(pathToDissonityTemplate);
             }
 
-            string pathToFiles = Path.Combine(pathToDissonityTemplate, "Files");
+            string pathToFiles = CombinePath(pathToDissonityTemplate, "Files");
 
             if (!Directory.Exists(pathToFiles))
             {
                 Directory.CreateDirectory(pathToFiles);
             }
 
-            string pathToScripts = Path.Combine(pathToFiles, "Scripts");
+            string pathToBridge = CombinePath(pathToFiles, "Bridge");
 
-            if (!Directory.Exists(pathToScripts))
+            if (!Directory.Exists(pathToBridge))
             {
-                Directory.CreateDirectory(pathToScripts);
+                Directory.CreateDirectory(pathToBridge);
             }
 
             //? If all directories existed, consider the template generated
             else
             {
+                // Only regenerate if the version differs
+
+                //\ Get current template version (in the user project)
+                string currentVersion = File.ReadAllText(CombinePath(targetPath, "version.json"));  // currentVersion = "\"2.0.0\"";
+
+                //\ Get package version
+                string packageText = File.ReadAllText(CombinePath(pathToPackage, "package.json"));
+                PackageData packageData = JsonConvert.DeserializeObject<PackageData>(packageText);  // packageData.Version = "2.0.0";
+
+                if ($"\"{packageData.Version}\"" != currentVersion)
+                {
+                    Debug.Log($"[Dissonity Editor] The installed Dissonity version is \"{packageData.Version}\" but your WebGL template is {currentVersion}");
+
+                    FileUtil.DeleteFileOrDirectory(targetPath);
+                    FileUtil.DeleteFileOrDirectory(metaTargetPath);
+
+                    ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload);
+                }
+
                 return;
             }
 
             //todo remove in the final release
-            Debug.LogWarning("[Dissonity]: WARNING! Version 2 isn't released yet. You should only be using this package for testing purposes.");
+            Debug.LogWarning("[Dissonity] WARNING! Version 2 isn't released yet. You should only be using this package for testing purposes.");
 
-            Debug.Log("[Dissonity Editor]: Adding WebGL Template to your assets");
+            Debug.Log("[Dissonity Editor] Adding WebGL Template to your assets");
 
-            // Target paths
-            string targetPath = Path.Combine(Application.dataPath, "WebGLTemplates/Dissonity");
-            string targetIndex = Path.Combine(targetPath, "index.html");
-            string checkPath = Path.Combine(targetPath, "discord.check.js");
-            string targetThumbnail = Path.Combine(targetPath, "thumbnail.png"); //todo thumbnail
-            string targetRpcBridge = Path.Combine(targetPath, "Files/Scripts/rpc_bridge.js");
-            string targetOfficialUtils = Path.Combine(targetPath, "Files/Scripts/official_utils.js");
+            LoadTextAssets("WebGLTemplateSource/Dissonity", targetPath);
+            LoadPngAssets("WebGLTemplateSource/Dissonity", targetPath);
+        }
 
-            //\ Read everything
-            var index = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/index").ToString();
-            var check = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/discord.check.js").ToString();
-            byte[] thumbnail = Resources.Load<Texture2D>("WebGLTemplates/Dissonity/thumbnail").EncodeToPNG();
-            string rpcBridge = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/Files/Scripts/rpc_bridge.js").ToString();
-            string officialUtils = Resources.Load<TextAsset>("WebGLTemplates/Dissonity/Files/Scripts/official_utils.js").ToString();
+        static void LoadTextAssets(string source, string target)
+        {
+            //source = WebGLTemplateSource/Dissonity
 
-            //\ Write
-            File.WriteAllText(targetIndex, index);
-            File.WriteAllText(checkPath, check);
-            File.WriteAllBytes(targetThumbnail, thumbnail);
-            File.WriteAllText(targetRpcBridge, rpcBridge);
-            File.WriteAllText(targetOfficialUtils, officialUtils);
+            TextAsset[] assets = Resources.LoadAll<TextAsset>(source);
+
+            foreach (var asset in assets)
+            {
+                string sourcePath = AssetDatabase.GetAssetPath(asset);
+                string targetPath = TargetPath(target, sourcePath);
+
+                if (sourcePath.Contains(".wasm"))
+                {
+                    byte[] resource = asset.bytes;
+                
+                    EnsureDirectoriesExist(targetPath);
+                    
+                    File.WriteAllBytes(targetPath, resource);
+                }
+                
+                else
+                {
+                    string resource = asset.ToString();
+                
+                    EnsureDirectoriesExist(targetPath);
+                    
+                    File.WriteAllText(targetPath, resource);
+                }
+            }
+
+            //\ Write version.json
+            string packageText = File.ReadAllText(CombinePath(pathToPackage, "package.json"));
+
+            PackageData packageData = JsonConvert.DeserializeObject<PackageData>(packageText);
+
+            File.WriteAllText(CombinePath(target, "version.json"), "\"" + packageData.Version + "\"");
+        }
+
+        static void LoadPngAssets(string source, string target)
+        {
+            //source = WebGLTemplateSource/Dissonity
+
+            Texture2D[] assets = Resources.LoadAll<Texture2D>(source);
+
+            foreach (var asset in assets)
+            {
+                string sourcePath = AssetDatabase.GetAssetPath(asset);
+
+                string targetPath = TargetPath(target, sourcePath);
+
+                byte[] resource = asset.EncodeToPNG();
+            
+                EnsureDirectoriesExist(targetPath);
+                
+                File.WriteAllBytes(targetPath + ".png", resource);
+            }
+        }
+
+        static string TargetPath(string target, string source)
+        {
+            // .../WebGLTemplateSource/Dissonity/index.html.txt -> ...Assets/WebGLTemplateSource/Dissonity/index.html
+
+            return CombinePath(target, RelativePath(source));
+        }
+
+        static string CombinePath(string path1, string path2)
+        {
+            return Path.Combine(path1, path2).Replace("\\", "/");
+        }
+
+        static string RelativePath(string source)
+        {
+            // .../WebGLTemplateSource/Dissonity/index.html.txt -> index.html
+
+            string file = Path.GetFileNameWithoutExtension(source);
+            string dir = Path.GetDirectoryName(source);
+
+            string fullPath = CombinePath(dir, file);
+
+            int firstIndexOfResources = fullPath.LastIndexOf("Dissonity");
+            int lastIndexOfResources = firstIndexOfResources + "Dissonity".Length + 1;
+
+            return fullPath.Substring(lastIndexOfResources, fullPath.Length - lastIndexOfResources);
+        }
+
+        static void EnsureDirectoriesExist(string filePath)
+        {
+            string directoryPath = Path.GetDirectoryName(filePath);
+            
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+        }
+
+        static string GetPathToPackage(string pathToAsset)
+        {
+            int lastIndex = pathToAsset.IndexOf(CombinePath("Resources", "WebGLTemplateSource"));
+
+            return pathToAsset.Substring(0, lastIndex);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Dissonity
     {
         Default = 1,
         Viewport = 2,
-        Dynamic = 3
+        Dynamic = 3,
+        Max = 4
     }
 }

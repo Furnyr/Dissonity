@@ -51,13 +51,12 @@ namespace Dissonity.Editor
                 throw new Exception("[Dissonity Build]: Token request path must start with /");
             }
 
-            string scriptsFolder = Path.Combine(filesFolder, "Scripts");
-            string rpcBridgePath = Path.Combine(scriptsFolder, "rpc_bridge.js");
-            string indexPath = Path.Combine(pathToBuiltProject, "index.html");
+            string bridgeFolder = Path.Combine(filesFolder, "Bridge");
+            string buildVariablesPath = Path.Combine(bridgeFolder, "build_variables.js");
+            string appLoaderPath = Path.Combine(pathToBuiltProject, "app_loader.js");
 
-            //# RPC BRIDGE - - - - -
-            // Replace user variables
-            string fileContent = File.ReadAllText(rpcBridgePath);
+            //# BUILD VARIABLES - - - - -
+            string fileContent = File.ReadAllText(buildVariablesPath);
 
             // Client id
             int index = fileContent.IndexOf("[[[ CLIENT_ID ]]]");
@@ -65,13 +64,6 @@ namespace Dissonity.Editor
             int endIndex = fileContent.IndexOf(VariableSeparator, index);
             string substring = fileContent.Substring(index, endIndex - index);
             fileContent = fileContent.Replace(substring, $"[[[ CLIENT_ID ]]] {data.ClientId}");
-
-            // Sdk version
-            index = fileContent.IndexOf("[[[ SDK_VERSION ]]]");
-            CheckIndex(index);
-            endIndex = fileContent.IndexOf(VariableSeparator, index);
-            substring = fileContent.Substring(index, endIndex - index);
-            fileContent = fileContent.Replace(substring, $"[[[ SDK_VERSION ]]] {Api.SdkVersion}");
 
             // Disable console log override
             index = fileContent.IndexOf("[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]");
@@ -126,24 +118,6 @@ namespace Dissonity.Editor
                 mappings = "";
             }
 
-            //? Format
-            else
-            {
-                string serializedMappings = "";
-
-                for (int i = 0; i < data.Mappings.Length; i++)
-                {
-                    var mapping = data.Mappings[i];
-
-                    if (i == 0) serializedMappings = $"{mapping.Prefix}";
-                    else serializedMappings += $",{mapping.Prefix}";
-
-                    serializedMappings += $",{mapping.Target}";
-                }
-
-                mappings = serializedMappings;
-            }
-
             fileContent = fileContent.Replace(substring, $"[[[ MAPPINGS ]]] {mappings}");
 
             // Patch url mappings config
@@ -160,21 +134,13 @@ namespace Dissonity.Editor
                 patchConfig = "";
             }
 
-            //? Format
-            else
-            {
-                var source = data.PatchUrlMappingsConfig;
-
-                patchConfig = $"patchFetch,{source.PatchFetch},patchWebSocket,{source.PatchWebSocket},patchXhr,{source.PatchXhr},patchSrcAttributes,{source.PatchSrcAttributes}";
-            }
-
             fileContent = fileContent.Replace(substring, $"[[[ PATCH_URL_MAPPINGS_CONFIG ]]] {patchConfig}");
 
             //\ Write final file
-            File.WriteAllText(rpcBridgePath, fileContent);
+            File.WriteAllText(buildVariablesPath, fileContent);
 
-            //# INDEX - - - - -
-            fileContent = File.ReadAllText(indexPath);
+            //# APP LOADER - - - - -
+            fileContent = File.ReadAllText(appLoaderPath);
 
             float viewportWidth = Handles.GetMainGameViewSize().x;
             float viewportHeight = Handles.GetMainGameViewSize().y;
@@ -227,13 +193,11 @@ namespace Dissonity.Editor
             fileContent = fileContent.Replace(substring, $"[[[ WEB_RESOLUTION ]]] {(int) data.WebResolution}");
 
             //\ Write final file
-            File.WriteAllText(indexPath, fileContent);
+            File.WriteAllText(appLoaderPath, fileContent);
 
             Debug.Log("[Dissonity Build]: Build post-processed correctly!");
         }
 
-            
-    
         private static void CheckIndex(int index)
         {
             if (index != -1) return;
