@@ -70,7 +70,7 @@ That's everything you need in the Node.js client.
 
 ## Unity
 1. Go to `Window` > `Package Manager` > `Add package from git URL`
-2. Install the package from `https://github.com/Furnyr/Dissonity.git?path=/unity`
+2. Install the package from `https://github.com/Furnyr/Dissonity.git?path=/unity#v1`
 3. Right click in the hierarchy, `Dissonity` > `Discord Bridge`
 4. You can now build your game for WebGL and put it in your nested iframe. If you're not using the example Node.js project you will need to follow the "Project configuration" guide below.
 
