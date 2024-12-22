@@ -13,7 +13,7 @@ Dissonity allows you to easily create Discord activities inside Unity. The npm a
 # Installation
 
 1. Go to `Window` > `Package Manager` > `Add package from git URL`
-2. Install the package from `https://github.com/Furnyr/Dissonity.git?path=/unity`
+2. Install the package from `https://github.com/Furnyr/Dissonity.git?path=/unity#v1`
 
 # Usage
 
