@@ -1,24 +1,12 @@
 
 .doc-page {
-    margin-top: 20px;
-    margin-left: 15px;
-}
-
-.warning-container {
-    background-color: #ffff8a;
-    color: black;
-    width: 500px;
-    text-align: center;
-    border-radius: 10px;
-    padding: 5px 0;
-    margin-top: 20px;
-    font-weight: 10;
-    border: solid rgb(8, 8, 8) 3px;
-    box-shadow: 16px 16px 16px hsla(0, 0%, 0%, 0.404);
+    margin: 22px;
+    padding-bottom: 40px;
+    max-width: 90%;
 }
 
 @media only screen and (max-width: 600px) {
-    .warning-container {
-        width: 300px;
+    .doc-page {
+        max-width: 84%;
     }
 }

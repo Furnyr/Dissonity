@@ -6,4 +6,11 @@
 
 .sb-button {
     font-size: 15px;
+    opacity: 0.2;
+    transition: opacity 1s ease-in-out 3s;
+}
+
+.sb-button:hover {
+    opacity: 1;
+    transition: opacity 0.1s;
 }

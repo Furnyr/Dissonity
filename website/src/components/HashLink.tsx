@@ -1,4 +1,4 @@
-import './HashLink.css';
+import "./HashLink.css";
 
 function HashLink(props: { link: string }) {
     return (

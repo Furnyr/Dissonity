@@ -1,0 +1,21 @@
+.about-main {
+  margin: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.about-internal {
+  margin: 22px;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+@media only screen and (max-width: 600px) {
+  .card-container {
+    display: inline-block;
+  }
+}

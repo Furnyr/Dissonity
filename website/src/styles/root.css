@@ -1,24 +1,19 @@
 .main {
-  margin-top: 40px;
+  margin-top: 35px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .header .header-title {
-  max-width: 850px;
-  margin: 40px auto;
+  max-width: 800px;
+  margin: 25px auto;
   text-align: center;
   line-height: 77px;
-  font-size: 50px;
+  font-size: 49px;
 }
 
 .centered-container {
   margin-top: 20px;
-}
-
-.header .button-container {
-  display: flex;
-  justify-content: center;
 }
 
 .header .header-image {
@@ -45,11 +40,19 @@
 }
 
 .header .sub {
-  margin-top: 40px;
-  margin: 50px 50px;
+  margin: 0 50px;
   text-align: center;
   max-width: 1000px;
   text-wrap: balance;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.button-container .button-box {
+  font-size: 21px;
 }
 
 .footer {

@@ -1,0 +1,18 @@
+.notice-box-container {
+    font-size: 15px;
+}
+
+.notice-box-title {
+    line-height: 10px;
+}
+
+.notice-box-icon {
+    display: flex;
+    border-radius: 6px;
+}
+
+.notice-box-text {
+    font-size: 13.5px;
+    max-width: 80%;
+    margin-left: 10px;
+}

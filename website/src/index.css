@@ -9,10 +9,15 @@ body {
   display: flex;
   height: 100%;
   width: 100%;
+  overflow-x:hidden;
 }
 
 i {
   color: #818181;
+}
+
+h2 {
+  margin-top: 50px;
 }
 
 .inter {
@@ -36,11 +41,11 @@ i {
 
 a {
   font-weight: 500;
-  color: #7a81ff;
+  color: #6abbd9;
   text-decoration: inherit;
 }
 a:hover {
-  color: #646cff;
+  color: #818eff;
   text-decoration: underline;
 }
 
@@ -76,54 +81,19 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-code {
-  background-color: #141414;
-  padding: 9px;
-  border-radius: 6px;
-}
-
-#error-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  font-size: 20px;
-}
-
-#error-page #status {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 200px;
-  margin: 0 auto;
-}
-
-#error-page-img {
-  margin: 100px 0;
-  margin-right: 50px;
-  background-color: #383949;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+  a {
+    color: #4457ff;
+  }
   a:hover {
-    color: #747bff;
+    color: #7250fb;
   }
   button {
     background-color: #e9e9e9;
-  }
-  code {
-    background-color: #e9e9e9;
-  }
-  #error-page-img {
-    background-color: #dedee7;
   }
 }
 
@@ -136,19 +106,5 @@ code {
   }
   button {
     font-size: 70%;
-  }
-  #error-page {
-    font-size: 16px;
-  }
-  #error-page #status {
-    position: relative;
-    font-size: 70px;
-  }
-  #error-page-img {
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    width: 50%;
-    transform: translate(-50%, 0%);
   }
 }

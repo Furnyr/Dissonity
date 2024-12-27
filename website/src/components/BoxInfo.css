@@ -1,0 +1,26 @@
+.box-info {
+    display: flex;
+    justify-content: left;
+    align-items: center; 
+    max-width: 600px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: solid 1px rgb(150, 239, 255);
+    background-color: rgba(131, 236, 255, 0.464);
+    margin: 15px 0;
+    padding-bottom: 15px;
+}
+
+@media only screen and (max-width: 600px) {
+    .box-info {
+        max-width: 330px;
+        padding: 2px 2px;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .box-info {
+        background-color: rgb(150, 239, 255);
+        border: solid 1px black;
+    }
+}
