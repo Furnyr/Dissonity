@@ -5,7 +5,7 @@
   <strong>A hiRPC implementation for Unity WebGL.</strong>
 
   <p>
-    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc-interface%2Fpackage.json&query=version&prefix=v&label=version&color=red" alt="Version Badge" />
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc-interface%2Fpackage.json&query=version&prefix=v&label=version&color=yellow" alt="Version Badge" />
   </p>
 
   <h3>
@@ -19,17 +19,17 @@
 
 Unity plugin and loader for interacting with the Dissonity hiRPC within Unity games.
 
-## Testing
+## Developing
 
-You may need to install [pnpm](https://pnpm.io), [Rust](https://www.rust-lang.org/learn/get-started) or [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
+You may need to install [pnpm](https://pnpm.io).
 
-### 🦀 Build hiRPC code
+### 📘 Build hiRPC code
 ```
 cd ../hirpc
-wasm-pack build --target web
+pnpm build
 ```
 
-### 🛠️ Build to JavaScript
+### 🛠️ Build hiRPC interface
 ```
 cd ../hirpc-interface
 pnpm build
@@ -37,9 +37,11 @@ pnpm build
 
 ## Production
 
-- The Unity plugin is `build/plugin.js`
-- The loader script is `build/app_loader.js`
+- The Unity plugin is `dist/plugin.js`
+- The loader script is `dist/app_loader.js`
 
 ## License
 
-Licensed under the Apache License, Version 2.0
+Dissonity is licensed under the Apache License, Version 2.0
+
+This project includes code from the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk), licensed under the [MIT License](MIT_LICENSE.md).

@@ -1,6 +1,6 @@
 {
     "name": "com.furnyr.dissonity",
-    "version": "2.0.0",
+    "version": "0.4.1",
     "unity": "2021.3",
     "displayName": "Dissonity",
     "description": "ALPHA VERSION: Dissonity allows you to interact with the Discord client inside a Unity game",

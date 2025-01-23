@@ -20,8 +20,6 @@ using System.Globalization;
 
 //todo main tasks
 // Test hiRPC
-// Test patch url mappings
-// Test real functionality
 // Test that everything users don't need to see is internal
 // Documentation
 // Logo and brand
@@ -71,10 +69,6 @@ namespace Dissonity
 
 
         //# PROPERTIES - - - - -
-        /// <summary>
-        /// Embedded App SDK version that Dissonity is mirroring. Note that some patch versions may not apply here.
-        /// </summary>
-        public const string SdkVersion = "1.6.1";
         public const string ProxyDomain = "discordsays.com";
 
         /// <summary>
@@ -359,26 +353,26 @@ namespace Dissonity
         public static bool IsMock => _mock;
 
 
-        //# JAVASCRIPT - - - - -
+        //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void OpenDownwardCommunication();
+        private static extern void OpenDownwardFlow();
 
         [DllImport("__Internal")]
-        private static extern void StopListening();
+        private static extern void CloseDownwardFlow();
 
         [DllImport("__Internal")]
-        private static extern void SendRpc(string stringifiedMessage);
+        private static extern void SendToRpc(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void SendHiRpc(string stringifiedMessage);
+        private static extern void SendToJs(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
-        private static void OpenDownwardCommunication() {}
-        private static void StopListening() {}
-        private static void SendRpc(string _) {}
-        private static void SendHiRpc(string _) {}
+        private static void OpenDownwardFlow() {}
+        private static void CloseDownwardFlow() {}
+        private static void SendToRpc(string _) {}
+        private static void SendToJs(string _) {}
 #endif
 
 
@@ -1320,7 +1314,6 @@ namespace Dissonity
             }
 
 
-            //todo Currently not documented so scopes might be wrong... That's gonna take a while to get merged https://github.com/discord/discord-api-docs/pull/7130
             /// <summary>
             /// Received when the current guild member object changes. <br/> <br/>
             /// Scopes required: <c> identify </c>, <c> guilds.members.read </c> <br/>
@@ -1627,8 +1620,7 @@ namespace Dissonity
         {
             public static void Send(string data)
             {
-                // Handled in the hiRPC interface plugin
-                SendHiRpc(data);
+                SendToJs(data);
             }
         }
 
@@ -1687,18 +1679,23 @@ namespace Dissonity
 
             UnityEngine.Application.runInBackground = true;
 
-            async void HandleInteraction()
+            async void ListenToPayload()
             {
-                var hashTask = bridge!.ExeHash();
-                OpenDownwardCommunication();
-                await hashTask;
+                // OverrideConsoleLogging is done in the hiRPC layer.
+                // The RPC handshake is handled by the hiRPC even before the Unity build loads.
+                MultiEvent multiEvent = await bridge!.ExeMultiEvent();
+                _userId = multiEvent.AuthenticateData.User.Id;
 
                 string query = await bridge!.ExeQuery();
 
-                InitializeQuery(tcs, query);
+                InitializeQuery(tcs, multiEvent, query);
             }
 
-            HandleInteraction();
+            ListenToPayload();
+
+            // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
+            // From then, the JS and C# layer can interact.
+            OpenDownwardFlow();
 
             return tcs.Task;
         }
@@ -1906,7 +1903,7 @@ namespace Dissonity
             if (!_mock)
             {
                 SendToBridge<Close, NoResponse>(new Close(code, message));
-                StopListening();
+                CloseDownwardFlow();
             }
 
             messageBus.ReaderSetDictionary.Clear();
@@ -1922,7 +1919,7 @@ namespace Dissonity
 
 
         //# PRIVATE METHODS - - - - -
-        private static void InitializeQuery(TaskCompletionSource<MultiEvent> tcs, string stringifiedQuery)
+        private static async void InitializeQuery(TaskCompletionSource<MultiEvent> tcs, MultiEvent multiEvent, string stringifiedQuery)
         {
             var query = JsonConvert.DeserializeObject<QueryData>(stringifiedQuery);
 
@@ -1998,107 +1995,89 @@ namespace Dissonity
                 _locationId = query.LocationId;
             }
 
-            //\ Bridge interactions
-            async void HandleState()
+            //# CHECK STATE - - - - -
+            var code = await bridge!.ExeState();
+
+            if (!_configuration!.DisableDissonityInfoLogs)
             {
-                var code = await bridge!.ExeState();
-
-                if (!_configuration!.DisableDissonityInfoLogs)
+                //? Problem
+                if (code == StateCode.Errored || code == StateCode.Unfunctional)
                 {
-                    //? Problem
-                    if (code == StateCode.Errored || code == StateCode.Unfunctional)
-                    {
-                        Utils.DissonityLogError($"hiRPC returned unexpected state code: {code}");
-                    }
+                    Utils.DissonityLogError($"hiRPC returned unexpected state code: {code}");
+                }
 
-                    else Utils.DissonityLog($"hiRPC returned state code: {code}");
-                }
-                
-                //? OutsideDiscord
-                if (code == StateCode.OutsideDiscord)
-                {
-                    tcs.TrySetException(new OutsideDiscordException("hiRPC returned OutsideDiscord state"));
-                }
+                else Utils.DissonityLog($"hiRPC returned state code: {code}");
             }
-
-            async void HandleMulti()
-            {
-                var multiEvent = await bridge!.ExeMultiEvent();
-
-                // OverrideConsoleLogging is done in the BridgeLib
-                _userId = multiEvent.AuthenticateData.User.Id;
-
-                //? Synchronize user
-                if (_configuration!.SynchronizeUser)
-                {
-                    //? Invalid scopes
-                    if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
-                    {
-                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogError("SynchronizeUser is enabled but there's no 'identify' scope");
-                    }
-
-                    else
-                    {
-                        var userTcs = new TaskCompletionSource<object?>();
-
-                        // First event
-                        await Subscribe.SubscribeCommandFactory<CurrentUserUpdate, User>(data =>
-                        {
-                            _user = data;
-                            userTcs.SetResult(null);
-                        }, null, true, true);
-
-                        // Indefinite
-                        await Subscribe.SubscribeCommandFactory<CurrentUserUpdate, User>(data =>
-                        {
-                            _user = data;
-                        }, null, true);
-
-                        await userTcs.Task;
-                    }
-                }
-
-                //? Synchronize guild member RPC
-                if (_configuration!.SynchronizeGuildMemberRpc)
-                {
-
-                    //? Invalid scopes
-                    if (!_configuration!.OauthScopes.Contains(OauthScope.Identify) || !_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
-                    {
-                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogError("SynchronizeGuildMemberRpc is enabled but there's no 'identify' or 'guilds.members.read' scope");
-                    }
-
-                    else
-                    {
-                        var memberTcs = new TaskCompletionSource<object?>();
-
-                        // First event
-                        await Subscribe.SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(data =>
-                        {
-                            _guildMemberRpc = data;
-                            memberTcs.SetResult(null);
-                        }, new EventArguments { GuildId = _guildId.ToString() }, true, true);
-
-                        // Indefinite
-                        await Subscribe.SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(data =>
-                        {
-                            _guildMemberRpc = data;
-                        }, null, true);
-
-                        await memberTcs.Task;
-                    }
-                }
             
-                _ready = true;
-                tcs.TrySetResult(multiEvent);
+            //? OutsideDiscord
+            if (code == StateCode.OutsideDiscord)
+            {
+                tcs.TrySetException(new OutsideDiscordException("hiRPC returned OutsideDiscord state"));
             }
 
-            // After requesting the state, the hiRPC (app loader)
-            // will send the multi event (once ready) through <DissonityBridge>._HiRpcInput
-            HandleMulti();
-            HandleState();
+            //# HANDLE CONFIGURATION - - - - -
+            //? Synchronize user
+            if (_configuration!.SynchronizeUser)
+            {
+                //? Invalid scopes
+                if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
+                {
+                    if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogError("SynchronizeUser is enabled but there's no 'identify' scope");
+                }
 
-            // The handshake is handled by the hiRPC even before the Unity build loads
+                else
+                {
+                    var userTcs = new TaskCompletionSource<object?>();
+
+                    // First event
+                    await Subscribe.SubscribeCommandFactory<CurrentUserUpdate, User>(data =>
+                    {
+                        _user = data;
+                        userTcs.SetResult(null);
+                    }, null, true, true);
+
+                    // Indefinite
+                    await Subscribe.SubscribeCommandFactory<CurrentUserUpdate, User>(data =>
+                    {
+                        _user = data;
+                    }, null, true);
+
+                    await userTcs.Task;
+                }
+            }
+
+            //? Synchronize guild member RPC
+            if (_configuration!.SynchronizeGuildMemberRpc)
+            {
+                //? Invalid scopes
+                if (!_configuration!.OauthScopes.Contains(OauthScope.Identify) || !_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
+                {
+                    if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogError("SynchronizeGuildMemberRpc is enabled but there's no 'identify' or 'guilds.members.read' scope");
+                }
+
+                else
+                {
+                    var memberTcs = new TaskCompletionSource<object?>();
+
+                    // First event
+                    await Subscribe.SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(data =>
+                    {
+                        _guildMemberRpc = data;
+                        memberTcs.SetResult(null);
+                    }, new EventArguments { GuildId = _guildId.ToString() }, true, true);
+
+                    // Indefinite
+                    await Subscribe.SubscribeCommandFactory<CurrentGuildMemberUpdate, GuildMemberRpc>(data =>
+                    {
+                        _guildMemberRpc = data;
+                    }, null, true);
+
+                    await memberTcs.Task;
+                }
+            }
+        
+            _ready = true;
+            tcs.TrySetResult(multiEvent);
         }
 
         private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand where TResponse : DiscordEvent
@@ -2154,7 +2133,7 @@ namespace Dissonity
             if (!isEditor)
             {
                 //\ Send data to RPC
-                SendRpc(stringifiedMessage);
+                SendToRpc(stringifiedMessage);
             }
         }
         

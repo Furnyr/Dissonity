@@ -1,13 +1,15 @@
 {
   "name": "@dissonity/hirpc-interface",
   "version": "0.1.0",
-  "description": "Bridge between Unity and hiRPC",
+  "description": "A hiRPC implementation for Unity WebGL",
   "scripts": {
-    "build": "pnpm tsc && node build.js"
+    "build": "pnpm tsc && node scripts/build.js",
+    "move": "node scripts/move.js"
   },
   "author": "Furnyr",
   "license": "Apache-2.0",
   "devDependencies": {
+    "chalk": "^5.4.1",
     "typescript": "^5.4.4"
   },
   "type": "module",

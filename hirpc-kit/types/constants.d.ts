@@ -1,0 +1,10 @@
+export declare const HASH_RANDOM_BYTES = 16;
+export declare const DISSONITY_CHANNEL = "dissonity";
+export declare const SDK_VERSION = "1.9.0";
+export declare const HANDSHAKE_VERSION = 1;
+export declare const HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION = 250;
+export declare const HANDSHAKE_UNKNOWN_VERSION_NUMBER = -1;
+export declare const HANDSHAKE_ENCODING = "json";
+export declare const AUTHORIZE_RESPONSE_TYPE = "code";
+export declare const AUTHORIZE_PROMPT = "none";
+export declare const CLOSE_NORMAL = 1000;

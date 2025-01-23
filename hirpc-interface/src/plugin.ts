@@ -1,151 +1,169 @@
 /*
 
-This is the hiRPC Interface. It receives messages from the DissonityBridge inside the Unity build
-and interacts with the hiRPC.
-
-It is used as a Unity plugin.
+This is the hiRPC Interface for Unity. It allows C# to use the hiRPC from the window.
 
 Function names are PascalCase, C# method conventions.
 
 */
 
-import type { HiRpcModule } from "./types";
+import type { HiRpcModule, DissonityChannelPayload } from "./types";
 
 
 mergeInto(LibraryManager.library, {
 
-    // Allow messages to get from the JS level to the Unity app
+    // Allow messages to get from the JS layer to the Unity app
     //@unity-api
-    OpenDownwardCommunication: function(): void {
+    OpenDownwardFlow: function(): void {
 
         this.Channel = "dissonity";
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.useAppSender((stringifiedData: string) => {
+        hiRpc.openDownwardFlow((stringifiedData: string) => {
 
             SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
         });
-
-        hiRpc.dispatchAppHash();
     },
 
     // Save the app hash for future use
     //@unity-bridge
     SaveAppHash: function (utf8Hash: string): void {
 
-        const stringHash = UTF8ToString(utf8Hash);
-        const hash = new TextEncoder().encode(stringHash);
+        const hash = UTF8ToString(utf8Hash);
 
         this.AppHash = hash;
     },
 
     //@unity-bridge
-    RequestEmpty: function (stringifiedMessage: string): void {
+    EmptyRequest: function (stringifiedMessage: string): void {
 
         const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
         // The same nonce is sent down. The state is always included
         // in the game payload.
-        hiRpc.sendToApp(this.AppHash as any, {
-            channel: this.Channel as any,
+        const payload: DissonityChannelPayload = {
             nonce
-        });
+        };
+
+        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
     },
 
-    // Send data to the JS level
+    // Send data to the JS layer
     //@unity
-    SendHiRpc: function (stringifiedMessage: string): void {
+    SendToJs: function (stringifiedMessage: string): void {
 
-        const message = UTF8ToString(stringifiedMessage);
+        const { payload, channel } = JSON.parse(UTF8ToString(stringifiedMessage));
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        // The array is formed again at the hiRPC level
-        hiRpc.sendToHiRpc(this.AppHash as any, message);
+        hiRpc.sendToJs(this.AppHash as string, channel, payload);
     },
 
     //@unity-bridge
-    RequestPatchUrlMappings: function (stringifiedMessage: string): void {
+    PatchUrlMappings: function (stringifiedMessage: string): void {
 
-        const message = UTF8ToString(stringifiedMessage);
-        const { nonce, stringified_data } = JSON.parse(message);
+        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         //\ Parse data
         const parsedData = JSON.parse(stringified_data);
         const { mappings, config } = parsedData;
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
         hiRpc.patchUrlMappings(this.AppHash as any, mappings, config);
 
-        hiRpc.sendToApp(this.AppHash as any, {
-            channel: this.Channel as any,
+        const payload: DissonityChannelPayload = {
             nonce
-        });
+        };
+
+        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
     },
 
     //@unity-bridge
-    RequestFormatPrice: function (stringifiedMessage: string): void {
+    FormatPrice: function (stringifiedMessage: string): void {
 
-        const message = UTF8ToString(stringifiedMessage);
-        const { nonce, stringified_data } = JSON.parse(message);
+        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         //\ Parse data
         const parsedData = JSON.parse(stringified_data);
         const { amount, currency, locale } = parsedData;
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
         const formattedPrice = hiRpc.formatPrice(this.AppHash as any, {
             amount,
             currency
         }, locale);
 
-        hiRpc.sendToApp(this.AppHash as any, {
-            channel: this.Channel as any,
+        const payload: DissonityChannelPayload = {
             nonce,
             formatted_price: formattedPrice
-        });
+        };
+
+        hiRpc.sendToApp(this.AppHash as any, this.Channel as string, payload);
     },
 
     //@unity-bridge
-    RequestQuery: function (stringifiedMessage: string): void {
+    GetQueryObject: function (stringifiedMessage: string): void {
 
         const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        const query = hiRpc.getStringifiedQuery();
+        const query = JSON.stringify(hiRpc.getQueryObject());
 
-        hiRpc.sendToApp(this.AppHash as any, {
-            channel: this.Channel as any,
+        const payload: DissonityChannelPayload = {
             nonce,
             query
-        });
+        };
+
+        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
     },
 
     // Send data to the client RPC
     //@unity-api
-    SendRpc: function (stringifiedMessage: string): void {
+    SendToRpc: function (stringifiedMessage: string): void {
 
-        const message = UTF8ToString(stringifiedMessage);
-        const dataArray = JSON.parse(message);
+        const dataArray = JSON.parse(UTF8ToString(stringifiedMessage));
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        // The array is formed again at the hiRPC level
-        hiRpc.sendToRpc(this.AppHash as any, dataArray[0], dataArray[1]);
+        // The array is formed again at the hiRPC layer
+        hiRpc.sendToRpc(this.AppHash as string, dataArray[0], dataArray[1]);
     },
 
-    // End communication
+    //@unity
+    DissonityLog: function (stringifiedMessage: string): void {
+
+        const message = UTF8ToString(stringifiedMessage);
+
+        console.log(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+
+    //@unity
+    DissonityWarn: function (stringifiedMessage: string): void {
+
+        const message = UTF8ToString(stringifiedMessage);
+
+        console.warn(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+
+    //@unity
+    DissonityError: function (stringifiedMessage: string): void {
+
+        const message = UTF8ToString(stringifiedMessage);
+
+        console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+
+    // End current communication
     //@unity-api
-    StopListening: function (): void {
+    CloseDownwardFlow: function (): void {
 
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
+        const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.clearRpcListeners(this.AppHash as any);
+        hiRpc.closeDownwardFlow(this.AppHash as string);
     }
 });

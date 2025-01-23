@@ -1,0 +1,32 @@
+{
+  "name": "@dissonity/hirpc-kit",
+  "version": "0.1.0",
+  "description": "Types and utilities for the Dissonity hiRPC",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "eslint",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build/types": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Furnyr/Dissonity.git"
+  },
+  "keywords": [
+    "discord",
+    "unity"
+  ],
+  "author": "Furnyr",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Furnyr/Dissonity/issues"
+  },
+  "homepage": "https://github.com/Furnyr/Dissonity#readme",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}

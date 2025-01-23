@@ -1,12 +1,3 @@
-
-// Global
-interface Window {
-    dso_needs_suffix: boolean
-    dso_hirpc: any
-    dso_connected: boolean
-    dso_outside_discord: boolean
-}
-
 // Unity methods
 declare const UTF8ToString: (str: any) => string;
 

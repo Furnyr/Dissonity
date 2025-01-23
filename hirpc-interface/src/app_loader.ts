@@ -5,14 +5,7 @@ using hiRPC for communication with Discord.
 
 */
 
-import { AuthenticationPromise, BridgeMessage, GamePayload, HiRpcModule, RpcPayload } from "./types";
-
-
-// Promises - - - - -
-let resolveAuthentication = (_?: unknown) => {}
-let authenticationPromise = new Promise((resolve) => {
-    resolveAuthentication = resolve;
-});
+import type { HiRpcModule } from "./types";
 
 
 // File paths - - - - -
@@ -20,67 +13,21 @@ let baseUrl = `${window.location.protocol}//${window.location.host}${window.loca
 if (!baseUrl.endsWith("/")) baseUrl += "/";
 
 let outsideDiscord = false;
-let proxySuffixAdded = false;
-let needsProxySuffix = false;
+let proxyPrefixAdded = false;
+let needsProxyPrefix = false;
 
-let loaderPath = "Files/Build/client.loader.js"; 
-let versionCheckPath = baseUrl + ".proxy/version.json";
-let hiRpcPath = "Files/Bridge/dissonity_hirpc.js";
+let loaderPath = "Build/client.loader.js"; 
+const versionCheckPath = baseUrl + ".proxy/version.json";
 
-
-// Multi Event - - - - -
-let readyData = "";
-let authorizeData = "";
-let serverPayloadData = "";
-let authenticateData = "";
-
-
-// hiRPC
-const channel = "dissonity";
-let hiRpcHash: Uint8Array | null = null;
-let authenticated = false;
-let unityReady = false;
-
-
-// Authentication - - - - -
-// Opcodes are handled at the JS level before authentication.
-// Then they are handled at the C# level.
-const OPCODES = {
-    Handshake: 0,
-    Frame: 1,
-    Close: 2,
-    Hello: 3
-};
-
-const COMMANDS = {
-    Dispatch: "DISPATCH",
-    Authorize: "AUTHORIZE",
-    Authenticate: "AUTHENTICATE",
-    CaptureLog: "CAPTURE_LOG"
-};
-
-const EVENTS = {
-    Error: "ERROR",
-    Ready: "READY"
-};
-
-const CLOSE_CODE_NORMAL = 1000;
-const RESPONSE_TYPE = "code";
-const PROMPT = "none";
+const proxyBridgeImport = "dso_proxy_bridge/";
+const normalBridgeImport = "dso_bridge/";
+const hirpcFileName = "dissonity_hirpc.js";
+const buildVariablesFileName = "dissonity_build_variables.js";
 
 // Resolution - - - - -
 const MOBILE = "mobile";
 let initialWidth = window.innerWidth;
 let initialHeight = window.innerHeight;
-
-// Utility logging functions
-function styleLog(data: any) {
-    console.log(`%c[DissonityHiRpcInterface]%c ${data}`, "color:#8177f6;font-weight: bold;", "color:initial;")
-}
-
-function styleError(data: any) {
-    console.log(`%c[DissonityHiRpcInterface]%c ${data}`, "color:#8177f6;font-weight: bold;", "color:initial;")
-}
 
 // Set up paths before anything
 async function initialize() {
@@ -98,28 +45,26 @@ async function initialize() {
         const pathSegments = pathname.split("/"); // "/.proxy/staging" -> ["", ".proxy", "staging"]
         pathSegments.shift();
     
-        proxySuffixAdded = pathSegments[0] == ".proxy";
-        needsProxySuffix = await fileExists(versionCheckPath);
-        outsideDiscord = !proxySuffixAdded && !needsProxySuffix;
+        proxyPrefixAdded = pathSegments[0] == ".proxy";
+        needsProxyPrefix = await fileExists(versionCheckPath);
+        outsideDiscord = !proxyPrefixAdded && !needsProxyPrefix;
     
         // Add .proxy
-        if (needsProxySuffix) {
-            hiRpcPath = ".proxy/" + hiRpcPath;
+        if (needsProxyPrefix) {
             loaderPath = ".proxy/" + loaderPath;
-    
-            (globalThis as any).dso_needs_suffix = true;
+
+            window.sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
         }
 
         else {
-            (globalThis as any).dso_needs_suffix = false;
+            window.sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
         }
 
         // Mark as outside Discord
         if (outsideDiscord) {
-            (globalThis as any).dso_outside_discord = true;
+            window.sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
         }
     
-        hiRpcPath = baseUrl + hiRpcPath;
         loaderPath = baseUrl + loaderPath;
     }
 
@@ -129,331 +74,56 @@ async function initialize() {
 // Set up the hiRPC module
 async function handleHiRpc() {
 
-    async function loadHiRpc() {
+    //? Module already created
+    if (typeof window.dso_hirpc == "object") {
 
-        //? Module already created
-        if (typeof window.dso_hirpc == "object") {
+        initialize(window.dso_hirpc as HiRpcModule, true);
+        return;
+    }
 
-            initialize(window.dso_hirpc as HiRpcModule);
-            return;
+    //\ Create module
+    window.dso_hirpc = await new Promise(async (resolve, _) => {
+
+        if (outsideDiscord) {
+
+            await import(`${normalBridgeImport}${hirpcFileName}`);
+            await import(`${normalBridgeImport}${buildVariablesFileName}`);
+            load();
         }
 
-        //\ Create module
-        (globalThis as any).dso_hirpc = await new Promise(async (resolve, _) => {
-
-            if ((globalThis as any).dso_needs_suffix) {
-                const module = await import("dso_proxy_hirpc" as string);
-                load(module);
-            }
-
-            else {
-                const module = await import("dso_hirpc" as string);
-                load(module);
-            }
-
-            async function load(module: any) {
-                await module.default();
-
-                const hiRpc = module as HiRpcModule;
-
-                initialize(hiRpc);
-
-                resolve(hiRpc);
-            }
-        });
-
-        function initialize(hiRpc: HiRpcModule) {
-
-            // Hash
-            hiRpcHash = hiRpc.requestHash()!;
-            hiRpc.lockHashes(hiRpcHash);
-
-            // Add RPC listener
-            hiRpc.addRpcListener(hiRpcHash, rpcListener);
-
-            // Add app listener
-            hiRpc.addAppListener(hiRpcHash, appListener);
-
-            // Connect
-            hiRpc.connect(hiRpcHash);
-        }
-    }
-
-    // Only used for authentication - - - - -
-
-    // Handles data sent from Unity
-    function appListener(_: BridgeMessage) {
-
-        // Unity just loaded, authentication already finished
-        if (!unityReady && authenticated) {
-            dispatchMultiEvent();
+        else {
+            
+            await import(`${proxyBridgeImport}${hirpcFileName}`);
+            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
+            load();
         }
 
-        if (!unityReady) {
-            unityReady = true;
-            return;
+        async function load() {
+
+            const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
+
+            await initialize(hiRpc, false);
+
+            resolve(hiRpc);
+        }
+    });
+
+    async function initialize(hiRpc: HiRpcModule, loaded: boolean) {
+
+        hiRpc.lockHashAccess();
+
+        if (!loaded) {
+            await hiRpc.load(0);
         }
     }
-
-    // Handles data sent from the Discord RPC
-    async function rpcListener(data: [number, RpcPayload]) {
-
-        const opcode = data?.[0];
-
-        // This allows future opcode implementations before auth
-        switch (opcode) {
-
-            case OPCODES.Frame: {
-                handleFrame(data);
-            }
-        }
-    }
-
-    async function handleFrame(data: [number, RpcPayload]) {
-
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
-
-        const payload = data?.[1];
-
-        const rpcData = payload?.data;
-        const event = payload?.evt;
-        const command = payload?.cmd;
-        
-        switch (command) {
-
-            case COMMANDS.Dispatch: {
-
-                if (event != EVENTS.Ready) break;
-
-                readyData = serializePayload(rpcData);
-
-                if (!hiRpc.getDisableInfoLogs()) styleLog("Connected to RPC!");
-
-                // Console log override - - - - -
-                if (!hiRpc.getDisableConsoleLogOverride()) {
-                    overrideConsoleLogging();
-                }
-
-                // Patch url mappings
-                try {
-                    const mappings = JSON.parse(hiRpc.getMappings()!);
-                    const patchUrlMappingsConfig = JSON.parse(hiRpc.getPatchUrlMappingsConfig()!);
-
-                    if (mappings.length > 0) {
-
-                        if (!hiRpc.getDisableInfoLogs()) styleLog(`Patching url mappings... (${mappings.length})`);
-                        hiRpc.patchUrlMappings(hiRpcHash!, mappings, patchUrlMappingsConfig);
-                    }
-
-                } catch (err) {
-                    styleError(`Something went wrong patching the URL mappings: ${err}`);
-                }
-
-                // Authorize - - - - -
-                hiRpc.sendToRpc(hiRpcHash!, OPCODES.Frame, {
-                    cmd: COMMANDS.Authorize,
-                    nonce: getNonce(),
-                    args: {
-                        client_id: hiRpc.getClientId()!,
-                        scope: hiRpc.getOauthScopes()!,
-                        response_type: RESPONSE_TYPE,
-                        prompt: PROMPT,
-                        state: ""
-                    }
-                });
-
-                break;
-            }
-
-            case COMMANDS.Authorize: {
-
-                //? No authorization
-                if (event == EVENTS.Error) {
-
-                    hiRpc.sendToRpc(hiRpcHash!, OPCODES.Close, {
-                        code: CLOSE_CODE_NORMAL,
-                        message: "User unauthorized scopes",
-                        nonce: getNonce()
-                    });
-
-                    break;
-                }
-
-                authorizeData = serializePayload(rpcData);
-
-                if (!hiRpc.getDisableInfoLogs()) styleLog("Authorized!");
-
-                // Server request - - - - -
-                let token;
-
-                try {
-                    const serverRequest = JSON.parse(hiRpc.getServerRequest()!);
-                    const tokenRequestPath = hiRpc.getTokenRequestPath()!;
-
-                    let body: Record<string, unknown> = {
-                        code: rpcData.code
-                    };
-
-                    //? Add user server request
-                    if (serverRequest != null)
-                    {
-                        delete serverRequest.code;
-        
-                        body = {
-                            code: rpcData.code,
-                            ...serverRequest
-                        };
-                    }
-
-                    //\ Request
-                    const response = await fetch(`/.proxy${tokenRequestPath}`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(body)
-                    });
-
-                    //\ Parse data
-                    const jsonResponse = await response.json();
-
-                    //? No token
-                    if (!jsonResponse.token) {
-                        throw new Error("The server JSON response didn't include a 'token' field");
-                    }
-
-                    serverPayloadData = JSON.stringify(jsonResponse);
-
-                    token = jsonResponse.token;
-
-                } catch (err) {
-
-                    styleError(`Something went wrong in the server request: ${err}`);
-
-                    hiRpc.clearRpcListeners(hiRpcHash!);
-
-                    return;
-                }
-
-                // Authenticate - - - - -
-                hiRpc.sendToRpc(hiRpcHash!, OPCODES.Frame, {
-                    cmd: COMMANDS.Authenticate,
-                    nonce: getNonce(),
-                    args: {
-                        access_token: token
-                    }
-                });
-
-                break;
-            }
-
-            case COMMANDS.Authenticate: {
-                
-                authenticated = true;
-                authenticateData = serializePayload(rpcData);
-
-                if (!hiRpc.getDisableInfoLogs()) styleLog("Authenticated!");
-
-                if (unityReady) {
-                    dispatchMultiEvent();
-                }
-            }
-        }
-    }
-
-    // Literal implementation of the overrideConsoleLogging from the official SDK
-    function overrideConsoleLogging(): void {
-
-        const consoleLevels = ["log", "warn", "debug", "info", "error"] as const;
-        type ConsoleLevel = (typeof consoleLevels)[number];
-
-        const captureLog = (level: ConsoleLevel, message: string) => {
-
-            const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
-
-            hiRpc.sendToRpc(hiRpcHash!, OPCODES.Frame, {
-                cmd: COMMANDS.CaptureLog,
-                nonce: getNonce(),
-                args: {
-                    level,
-                    message
-                }
-            });
-        };
-
-        consoleLevels.forEach((level) => {
-
-            const _consoleMethod = console[level];
-            const _console = console;
-
-            if (!_consoleMethod) {
-                return;
-            }
-
-            console[level] = function () {
-                const args = [].slice.call(arguments);
-                const message = "" + args.join(" ");
-                captureLog(level, message);
-                _consoleMethod.apply(_console, args);
-            }
-        });
-    }
-
-    function getNonce(): string {
-
-        const uuid = new Array(36);
-    
-        for (let i = 0; i < 36; i++) {
-            uuid[i] = Math.floor(Math.random() * 16);
-        }
-    
-        uuid[14] = 4;
-        uuid[19] = uuid[19] &= ~(1 << 2);
-        uuid[19] = uuid[19] |= (1 << 3);
-        uuid[8] = uuid[13] = uuid[18] = uuid[23] = "-";
-        return uuid.map((x) => x.toString(16)).join("");
-    }
-
-    function serializePayload(payload: unknown) {
-
-        return JSON.stringify(payload, (_, value) => {
-            if (typeof value == "bigint") return value.toString();
-            else return value;
-        });
-    }
-
-    // Complete the authentication process and open the upward communication (app -> JS)
-    async function dispatchMultiEvent() {
-
-        const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
-
-        hiRpc.sendToApp(hiRpcHash!, {
-            channel,
-            raw_multi_event: {
-                ready: readyData,
-                authorize: authorizeData,
-                authenticate: authenticateData,
-                response: serverPayloadData
-            }
-        });
-
-        readyData = "";
-        authorizeData = "";
-        authenticateData = "";
-        serverPayloadData = "";
-
-        resolveAuthentication();
-    }
-
-    await loadHiRpc();
 }
 
 // Prepare the Unity build
 async function handleUnityBuild() {
 
     // The hiRPC module should be ready when this function is called
-    const hiRpc = (globalThis as unknown as { dso_hirpc: HiRpcModule }).dso_hirpc;
-    const query = JSON.parse(hiRpc.getStringifiedQuery());
+    const hiRpc = window.dso_hirpc as HiRpcModule;
+    const query = hiRpc.getQueryObject();
 
     const canvas: HTMLCanvasElement = document.querySelector("#unity-canvas")!;
 
@@ -587,9 +257,9 @@ async function handleUnityBuild() {
         canvas.style.height = `${newHeight}px`;
     }
 
-    let background = "{{{ BACKGROUND_FILENAME ? 'Files/Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
+    let background = "{{{ BACKGROUND_FILENAME ? 'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
     if (background != "#000000") {
-        background = needsProxySuffix
+        background = needsProxyPrefix
         ? "url('.proxy/" + background
         : "url('" + background;
     }
@@ -606,12 +276,12 @@ async function handleUnityBuild() {
     const SYMBOLS_FILENAME = /true|1/i.test("{{{ SYMBOLS_FILENAME }}}");
 
     // Configuration - - - - -
-    const dataUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ DATA_FILENAME }}}" : "Files/Build/{{{ DATA_FILENAME }}}";
-    const frameworkUrl = needsProxySuffix ? ".proxy/Files/Build/{{{ FRAMEWORK_FILENAME }}}" : "Files/Build/{{{ FRAMEWORK_FILENAME }}}";
-    let workerUrl: string | undefined = needsProxySuffix ? ".proxy/Files/Build/{{{ WORKER_FILENAME }}}" : "Files/Build/{{{ WORKER_FILENAME }}}";
-    let codeUrl: string | undefined = needsProxySuffix ? ".proxy/Files/Build/{{{ CODE_FILENAME }}}" : "Files/Build/{{{ CODE_FILENAME }}}";
-    let memoryUrl: string | undefined = needsProxySuffix ? ".proxy/Files/Build/{{{ MEMORY_FILENAME }}}" : "Files/Build/{{{ MEMORY_FILENAME }}}";
-    let symbolsUrl: string | undefined = needsProxySuffix ? ".proxy/Files/Build/{{{ SYMBOLS_FILENAME }}}" : "Files/Build/{{{ SYMBOLS_FILENAME }}}";
+    const dataUrl = needsProxyPrefix ? ".proxy/Build/{{{ DATA_FILENAME }}}" : "Build/{{{ DATA_FILENAME }}}";
+    const frameworkUrl = needsProxyPrefix ? ".proxy/Build/{{{ FRAMEWORK_FILENAME }}}" : "Build/{{{ FRAMEWORK_FILENAME }}}";
+    let workerUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ WORKER_FILENAME }}}" : "Build/{{{ WORKER_FILENAME }}}";
+    let codeUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ CODE_FILENAME }}}" : "Build/{{{ CODE_FILENAME }}}";
+    let memoryUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ MEMORY_FILENAME }}}" : "Build/{{{ MEMORY_FILENAME }}}";
+    let symbolsUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ SYMBOLS_FILENAME }}}" : "Build/{{{ SYMBOLS_FILENAME }}}";
 
     if (!USE_THREADS) workerUrl = undefined;
     if (!USE_WASM) codeUrl = undefined;
@@ -646,5 +316,3 @@ async function handleUnityBuild() {
 
     await handleUnityBuild();
 })();
-
-export default authenticationPromise;

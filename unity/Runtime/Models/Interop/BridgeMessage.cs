@@ -5,7 +5,8 @@ using Newtonsoft.Json;
 namespace Dissonity.Models.Interop
 {
     /// <summary>
-    /// Data sent to hiRPC.
+    /// Data sent outside of Unity, through hiRPC. <br/> <br/>
+    /// The opposite of <c> InteropMessage </c>.
     /// </summary>
     [Serializable]
     internal class BridgeMessage
