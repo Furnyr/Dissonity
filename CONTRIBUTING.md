@@ -57,18 +57,32 @@ We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki
     <td></td>
   </tr>
   <tr>
-    <td>/hirpc, /utils</td>
+    <td>/hirpc</td>
     <td>Underlying module that interacts with the Discord RPC.</td>
-    <td>Rewritten in progress.</td>
-    <td>❌</td>
-    <td>Expected to be stable enough after v0.4.0.</td>
+    <td>Unlikely to undergo major unexpected changes.</td>
+    <td>✅</td>
+    <td></td>
   </tr>
   <tr>
     <td>/hirpc-interface</td>
     <td>hiRPC implementation for Unity.</td>
-    <td>Rewritten in progress.</td>
+    <td>Unlikely to undergo major unexpected changes.</td>
+    <td>✅</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>/hirpc-kit</td>
+    <td>hiRPC utilities for JavaScript.</td>
+    <td>Unlikely to undergo major unexpected changes.</td>
+    <td>✅</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>/examples</td>
+    <td>Code samples and basic backend.</td>
+    <td>No work on it yet.</td>
     <td>❌</td>
-    <td>Expected to be stable enough when using hiRPC v0.4.0.</td>
+    <td>Some time after the end of the alpha phase.</td>
   </tr>
   <tr>
     <td>/website</td>
