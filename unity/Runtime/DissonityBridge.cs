@@ -257,7 +257,6 @@ namespace Dissonity
                 }
             }
 
-
             //? Normal payload
             else
             {

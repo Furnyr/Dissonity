@@ -1694,7 +1694,7 @@ namespace Dissonity
             ListenToPayload();
 
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
-            // From then, the JS and C# layer can interact.
+            // From then, the JS and C# layers can interact.
             OpenDownwardFlow();
 
             return tcs.Task;
