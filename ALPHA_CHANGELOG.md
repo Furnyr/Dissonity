@@ -2,6 +2,42 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2025-1-23 - feat: hirpc v0.4.0
+
+The hiRPC module is pretty much stable now. That doesn't mean that it can't undergo breaking changes until release, but that its design is final.
+
+## hiRPC
+
+Since this is a complete rewrite, everything has changed internally. In the API side, the most important change is that **hiRPC channels** are now managed by the module, instead of just being another payload property.
+
+This way, you can easily filter out messages in other channels.
+
+The `dissonity` channel is reserved for necessary communications.
+
+## hiRPC Interface
+
+- Implemented new hiRPC design
+
+## hiRPC Kit
+
+Added initial version. This package will be used on the JavaScript side to import hiRPC from the Unity build. Unlike with the Embedded App SDK, it depends on the Unity package, not the other way around.
+
+Note: This is the "hiRPC SDK", it was renamed.
+
+## Dissonity (internal)
+
+- Implemented new hiRPC design
+
+- Modified version.json (Unity package version)
+
+- Added Bridge/version.json (hiRPC version)
+
+## Dissonity (API)
+
+- Removed SdkVersion
+
+---
+
 # 2024-12-18 - alpha progress 4
 
 This alpha progress version is centered around migrating from RpcBridge to hiRPC and fixing a few bugs.

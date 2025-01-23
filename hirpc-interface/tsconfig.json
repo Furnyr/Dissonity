@@ -12,8 +12,17 @@
     "removeComments": true,
     "strict": true,
     "useDefineForClassFields": false,
-    "outDir": "build"
+    "outDir": "dist",
+    "paths": {
+      "@hirpc/*": ["../hirpc/src/*"]
+    },
+    "resolveJsonModule": true
   },
   "include": ["src"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "../hirpc"
+    }
+  ]
 }

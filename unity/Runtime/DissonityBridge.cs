@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 namespace Dissonity
 {
     /// <summary>
-    /// This class receives messages from the JavaScript level (Dissonity hiRPC or Discord RPC). <br/> <br/>
+    /// This class receives messages from the JavaScript layer (Dissonity hiRPC or Discord RPC). <br/> <br/>
     /// You do not need to interact with this class directly.
     /// </summary>
     public class DissonityBridge : MonoBehaviour
@@ -27,44 +27,43 @@ namespace Dissonity
 
         private const string Dispatch = "DISPATCH";
         private const string MultiId = "MULTI";
-        private const string HashId = "HASH";
         private const string DissonityChannel = "dissonity";
 
-        //# JAVASCRIPT - - - - -
+        //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
         private static extern void SaveAppHash(string hash);
 
         [DllImport("__Internal")]
-        private static extern void RequestEmpty(string stringifiedMessage);
+        private static extern void EmptyRequest(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void RequestQuery(string stringifiedMessage);
+        private static extern void GetQueryObject(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void RequestPatchUrlMappings(string stringifiedMessage);
+        private static extern void PatchUrlMappings(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void RequestFormatPrice(string stringifiedMessage);
+        private static extern void FormatPrice(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void SendHiRpc(string stringifiedMessage);
+        private static extern void SendToJs(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
         private static void SaveAppHash(string _) {}
-        private static void RequestEmpty(string _) {}
-        private static void RequestQuery(string _) {}
-        private static void RequestPatchUrlMappings(string _) {}
-        private static void RequestFormatPrice(string _) {}
-        private static void SendHiRpc(string _) {}
+        private static void EmptyRequest(string _) {}
+        private static void GetQueryObject(string _) {}
+        private static void PatchUrlMappings(string _) {}
+        private static void FormatPrice(string _) {}
+        private static void SendToJs(string _) {}
 #endif
 
 
         //# SEND (INTERACTIONS) - - - - -
         // Bridge interactions occur between C# and JS through hiRPC messages. These messages don't get to the Discord RPC protocol,
         // they are used to get data to the API level or execute actions.
-        // Any interaction can and will alter the state of the connection.
+        // Any interction might send data through hiRPC.
         internal Task<StateCode> ExeState()
         {
             string nonce = Guid.NewGuid().ToString(); 
@@ -76,11 +75,7 @@ namespace Dissonity
                 Nonce = nonce
             };
 
-            // Get state
-            RequestEmpty(JsonConvert.SerializeObject(data));
-
-            // Notify Unity to be ready by sending empty data
-            SendHiRpc("");
+            EmptyRequest(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -96,7 +91,7 @@ namespace Dissonity
                 Nonce = nonce
             };
 
-            RequestQuery(JsonConvert.SerializeObject(data));
+            GetQueryObject(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -113,7 +108,7 @@ namespace Dissonity
                 StringifiedData = JsonConvert.SerializeObject(payload)
             };
 
-            RequestPatchUrlMappings(JsonConvert.SerializeObject(data));
+            PatchUrlMappings(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -130,7 +125,7 @@ namespace Dissonity
                 StringifiedData = JsonConvert.SerializeObject(payload)
             };
 
-            RequestFormatPrice(JsonConvert.SerializeObject(data));
+            FormatPrice(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -139,14 +134,6 @@ namespace Dissonity
         {
             var tcs = new TaskCompletionSource<MultiEvent>();
             pendingTasks.Add(MultiId, tcs); // Only one listener per multi event
-
-            return tcs.Task;
-        }
-
-        internal Task ExeHash()
-        {
-            var tcs = new TaskCompletionSource<object?>();
-            pendingTasks.Add(HashId, tcs);
 
             return tcs.Task;
         }
@@ -196,11 +183,6 @@ namespace Dissonity
             //? No task
             if (!pendingTasks.ContainsKey(nonce)) return;
 
-            foreach (string key in pendingTasks.Keys)
-            {
-                Debug.Log(key);
-            }
-
             var tcs = (TaskCompletionSource<StateCode>) pendingTasks[nonce];
             tcs.TrySetResult(stateCode);
 
@@ -223,14 +205,6 @@ namespace Dissonity
         private void HandleHash(string hash)
         {
             SaveAppHash(hash);
-
-            //? No task
-            if (!pendingTasks.ContainsKey(HashId)) return;
-
-            var tcs = (TaskCompletionSource<object?>) pendingTasks[HashId];
-            tcs.TrySetResult(null);
-
-            pendingTasks.Remove(HashId);
         }
 
 
@@ -240,7 +214,7 @@ namespace Dissonity
         /// </summary>
         public void _HiRpcInput(string stringifiedData)
         {
-            AppPayload? message = JsonConvert.DeserializeObject<AppPayload>(stringifiedData);
+            InteropMessage? message = JsonConvert.DeserializeObject<InteropMessage>(stringifiedData);
 
             if (message == null) throw new JsonException("Something went wrong trying to deserialize the hiRPC input");
 
@@ -251,58 +225,74 @@ namespace Dissonity
                 return;
             }
 
-            //? Is hiRPC message
+            //? Is not a hiRPC message
             if (message.HiRpcMessage == null) return;
 
-            // Handle app hash
-            if (message.HiRpcMessage.ActionCode == ActionCode.Hash)
-            {
-                HandleHash(message.HiRpcMessage.Data.Hash!);
-                return;
-            }
-
             //? Not dissonity channel
-            if (message.HiRpcMessage.Data.Channel != DissonityChannel)
+            if (message.HiRpcMessage.Channel != DissonityChannel)
             {
                 //todo implementation to receive hirpc messages
 
                 return;
             }
 
-            HandleHiRpcMessage(message.HiRpcMessage.Data, message.HiRpcState);
-        }
-
-        private void HandleHiRpcMessage(HiRpcData message, StateCode stateCode)
-        {
-            //? Multi Event
-            if (message.RawMultiEvent != null)
+            //? First payload
+            if (message.HiRpcMessage.Opening == true)
             {
-                HandleMultiEvent(message.RawMultiEvent);
-                return;
+                JObject objectPayload = (JObject) message.HiRpcMessage.Data;
+                DissonityChannelHandshake? payload = (DissonityChannelHandshake?) objectPayload.ToObject(typeof(DissonityChannelHandshake));
+            
+                if (payload == null) throw new JsonException("Something went wrong trying to deserialize the hiRPC input");
+
+                //? Hash
+                if (payload.Hash != null)
+                {
+                    HandleHash(payload.Hash);
+                }
+
+                //? Multi Event
+                if (payload.RawMultiEvent != null)
+                {
+                    HandleMultiEvent(payload.RawMultiEvent);
+                }
             }
 
-            // From this point, a nonce is needed
-            if (message.Nonce == null)
+            //? Normal payload
+            else
+            {
+                JObject objectPayload = (JObject) message.HiRpcMessage.Data;
+                DissonityChannelPayload? payload = (DissonityChannelPayload?) objectPayload.ToObject(typeof(DissonityChannelPayload));
+            
+                if (payload == null) throw new JsonException("Something went wrong trying to deserialize the hiRPC input");
+
+                HandleHiRpcMessage(payload, message.HiRpcState);
+            }
+        }
+
+        private void HandleHiRpcMessage(DissonityChannelPayload payload, StateCode stateCode)
+        {
+            //? No nonce
+            if (payload.Nonce == null)
             {
                 throw new Exception("No nonce found in hiRPC message with channel 'dissonity'");
             }
 
             //? Query
-            else if (message.Query != null)
+            else if (payload.Query != null)
             {
-                HandleString(message.Nonce, message.Query);
+                HandleString(payload.Nonce, payload.Query);
             }
 
             //? Formatted price
-            else if (message.FormattedPrice != null)
+            else if (payload.FormattedPrice != null)
             {
-                HandleString(message.Nonce, message.FormattedPrice);
+                HandleString(payload.Nonce, payload.FormattedPrice);
             }
 
             //? Empty
             else
             {
-                HandleState(message.Nonce, stateCode);
+                HandleState(payload.Nonce, stateCode);
             }
         }
 

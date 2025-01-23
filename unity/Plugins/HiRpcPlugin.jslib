@@ -1,83 +1,90 @@
 /*
-    This file has been generated from a TypeScript source.
-    Don't modify it manually.
-
-    https://github.com/Furnyr/Dissonity/
+        This file has been generated from a TypeScript source.
+        Don't modify it manually.
+    
+        https://github.com/Furnyr/Dissonity/
 */
 
 mergeInto(LibraryManager.library, {
-    OpenDownwardCommunication: function () {
+    OpenDownwardFlow: function () {
         this.Channel = "dissonity";
-        const hiRpc = globalThis.dso_hirpc;
-        hiRpc.useAppSender((stringifiedData) => {
+        const hiRpc = window.dso_hirpc;
+        hiRpc.openDownwardFlow((stringifiedData) => {
             SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
         });
-        hiRpc.dispatchAppHash();
     },
     SaveAppHash: function (utf8Hash) {
-        const stringHash = UTF8ToString(utf8Hash);
-        const hash = new TextEncoder().encode(stringHash);
+        const hash = UTF8ToString(utf8Hash);
         this.AppHash = hash;
     },
-    RequestEmpty: function (stringifiedMessage) {
+    EmptyRequest: function (stringifiedMessage) {
         const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
-        const hiRpc = globalThis.dso_hirpc;
-        hiRpc.sendToApp(this.AppHash, {
-            channel: this.Channel,
+        const hiRpc = window.dso_hirpc;
+        const payload = {
             nonce
-        });
+        };
+        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
     },
-    SendHiRpc: function (stringifiedMessage) {
-        const message = UTF8ToString(stringifiedMessage);
-        const hiRpc = globalThis.dso_hirpc;
-        hiRpc.sendToHiRpc(this.AppHash, message);
+    SendToJs: function (stringifiedMessage) {
+        const { payload, channel } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const hiRpc = window.dso_hirpc;
+        hiRpc.sendToJs(this.AppHash, channel, payload);
     },
-    RequestPatchUrlMappings: function (stringifiedMessage) {
-        const message = UTF8ToString(stringifiedMessage);
-        const { nonce, stringified_data } = JSON.parse(message);
+    PatchUrlMappings: function (stringifiedMessage) {
+        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
         const parsedData = JSON.parse(stringified_data);
         const { mappings, config } = parsedData;
-        const hiRpc = globalThis.dso_hirpc;
+        const hiRpc = window.dso_hirpc;
         hiRpc.patchUrlMappings(this.AppHash, mappings, config);
-        hiRpc.sendToApp(this.AppHash, {
-            channel: this.Channel,
+        const payload = {
             nonce
-        });
+        };
+        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
     },
-    RequestFormatPrice: function (stringifiedMessage) {
-        const message = UTF8ToString(stringifiedMessage);
-        const { nonce, stringified_data } = JSON.parse(message);
+    FormatPrice: function (stringifiedMessage) {
+        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
         const parsedData = JSON.parse(stringified_data);
         const { amount, currency, locale } = parsedData;
-        const hiRpc = globalThis.dso_hirpc;
+        const hiRpc = window.dso_hirpc;
         const formattedPrice = hiRpc.formatPrice(this.AppHash, {
             amount,
             currency
         }, locale);
-        hiRpc.sendToApp(this.AppHash, {
-            channel: this.Channel,
+        const payload = {
             nonce,
             formatted_price: formattedPrice
-        });
+        };
+        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
     },
-    RequestQuery: function (stringifiedMessage) {
+    GetQueryObject: function (stringifiedMessage) {
         const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
-        const hiRpc = globalThis.dso_hirpc;
-        const query = hiRpc.getStringifiedQuery();
-        hiRpc.sendToApp(this.AppHash, {
-            channel: this.Channel,
+        const hiRpc = window.dso_hirpc;
+        const query = JSON.stringify(hiRpc.getQueryObject());
+        const payload = {
             nonce,
             query
-        });
+        };
+        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
     },
-    SendRpc: function (stringifiedMessage) {
-        const message = UTF8ToString(stringifiedMessage);
-        const dataArray = JSON.parse(message);
-        const hiRpc = globalThis.dso_hirpc;
+    SendToRpc: function (stringifiedMessage) {
+        const dataArray = JSON.parse(UTF8ToString(stringifiedMessage));
+        const hiRpc = window.dso_hirpc;
         hiRpc.sendToRpc(this.AppHash, dataArray[0], dataArray[1]);
     },
-    StopListening: function () {
-        const hiRpc = globalThis.dso_hirpc;
-        hiRpc.clearRpcListeners(this.AppHash);
+    DissonityLog: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        console.log(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+    DissonityWarn: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        console.warn(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+    DissonityError: function (stringifiedMessage) {
+        const message = UTF8ToString(stringifiedMessage);
+        console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+    CloseDownwardFlow: function () {
+        const hiRpc = window.dso_hirpc;
+        hiRpc.closeDownwardFlow(this.AppHash);
     }
 });

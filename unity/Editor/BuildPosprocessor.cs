@@ -18,23 +18,6 @@ namespace Dissonity.Editor
 
             Debug.Log("[Dissonity Build]: Now post-processing build, hold on...");
 
-            // Move Build folder to Files/Build
-            string filesFolder = Path.Combine(pathToBuiltProject, "Files");
-            string buildFolder = Path.Combine(pathToBuiltProject, "Build");
-            string destination = Path.Combine(filesFolder, "Build");
-            
-            if (!Directory.Exists(filesFolder))
-            {
-                Directory.CreateDirectory(filesFolder);
-            }
-
-            else if (Directory.Exists(destination))
-            {
-                Directory.Delete(destination, true);
-            }
-
-            Directory.Move(buildFolder, destination);
-
             //\ Validation
             var data = DissonityConfigAttribute.GetUserConfig();
 
@@ -51,8 +34,8 @@ namespace Dissonity.Editor
                 throw new Exception("[Dissonity Build]: Token request path must start with /");
             }
 
-            string bridgeFolder = Path.Combine(filesFolder, "Bridge");
-            string buildVariablesPath = Path.Combine(bridgeFolder, "build_variables.js");
+            string bridgeFolder = Path.Combine(pathToBuiltProject, "Bridge");
+            string buildVariablesPath = Path.Combine(bridgeFolder, "dissonity_build_variables.js");
             string appLoaderPath = Path.Combine(pathToBuiltProject, "app_loader.js");
 
             //# BUILD VARIABLES - - - - -

@@ -37,8 +37,8 @@
     <script type="importmap">
       {
         "imports": {
-          "dso_proxy_hirpc": "./.proxy/Files/Bridge/dissonity_hirpc.js",
-          "dso_hirpc": "./Files/Bridge/dissonity_hirpc.js"
+          "dso_bridge/": "./Bridge/",
+          "dso_proxy_bridge/": "./.proxy/Bridge/"
         }
       }
     </script>

@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "skipLibCheck": true,
+    "removeComments": false,
+    "strict": true,
+    "useDefineForClassFields": false,
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "composite": true
+  },
+  "include": ["src", "package.json"],
+  "exclude": ["node_modules", "www"]
+}

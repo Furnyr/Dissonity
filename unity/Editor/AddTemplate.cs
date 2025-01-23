@@ -17,6 +17,12 @@ namespace Dissonity.Editor
             public string Version { get; set; }
         }
 
+        private class VersionFileData
+        {
+            [JsonProperty("dissonity")]
+            public string Dissonity { get; set; }
+        }
+
         static void OnPostprocessAllAssets(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload)
         {
             if (loaded) return;
@@ -52,35 +58,28 @@ namespace Dissonity.Editor
                 Directory.CreateDirectory(pathToDissonityTemplate);
             }
 
-            string pathToFiles = CombinePath(pathToDissonityTemplate, "Files");
-
-            if (!Directory.Exists(pathToFiles))
-            {
-                Directory.CreateDirectory(pathToFiles);
-            }
-
-            string pathToBridge = CombinePath(pathToFiles, "Bridge");
+            string pathToBridge = CombinePath(pathToDissonityTemplate, "Bridge");
 
             if (!Directory.Exists(pathToBridge))
             {
                 Directory.CreateDirectory(pathToBridge);
             }
 
-            //? If all directories existed, consider the template generated
+            // If all directories existed, the template is considered generated.
+            // We only need to regenerate it if the version differs.
             else
             {
-                // Only regenerate if the version differs
-
                 //\ Get current template version (in the user project)
-                string currentVersion = File.ReadAllText(CombinePath(targetPath, "version.json"));  // currentVersion = "\"2.0.0\"";
+                string versionFileText = File.ReadAllText(CombinePath(targetPath, "version.json"));
+                VersionFileData versionFileData = JsonConvert.DeserializeObject<VersionFileData>(versionFileText);
 
                 //\ Get package version
                 string packageText = File.ReadAllText(CombinePath(pathToPackage, "package.json"));
                 PackageData packageData = JsonConvert.DeserializeObject<PackageData>(packageText);  // packageData.Version = "2.0.0";
 
-                if ($"\"{packageData.Version}\"" != currentVersion)
+                if (packageData.Version != versionFileData.Dissonity)
                 {
-                    Debug.Log($"[Dissonity Editor] The installed Dissonity version is \"{packageData.Version}\" but your WebGL template is {currentVersion}");
+                    Debug.Log($"[Dissonity Editor] The installed Dissonity version is {packageData.Version} but your WebGL template is {versionFileData.Dissonity}");
 
                     FileUtil.DeleteFileOrDirectory(targetPath);
                     FileUtil.DeleteFileOrDirectory(metaTargetPath);
@@ -94,7 +93,7 @@ namespace Dissonity.Editor
             //todo remove in the final release
             Debug.LogWarning("[Dissonity] WARNING! Version 2 isn't released yet. You should only be using this package for testing purposes.");
 
-            Debug.Log("[Dissonity Editor] Adding WebGL Template to your assets");
+            Debug.Log("[Dissonity Editor] Adding WebGL Template to your assets.");
 
             LoadTextAssets("WebGLTemplateSource/Dissonity", targetPath);
             LoadPngAssets("WebGLTemplateSource/Dissonity", targetPath);
@@ -135,7 +134,11 @@ namespace Dissonity.Editor
 
             PackageData packageData = JsonConvert.DeserializeObject<PackageData>(packageText);
 
-            File.WriteAllText(CombinePath(target, "version.json"), "\"" + packageData.Version + "\"");
+            VersionFileData versionFileData = new VersionFileData {
+                Dissonity = packageData.Version
+            };
+
+            File.WriteAllText(CombinePath(target, "version.json"), JsonConvert.SerializeObject(versionFileData));
         }
 
         static void LoadPngAssets(string source, string target)

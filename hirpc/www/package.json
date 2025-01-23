@@ -1,5 +1,5 @@
 {
-  "name": "www",
+  "name": "@dissonity/hirpc-test",
   "version": "0.1.0",
   "description": "Test hiRPC server",
   "main": "build/server/index.js",

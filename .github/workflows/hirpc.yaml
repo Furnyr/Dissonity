@@ -5,19 +5,16 @@ on:
     branches:
       - dev
     paths:
-      - "hirpc/**/*.rs"
-      - "hirpc/Cargo.toml"
-      - "utils/**/*.ts"
+      - "hirpc/**/*.json"
+      - "hirpc/**/*.js"
+      - "hirpc/**/*.ts"
   pull_request:
     branches:
       - dev
     paths:
-      - "hirpc/**/*.rs"
-      - "hirpc/Cargo.toml"
-      - "utils/**/*.ts"
-
-env: 
-  CARGO_TERM_COLOR: always
+      - "hirpc/**/*.json"
+      - "hirpc/**/*.js"
+      - "hirpc/**/*.ts"
 
 jobs:
   hirpc_tests:
@@ -30,12 +27,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          install-chromedriver: true
-          chrome-version: "130.0.6723.116"
-
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -46,35 +37,8 @@ jobs:
         with:
           version: 9
 
-      - name: Install Utils Dependencies
-        working-directory: "./utils"
+      - name: Install Dependencies
         run: pnpm install --frozen-lockfile --prefer-offline --loglevel error
 
-      - name: Build JS Utils
-        working-directory: "./utils"
-        run: pnpm build
-
-      - name: Update Build Variables
-        working-directory: "./utils"
-        run: pnpm variables ci
-
-      - name: Setup Rust
-        run: rustup update stable && rustup default stable
-
-      - name: Verify Rust version
-        run: rustc --version
-
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-      - name: Build wasm
-        run: wasm-pack build --target web
-
-      - name: Lint
-        run: cargo clippy
-
-      - name: Verify Chrome version
-        run: chrome --version
-
-      - name: Tests (Chrome)
-        run: wasm-pack test --headless --chrome --features ci
+      - name: Run tests
+        run: pnpm test

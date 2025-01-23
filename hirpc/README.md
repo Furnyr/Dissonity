@@ -2,10 +2,10 @@
 
   <h1><code>@dissonity/hirpc</code></h1>
 
-  <strong>A Rust and WebAssembly library for the Discord activities RPC within game engines.</strong>
+  <strong>Discord RPC library for activities made in game engines.</strong>
 
   <p>
-    <img src="https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2FCargo.toml&query=package.version&prefix=v&label=version&color=red" alt="Version Badge" />
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2Fpackage.json&query=version&prefix=v&label=version&color=yellow" alt="Version Badge" />
     <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
   </p>
 
@@ -18,17 +18,18 @@
 
 ## About
 
+This library can be included in the game build files. Allows communication between Discord, the JavaScript layer and your embedded application.
+
 - Creates a connection with the Discord RPC
 - Passes messages to the game build
-- Exposes APIs to the JavaScript level securely
+- Exposes APIs to the JavaScript layer securely
 
-## Testing
+## Developing
 
-You may need to install [pnpm](https://pnpm.io), [Rust](https://www.rust-lang.org/learn/get-started) or [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/).
+You may need to install [pnpm](https://pnpm.io).
 
-### 1. 🛠️ Build the JavaScript utils in `../utils`
+### 1. 🛠️ Build the library
 ```
-cd ../utils
 pnpm build
 ```
 
@@ -37,13 +38,7 @@ pnpm build
 pnpm variables
 ```
 
-### 3. 🦀 Build the Rust code
-```
-cd ../hirpc
-wasm-pack build --target web
-```
-
-### 4. 🔌 Run the test server in `./www`
+### 3. 🔌 Run the test server in `./www`
 
 ###### Test exposed functions in `./www/src/client`
 
@@ -52,7 +47,7 @@ cd ./www
 pnpm start
 ```
 
-### 5. 🔬 Use a tunnel to test inside the Discord client
+### 4. 🔬 Use a tunnel to test inside the Discord client
 
 If you're using [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/#1-download-and-install-cloudflared):
 ```
@@ -65,27 +60,19 @@ Test the workflows locally with [Act](https://github.com/nektos/act) and Docker.
 
 ```
 cd ..
-act -j 'hirpc_tests' -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:rust-latest
+act -j 'hirpc_tests'
 ```
 
 ## Production
 
 The files included in the game build are:
 
-- `pkg/dissonity_hirpc.js`
-- `pkg/dissonity_hirpc_bg.wasm`
-- `pkg/build_variables.js`
-- `pkg/snippets`
-
-### Optimize the WebAssembly file
-
-Using wasm-opt:
-
-```
-cd ./pkg
-wasm-opt -Oz -o dissonity_hirpc_bg.wasm dissonity_hirpc_bg.wasm
-```
+- `dist/dissonity_hirpc.js`
+- `dist/dissonity_build_variables.js`
+- `dist/version.json`
 
 ## License
 
-Licensed under the Apache License, Version 2.0
+Dissonity is licensed under the Apache License, Version 2.0
+
+This project includes code from the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk), licensed under the [MIT License](MIT_LICENSE.md).

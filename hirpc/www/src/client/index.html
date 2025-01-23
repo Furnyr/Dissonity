@@ -4,8 +4,8 @@
     <script type="importmap">
       {
         "imports": {
-            "dso_build/": "/pkg/",
-            "dso_proxy_build/": "/.proxy/pkg/"
+            "dso_bridge/": "/dist/",
+            "dso_proxy_bridge/": "/.proxy/dist/"
         }
       }
     </script>
@@ -13,39 +13,38 @@
     <title>hiRPC test!</title>
   </head>
   <body>
-    <noscript>This page contains WebAssembly and JavaScript content, please enable JavaScript in your browser.</noscript>
     <script type="module">
 
       globalThis.dso_hirpc = new Promise(async (resolve, reject) => {
 
         console.log("Attempting to load from .proxy/...");
 
-        import("dso_proxy_build/dissonity_hirpc.js")
-          .then(mod => {
+        import("dso_proxy_bridge/dissonity_hirpc.js")
+          .then(() => {
 
             console.log("Loaded from proxy!");
 
-            load(mod)
+            load();
           })
           .catch((_) => {
 
             console.log("Attempting to load directly...");
   
-            import("dso_build/dissonity_hirpc.js")
-              .then(mod => {
+            import("dso_bridge/dissonity_hirpc.js")
+              .then(() => {
 
                 console.log("Loaded directly!");
 
-                load(mod)
+                load();
               })
               .catch(err => {
                 reject(err);
             });
         });
 
-        async function load(mod) {
-          await mod.default();
-          resolve(mod);
+        async function load() {
+          const instance = new window.Dissonity.HiRpc.default();
+          resolve(instance);
         }
       });
     </script>
