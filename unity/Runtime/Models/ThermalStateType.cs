@@ -1,9 +1,12 @@
+using Dissonity.Json;
+using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
+    [JsonConverter(typeof(SafeEnumConverter))]
     public enum ThermalStateType
     {
-        Unhandled = -1,
+        Unknown = -1,
         Nominal = 0,
         Fair = 1,
         Serious = 2,

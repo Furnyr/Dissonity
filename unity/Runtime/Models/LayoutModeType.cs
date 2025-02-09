@@ -1,9 +1,12 @@
+using Dissonity.Json;
+using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
+    [JsonConverter(typeof(SafeEnumConverter))]
     public enum LayoutModeType
     {
-        Unhandled = -1,
+        Unknown = -1,
         Focused = 0,
         Pip = 1,
         Grid = 2

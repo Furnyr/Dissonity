@@ -1,9 +1,12 @@
+using Dissonity.Json;
+using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
+    [JsonConverter(typeof(SafeEnumConverter))]
     public enum EntitlementType
     {
-        Unhandled = -1,
+        Unknown = -1,
         Purchase = 1,
         PremiumSubscription = 2,
         DeveloperGift = 3,

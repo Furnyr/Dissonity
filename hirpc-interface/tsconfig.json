@@ -14,7 +14,7 @@
     "useDefineForClassFields": false,
     "outDir": "dist",
     "paths": {
-      "@hirpc/*": ["../hirpc/src/*"]
+      "#hirpc/*": ["../hirpc/src/*"]
     },
     "resolveJsonModule": true
   },

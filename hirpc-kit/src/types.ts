@@ -1,4 +1,4 @@
-import HiRpcV0_0 from "../types/versions/v0_0_0";
+import HiRpcV0_0 from "../types/versions/v0_0";
 import HiRpcV0_4 from "../types/index";
 
 type StartWith<V extends string> = `${V}${string}`;

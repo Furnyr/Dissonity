@@ -1,1 +1,1 @@
-import "@hirpc/declarations";
+import "#hirpc/declarations";

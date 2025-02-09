@@ -3,7 +3,7 @@
     Non-browser tests.
 */
 
-//todo: It would be ideal to be able to add browser tests in the future.
+//todo: It would be ideal to have browser tests in the future.
 
 const { test } = require("uvu");
 const assert = require("uvu/assert");
@@ -28,11 +28,16 @@ test("fail load", async () => {
 
     const hiRpc = new HiRpc.default();
 
+    let loaded = false;
+
     try {
         await hiRpc.load();
-        assert.is("errored", "not errored");
+
+        loaded = true;
     }
     catch (_) {}
+
+    assert.is(loaded, false);
 });
 
 test.run();

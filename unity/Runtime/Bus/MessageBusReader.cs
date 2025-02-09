@@ -3,11 +3,11 @@ using Dissonity.Events;
 
 namespace Dissonity.Bus
 {
-    internal abstract class MessageBusReader
+    internal abstract class MessageBusReader<T>
     {
         #nullable enable
 
-        internal abstract Action<DiscordEvent> Listener { get; }
+        internal abstract Action<T> Listener { get; }
 
         internal object UserListener { get; } // (Action) For unsubscription methods
 
@@ -18,7 +18,7 @@ namespace Dissonity.Bus
             UserListener = userListener;
         }
 
-        internal void ReadEvent(DiscordEvent discordEvent)
+        internal void ReadEvent(T discordEvent)
         {
             Listener?.Invoke(discordEvent);
         }

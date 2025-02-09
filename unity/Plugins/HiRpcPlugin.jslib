@@ -7,46 +7,39 @@
 
 mergeInto(LibraryManager.library, {
     OpenDownwardFlow: function () {
-        this.Channel = "dissonity";
         const hiRpc = window.dso_hirpc;
         hiRpc.openDownwardFlow((stringifiedData) => {
             SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
         });
     },
-    SaveAppHash: function (utf8Hash) {
-        const hash = UTF8ToString(utf8Hash);
-        this.AppHash = hash;
-    },
     EmptyRequest: function (stringifiedMessage) {
-        const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         const payload = {
             nonce
         };
-        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
+        hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     SendToJs: function (stringifiedMessage) {
-        const { payload, channel } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { payload, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.sendToJs(this.AppHash, channel, payload);
+        hiRpc.sendToJs(app_hash, channel, payload);
     },
     PatchUrlMappings: function (stringifiedMessage) {
-        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
-        const parsedData = JSON.parse(stringified_data);
-        const { mappings, config } = parsedData;
+        const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { mappings, config } = data;
         const hiRpc = window.dso_hirpc;
-        hiRpc.patchUrlMappings(this.AppHash, mappings, config);
+        hiRpc.patchUrlMappings(app_hash, mappings, config);
         const payload = {
             nonce
         };
-        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
+        hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     FormatPrice: function (stringifiedMessage) {
-        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
-        const parsedData = JSON.parse(stringified_data);
-        const { amount, currency, locale } = parsedData;
+        const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { amount, currency, locale } = data;
         const hiRpc = window.dso_hirpc;
-        const formattedPrice = hiRpc.formatPrice(this.AppHash, {
+        const formattedPrice = hiRpc.formatPrice(app_hash, {
             amount,
             currency
         }, locale);
@@ -54,22 +47,29 @@ mergeInto(LibraryManager.library, {
             nonce,
             formatted_price: formattedPrice
         };
-        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
+        hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     GetQueryObject: function (stringifiedMessage) {
-        const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         const query = JSON.stringify(hiRpc.getQueryObject());
         const payload = {
             nonce,
             query
         };
-        hiRpc.sendToApp(this.AppHash, this.Channel, payload);
+        hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     SendToRpc: function (stringifiedMessage) {
-        const dataArray = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.sendToRpc(this.AppHash, dataArray[0], dataArray[1]);
+        hiRpc.sendToRpc(app_hash, data[0], data[1]);
+    },
+    ExpandCanvas: function () {
+        if (typeof window.dso_expand_canvas == "undefined")
+            return;
+        window.dso_expand_canvas();
+        setTimeout(window.dso_expand_canvas, 15);
+        setTimeout(window.dso_expand_canvas, 60);
     },
     DissonityLog: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
@@ -83,8 +83,9 @@ mergeInto(LibraryManager.library, {
         const message = UTF8ToString(stringifiedMessage);
         console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
     },
-    CloseDownwardFlow: function () {
+    CloseDownwardFlow: function (stringifiedMessage) {
+        const { app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.closeDownwardFlow(this.AppHash);
+        hiRpc.closeDownwardFlow(app_hash);
     }
 });

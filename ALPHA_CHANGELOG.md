@@ -2,6 +2,86 @@ This file will document changes made during the alpha phase.
 
 ---
 
+# 2025-2-9 - alpha progress 5
+
+This alpha progress version completes the base functionality of the alpha phase. Testing is much needed currently.
+
+## Wiki
+
+The current wiki is still mostly up to date.
+
+Read the `Next` section for information about the documentation.
+
+## hiRPC
+
+- Send hiRPC handshake outside of Discord
+
+- Use closures to store the hashes
+
+- Updated fail load test
+
+## hiRPC Interface
+
+- Add window.dso\_expand\_canvas when using Max resolution
+
+- App hash is now stored in the C# side.
+
+- Added ExpandCanvas function
+
+## Dissonity (internal)
+
+- Splitted MessageBus into DiscordMessageBus and HiRpcMessageBus
+
+- Splitted SubscriptionReference into DiscordSubscription and HiRpcSubscription
+
+- Added implementation to receive hiRPC messages
+
+- Added share frame command
+
+- Added \_hiRpcReady boolean to track when the hiRPC handshake is sent
+
+- Added implementation to serialize unknown enum values to \<Enum\>.Unknown if possible
+
+- Added new resources for the configuration options
+
+- Added namespace Dissonity.Editor.Dialogs
+
+- Added internal subscriptions when resolution is Max to expand the canvas when it's needed (this might fix Max resolution)
+
+## Dissonity (API)
+
+- Added dialogs for initial package installation and package updates.
+- - Configuration is automatically generated using these dialogs.
+- - Added three configuration options: **Basic**, **Standard** and **Advanced**.
+
+- Added uninstaller dialog
+
+- Added hiRPC methods in Api.HiRpc
+
+- Added new command Api.Commands.ShareLink (and its corresponding mock implementation)
+
+- Added comment for Api.ReferrerId and Api.CustomId
+
+- Added Api.OnReady method
+
+- Resolution in desktop and mobile now defaults to Max
+
+- Fixed missing arguments in SetOrientationLockState command
+
+- Renamed WebResolution to BrowserResolution
+
+## Next
+
+After alpha 5 is tested, the project will be ready to move into the **beta** phase. This would mean that the foundation of the project is stable and we're ready to start polishing.
+
+That doesn't mean the release date is necessarily close, though.
+
+The wiki is unlikely to receive any further updates as public documentation will be created during the beta phase.
+
+[Read more here.](ROADMAP.md)
+
+---
+
 # 2025-1-23 - feat: hirpc v0.4.0
 
 The hiRPC module is pretty much stable now. That doesn't mean that it can't undergo breaking changes until release, but that its design is final.

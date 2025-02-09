@@ -1,9 +1,12 @@
+using Dissonity.Json;
+using Newtonsoft.Json;
 
 namespace Dissonity.Models
 {
+    [JsonConverter(typeof(SafeEnumConverter))]
     public enum ChannelType
     {
-        Unhandled = -1,
+        Unknown = -1,
         GuildText = 0,
         Dm = 1,
         GuildVoice = 2,

@@ -165,7 +165,7 @@ async function handleUnityBuild() {
 
         let desktopResolution: string | number = "[[[ DESKTOP_RESOLUTION ]]]§";
         let mobileResolution: string | number = "[[[ MOBILE_RESOLUTION ]]]§";
-        let webResolution: string | number = "[[[ WEB_RESOLUTION ]]]§";
+        let browserResolution: string | number = "[[[ BROWSER_RESOLUTION ]]]§";
 
         let resolution;
 
@@ -174,10 +174,10 @@ async function handleUnityBuild() {
         viewportHeight = Number( parseVariable(viewportHeight) );
         desktopResolution = Number( parseVariable(desktopResolution) );
         mobileResolution = Number( parseVariable(mobileResolution) );
-        webResolution = Number( parseVariable(webResolution) );
+        browserResolution = Number( parseVariable(browserResolution) );
 
-        // Web
-        if (outsideDiscord) resolution = webResolution;
+        // Browser
+        if (outsideDiscord) resolution = browserResolution;
 
         // Mobile
         if (query.platform == MOBILE || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -197,7 +197,7 @@ async function handleUnityBuild() {
             document.body.style.textAlign = "left";
         }
 
-        else if (!resolution){
+        else if (!resolution) {
             resolution = desktopResolution;
         }
 
@@ -220,6 +220,12 @@ async function handleUnityBuild() {
                 width = initialWidth;
                 height = initialHeight;
                 setRatio();
+
+                window.dso_expand_canvas = () => {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                    setRatio();
+                }
             }
         }
 

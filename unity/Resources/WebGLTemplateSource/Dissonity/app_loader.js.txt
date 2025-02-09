@@ -105,15 +105,15 @@ async function handleUnityBuild() {
         let viewportHeight = "[[[ HEIGHT ]]]§";
         let desktopResolution = "[[[ DESKTOP_RESOLUTION ]]]§";
         let mobileResolution = "[[[ MOBILE_RESOLUTION ]]]§";
-        let webResolution = "[[[ WEB_RESOLUTION ]]]§";
+        let browserResolution = "[[[ BROWSER_RESOLUTION ]]]§";
         let resolution;
         viewportWidth = Number(parseVariable(viewportWidth));
         viewportHeight = Number(parseVariable(viewportHeight));
         desktopResolution = Number(parseVariable(desktopResolution));
         mobileResolution = Number(parseVariable(mobileResolution));
-        webResolution = Number(parseVariable(webResolution));
+        browserResolution = Number(parseVariable(browserResolution));
         if (outsideDiscord)
-            resolution = webResolution;
+            resolution = browserResolution;
         if (query.platform == MOBILE || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             if (!resolution)
                 resolution = mobileResolution;
@@ -148,6 +148,11 @@ async function handleUnityBuild() {
                 width = initialWidth;
                 height = initialHeight;
                 setRatio();
+                window.dso_expand_canvas = () => {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                    setRatio();
+                };
             }
         }
         if (!autoSize) {

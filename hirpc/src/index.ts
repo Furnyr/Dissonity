@@ -24,7 +24,7 @@ import type { BuildVariables, DissonityChannelHandshake, HiRpcMessage, InteropMe
  * - dso_bridge/
  * - dso_proxy_bridge/
  */ 
-export default class HiRpc0_4_0 {
+export default class HiRpc0_4 {
 
     #state: State;
     #hashes: HashGenerator;
@@ -384,10 +384,13 @@ export default class HiRpc0_4_0 {
         this.#hashes.lock();
         this.#state.appSender = appSender;
 
-        await this.#state.authPromise;
+        const outsideDiscord = sessionStorage.getItem("dso_outside_discord") as SessionStorage["dso_outside_discord"];
+        if (outsideDiscord != "true") {
+            await this.#state.authPromise;
+        }
 
         const hiRpcPayload: DissonityChannelHandshake = {
-            raw_multi_event: this.#state.multiEvent,
+            raw_multi_event: outsideDiscord != "true" ? this.#state.multiEvent : null,
             hash: await this.#hashes.generateHash(true)
         }
 

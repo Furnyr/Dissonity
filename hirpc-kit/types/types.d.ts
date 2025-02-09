@@ -8,7 +8,7 @@ export type RpcPayload = {
     data?: unknown;
 };
 export type DissonityChannelHandshake = {
-    raw_multi_event: MultiEvent;
+    raw_multi_event: MultiEvent | null;
     hash: string;
 };
 export type DissonityChannelPayload = {

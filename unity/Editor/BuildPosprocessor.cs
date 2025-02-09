@@ -134,7 +134,7 @@ namespace Dissonity.Editor
                 //? Using viewport
                 if (data.DesktopResolution == ScreenResolution.Viewport
                 |   data.MobileResolution == ScreenResolution.Viewport
-                |   data.WebResolution == ScreenResolution.Viewport)
+                |   data.BrowserResolution == ScreenResolution.Viewport)
                 {
                     Debug.LogWarning("[Dissonity Build]: Your viewport resolution is low, so the activity may appear blurry on the platforms using ScreenResolution.Viewport");
                 }
@@ -168,12 +168,12 @@ namespace Dissonity.Editor
             substring = fileContent.Substring(index, endIndex - index);
             fileContent = fileContent.Replace(substring, $"[[[ MOBILE_RESOLUTION ]]] {(int) data.MobileResolution}");
 
-            // Web resolution
-            index = fileContent.IndexOf("[[[ WEB_RESOLUTION ]]]");
+            // Browser resolution
+            index = fileContent.IndexOf("[[[ BROWSER_RESOLUTION ]]]");
             CheckIndex(index);
             endIndex = fileContent.IndexOf(VariableSeparator, index);
             substring = fileContent.Substring(index, endIndex - index);
-            fileContent = fileContent.Replace(substring, $"[[[ WEB_RESOLUTION ]]] {(int) data.WebResolution}");
+            fileContent = fileContent.Replace(substring, $"[[[ BROWSER_RESOLUTION ]]] {(int) data.BrowserResolution}");
 
             //\ Write final file
             File.WriteAllText(appLoaderPath, fileContent);

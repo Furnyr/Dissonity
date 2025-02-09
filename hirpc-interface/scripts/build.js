@@ -9,6 +9,9 @@ function main() {
     
     // Remove export from plugin
     pluginContent = pluginContent.replace("export {};\n", "");
+
+    // Add dissonity channel to plugin
+    pluginContent = pluginContent.replace(/DISSONITY_CHANNEL/g, '"dissonity"');
     
     // Add disclaimer
     const disclaimer = `/*

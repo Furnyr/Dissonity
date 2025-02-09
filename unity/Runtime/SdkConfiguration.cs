@@ -19,7 +19,7 @@ namespace Dissonity
         bool SynchronizeGuildMemberRpc { get; }
         ScreenResolution DesktopResolution { get; } 
         ScreenResolution MobileResolution { get; } 
-        ScreenResolution WebResolution { get; } 
+        ScreenResolution BrowserResolution { get; } 
 
         // Types
         abstract Type GetRequestType();
@@ -61,7 +61,7 @@ namespace Dissonity
         public virtual bool DisableDissonityInfoLogs { get; } = false;
 
         /// <summary>
-        /// Mappings to patch during initialization. <br/> <br/>
+        /// Mappings to patch before initialization. <br/> <br/>
         /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
         /// </summary>
         public virtual MappingBuilder[] Mappings { get; } = {};
@@ -90,21 +90,21 @@ namespace Dissonity
 
         /// <summary>
         /// How app resolution will be handled on desktop. <br/> <br/>
-        /// Defaults to <c> ScreenResolution.Viewport </c>
+        /// Defaults to <c> ScreenResolution.Max </c>
         /// </summary>
-        public virtual ScreenResolution DesktopResolution { get; } = ScreenResolution.Viewport;
+        public virtual ScreenResolution DesktopResolution { get; } = ScreenResolution.Max;
 
         /// <summary>
         /// How app resolution will be handled on mobile. <br/> <br/>
-        /// Defaults to <c> ScreenResolution.Dynamic </c>
+        /// Defaults to <c> ScreenResolution.Max </c>
         /// </summary>
-        public virtual ScreenResolution MobileResolution { get; } = ScreenResolution.Dynamic;
+        public virtual ScreenResolution MobileResolution { get; } = ScreenResolution.Max;
 
         /// <summary>
-        /// How app resolution will be handled on web. <br/> <br/>
+        /// How app resolution will be handled in a browser outside of Discord. <br/> <br/>
         /// Defaults to <c> ScreenResolution.Dynamic </c>
         /// </summary>
-        public virtual ScreenResolution WebResolution { get; } = ScreenResolution.Dynamic;
+        public virtual ScreenResolution BrowserResolution { get; } = ScreenResolution.Dynamic;
 
 
         //# USED INTERNALLY - - - - -
@@ -141,7 +141,7 @@ namespace Dissonity
         public PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; set; }
         public ScreenResolution DesktopResolution { get; set; } 
         public ScreenResolution MobileResolution { get; set; } 
-        public ScreenResolution WebResolution { get; set; } 
+        public ScreenResolution BrowserResolution { get; set; } 
 
         // Used later to serialize data returned by BridgeLib
         public Type GetRequestType()

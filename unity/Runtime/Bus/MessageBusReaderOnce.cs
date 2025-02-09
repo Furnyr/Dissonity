@@ -3,19 +3,19 @@ using Dissonity.Events;
 
 namespace Dissonity.Bus
 {
-    internal class MessageBusReaderOnce : MessageBusReader
+    internal class MessageBusReaderOnce<T> : MessageBusReader<T>
     {
-        internal override Action<DiscordEvent> Listener { get; }
+        internal override Action<T> Listener { get; }
 
         private bool _Done;
         public override bool Done => _Done;
 
-        public MessageBusReaderOnce(object userListener, Action<DiscordEvent> listener) : base(userListener)
+        public MessageBusReaderOnce(object userListener, Action<T> listener) : base(userListener)
         {
-            Listener = discordEvent =>
+            Listener = messageEvent =>
             {
                 _Done = true;
-                listener.Invoke(discordEvent);
+                listener.Invoke(messageEvent);
             };
         }
     }
