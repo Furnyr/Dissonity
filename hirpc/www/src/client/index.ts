@@ -1,5 +1,5 @@
 // Run pnpm build/kit:types in the main hiRPC folder.
-import type IHiRpc from "#../../../../hirpc-kit/types/index.d.ts"
+import type IHiRpc from "../../../../hirpc-kit/types/index.d.ts"
 
 const hiRpc = await globalThis["dso_hirpc" as keyof typeof globalThis] as IHiRpc;
 

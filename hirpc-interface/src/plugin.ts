@@ -8,14 +8,11 @@ Function names are PascalCase, C# method conventions.
 
 import type { HiRpcModule, DissonityChannelPayload } from "./types";
 
-
 mergeInto(LibraryManager.library, {
 
     // Allow messages to get from the JS layer to the Unity app
     //@unity-api
     OpenDownwardFlow: function(): void {
-
-        this.Channel = "dissonity";
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
@@ -25,19 +22,10 @@ mergeInto(LibraryManager.library, {
         });
     },
 
-    // Save the app hash for future use
-    //@unity-bridge
-    SaveAppHash: function (utf8Hash: string): void {
-
-        const hash = UTF8ToString(utf8Hash);
-
-        this.AppHash = hash;
-    },
-
     //@unity-bridge
     EmptyRequest: function (stringifiedMessage: string): void {
 
-        const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
@@ -47,52 +35,50 @@ mergeInto(LibraryManager.library, {
             nonce
         };
 
-        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
+        hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
     },
 
     // Send data to the JS layer
     //@unity
     SendToJs: function (stringifiedMessage: string): void {
 
-        const { payload, channel } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { payload, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.sendToJs(this.AppHash as string, channel, payload);
+        hiRpc.sendToJs(app_hash, channel, payload);
     },
 
     //@unity-bridge
     PatchUrlMappings: function (stringifiedMessage: string): void {
 
-        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         //\ Parse data
-        const parsedData = JSON.parse(stringified_data);
-        const { mappings, config } = parsedData;
+        const { mappings, config } = data;
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.patchUrlMappings(this.AppHash as any, mappings, config);
+        hiRpc.patchUrlMappings(app_hash, mappings, config);
 
         const payload: DissonityChannelPayload = {
             nonce
         };
 
-        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
+        hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
     },
 
     //@unity-bridge
     FormatPrice: function (stringifiedMessage: string): void {
 
-        const { nonce, stringified_data } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         //\ Parse data
-        const parsedData = JSON.parse(stringified_data);
-        const { amount, currency, locale } = parsedData;
+        const { amount, currency, locale } = data;
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        const formattedPrice = hiRpc.formatPrice(this.AppHash as any, {
+        const formattedPrice = hiRpc.formatPrice(app_hash, {
             amount,
             currency
         }, locale);
@@ -102,13 +88,13 @@ mergeInto(LibraryManager.library, {
             formatted_price: formattedPrice
         };
 
-        hiRpc.sendToApp(this.AppHash as any, this.Channel as string, payload);
+        hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
     },
 
     //@unity-bridge
     GetQueryObject: function (stringifiedMessage: string): void {
 
-        const { nonce } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
@@ -119,19 +105,30 @@ mergeInto(LibraryManager.library, {
             query
         };
 
-        hiRpc.sendToApp(this.AppHash as string, this.Channel as string, payload);
+        hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
     },
 
     // Send data to the client RPC
     //@unity-api
     SendToRpc: function (stringifiedMessage: string): void {
 
-        const dataArray = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
         // The array is formed again at the hiRPC layer
-        hiRpc.sendToRpc(this.AppHash as string, dataArray[0], dataArray[1]);
+        hiRpc.sendToRpc(app_hash, data[0], data[1]);
+    },
+
+    //@unity-api
+    ExpandCanvas: function (): void {
+        
+        if (typeof window.dso_expand_canvas == "undefined") return;
+
+        // These times have been tested to work as nicely as possible
+        window.dso_expand_canvas();
+        setTimeout(window.dso_expand_canvas, 15);
+        setTimeout(window.dso_expand_canvas, 60);
     },
 
     //@unity
@@ -160,10 +157,12 @@ mergeInto(LibraryManager.library, {
 
     // End current communication
     //@unity-api
-    CloseDownwardFlow: function (): void {
+    CloseDownwardFlow: function (stringifiedMessage: string): void {
+
+        const { app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.closeDownwardFlow(this.AppHash as string);
+        hiRpc.closeDownwardFlow(app_hash);
     }
 });

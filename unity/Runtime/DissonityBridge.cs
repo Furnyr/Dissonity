@@ -29,11 +29,10 @@ namespace Dissonity
         private const string MultiId = "MULTI";
         private const string DissonityChannel = "dissonity";
 
+        internal string? appHash = null;
+
         //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
-        [DllImport("__Internal")]
-        private static extern void SaveAppHash(string hash);
-
         [DllImport("__Internal")]
         private static extern void EmptyRequest(string stringifiedMessage);
 
@@ -51,7 +50,6 @@ namespace Dissonity
 #endif
 
 #if !UNITY_WEBGL
-        private static void SaveAppHash(string _) {}
         private static void EmptyRequest(string _) {}
         private static void GetQueryObject(string _) {}
         private static void PatchUrlMappings(string _) {}
@@ -72,7 +70,8 @@ namespace Dissonity
 
             BridgeMessage data = new()
             {
-                Nonce = nonce
+                Nonce = nonce,
+                AppHash = appHash
             };
 
             EmptyRequest(JsonConvert.SerializeObject(data));
@@ -88,7 +87,8 @@ namespace Dissonity
 
             BridgeMessage data = new()
             {
-                Nonce = nonce
+                Nonce = nonce,
+                AppHash = appHash
             };
 
             GetQueryObject(JsonConvert.SerializeObject(data));
@@ -105,7 +105,8 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                StringifiedData = JsonConvert.SerializeObject(payload)
+                AppHash = appHash,
+                Data = payload
             };
 
             PatchUrlMappings(JsonConvert.SerializeObject(data));
@@ -122,7 +123,8 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                StringifiedData = JsonConvert.SerializeObject(payload)
+                AppHash = appHash,
+                Data = payload
             };
 
             FormatPrice(JsonConvert.SerializeObject(data));
@@ -130,9 +132,9 @@ namespace Dissonity
             return tcs.Task;
         }
 
-        internal Task<MultiEvent> ExeMultiEvent()
+        internal Task<MultiEvent?> ExeMultiEvent()
         {
-            var tcs = new TaskCompletionSource<MultiEvent>();
+            var tcs = new TaskCompletionSource<MultiEvent?>();
             pendingTasks.Add(MultiId, tcs); // Only one listener per multi event
 
             return tcs.Task;
@@ -173,6 +175,7 @@ namespace Dissonity
                 ServerResponse = serverPayload
             };
 
+            //\ End task
             tcs.TrySetResult(multiEvent);
             pendingTasks.Remove(MultiId);
         }
@@ -204,7 +207,7 @@ namespace Dissonity
         // App hash
         private void HandleHash(string hash)
         {
-            SaveAppHash(hash);
+            appHash = hash;
         }
 
 
@@ -231,7 +234,7 @@ namespace Dissonity
             //? Not dissonity channel
             if (message.HiRpcMessage.Channel != DissonityChannel)
             {
-                //todo implementation to receive hirpc messages
+                Api.hiRpcMessageBus.DispatchEvent(message.HiRpcMessage);
 
                 return;
             }
@@ -255,7 +258,21 @@ namespace Dissonity
                 {
                     HandleMultiEvent(payload.RawMultiEvent);
                 }
+
+                // The multi event task is completed whether it's null or not.
+                // A null value indicates an outside Discord state.
+                else
+                {
+                    //? No task
+                    if (!pendingTasks.ContainsKey(MultiId)) return;
+                    var tcs = (TaskCompletionSource<MultiEvent?>) pendingTasks[MultiId];
+
+                    //\ End task
+                    tcs.TrySetResult(null);
+                    pendingTasks.Remove(MultiId);
+                }
             }
+
 
             //? Normal payload
             else
@@ -345,7 +362,7 @@ namespace Dissonity
 
             if (deserializedEvent.Command == Dispatch)
             {
-                Api.messageBus.DispatchEvent(deserializedEvent);
+                Api.discordMessageBus.DispatchEvent(deserializedEvent);
                 return;
             }
 
@@ -359,7 +376,7 @@ namespace Dissonity
                 }
 
                 // General error
-                Api.messageBus.DispatchEvent(deserializedEvent);
+                Api.discordMessageBus.DispatchEvent(deserializedEvent);
             }
 
             //? Command
@@ -460,7 +477,7 @@ namespace Dissonity
             typedEventInstance.Data = eventData;
             typedEventInstance.Event = eventString;
 
-            Api.messageBus.DispatchEvent(typedEventInstance);
+            Api.discordMessageBus.DispatchEvent(typedEventInstance);
         }
     }
 }

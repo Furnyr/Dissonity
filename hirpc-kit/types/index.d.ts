@@ -13,7 +13,7 @@ import type { BuildVariables, RpcPayload } from "./types";
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-export default class HiRpc0_4_0 {
+export default class HiRpc0_4 {
     #private;
     constructor();
     /**

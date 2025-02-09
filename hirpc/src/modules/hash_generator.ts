@@ -11,8 +11,8 @@ export class HashGenerator {
     #state: State;
 
     #locked: boolean = false;
-    #hash: string | null = null;
-    #appHash: string | null = null;
+    #getHash: () => string | null = () => null;
+    #getAppHash: () => string | null = () => null;
 
     constructor (state: State) {
         this.#state = state;
@@ -20,8 +20,8 @@ export class HashGenerator {
 
     async generateHash(appHash = false): Promise<string> {
 
-        if (appHash && this.#appHash != null) return this.#appHash;
-        if (this.#hash != null) return this.#hash;
+        if (appHash && this.#getAppHash() != null) return this.#getAppHash()!;
+        if (this.#getHash() != null) return this.#getHash()!;
 
         //\ Generate random bytes
         const salt = window.crypto.getRandomValues(new Uint8Array(HASH_RANDOM_BYTES));
@@ -42,8 +42,8 @@ export class HashGenerator {
             .join("");
 
         //\ Save hash
-        if (appHash) this.#appHash = hash;
-        else this.#hash = hash;
+        if (appHash) this.#getAppHash = () => hash;
+        else this.#getHash = () => hash;
 
         return hash;
     }
@@ -86,16 +86,16 @@ export class HashGenerator {
 
     verifyAccessHash(hash: string): boolean {
 
-        if (this.#hash == null) return false;
+        if (this.#getHash() == null) return false;
 
-        return this.compareHashes(hash, this.#hash);
+        return this.compareHashes(hash, this.#getHash()!);
     }
 
     verifyAppHash(hash: string): boolean {
 
-        if (this.#appHash == null) return false;
+        if (this.#getAppHash() == null) return false;
 
-        return this.compareHashes(hash, this.#appHash);
+        return this.compareHashes(hash, this.#getAppHash()!);
     }
 
     lock(): void {

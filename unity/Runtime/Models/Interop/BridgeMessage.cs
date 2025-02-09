@@ -16,7 +16,13 @@ namespace Dissonity.Models.Interop
         [JsonProperty("nonce")]
         public string? Nonce { get; set; }
 
-        [JsonProperty("stringified_data")]
-        public string? StringifiedData { get; set; }
+        [JsonProperty("app_hash")]
+        public string? AppHash { get; set; }
+
+        [JsonProperty("data")]
+        public object? Data { get; set; }
+
+        [JsonProperty("channel")]
+        public string? Channel { get; set; }
     }
 }

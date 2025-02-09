@@ -51,7 +51,8 @@ namespace Dissonity
 
         // Messages
         internal static Dictionary<string, object> pendingCommands = new(); // TaskCompletionSource<TResponse>
-        internal static MessageBus messageBus = new();
+        internal static DiscordMessageBus discordMessageBus = new();
+        internal static HiRpcMessageBus hiRpcMessageBus = new();
         internal static GameObject? bridgeObject = null;
         internal static DissonityBridge? bridge = null;
         internal static HashSet<string> subscribedRpcSet = new();
@@ -60,10 +61,12 @@ namespace Dissonity
         internal static bool isEditor = UnityEngine.Application.isEditor;
 
         // Initialization
-        private static bool _initialized = false;
-        private static bool _ready = false;
+        private static bool _initialized = false; // called Initialize
+        private static bool _hiRpcReady = false; // hiRPC available
+        private static bool _ready = false; // RPC available
         private static bool _mock = false;
         private static bool disableMock = false;
+        private static TaskCompletionSource<bool> readyTask = new TaskCompletionSource<bool>(null);
 
         // Handshake, authorization and authentication are handled in the app loader level.
 
@@ -181,7 +184,7 @@ namespace Dissonity
         }
         
         /// <summary>
-        /// Query custom id.
+        /// Query custom id. Used when a user joins the activity via a shared link.
         /// </summary>
         public static string CustomId
         {
@@ -196,7 +199,7 @@ namespace Dissonity
         }
 
         /// <summary>
-        /// Query referrer id.
+        /// Query referrer id. Used when a user joins the activity via a shared link.
         /// </summary>
         public static string ReferrerId
         {
@@ -359,7 +362,10 @@ namespace Dissonity
         private static extern void OpenDownwardFlow();
 
         [DllImport("__Internal")]
-        private static extern void CloseDownwardFlow();
+        private static extern void CloseDownwardFlow(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void ExpandCanvas();
 
         [DllImport("__Internal")]
         private static extern void SendToRpc(string stringifiedMessage);
@@ -370,7 +376,8 @@ namespace Dissonity
 
 #if !UNITY_WEBGL
         private static void OpenDownwardFlow() {}
-        private static void CloseDownwardFlow() {}
+        private static void CloseDownwardFlow(string stringifiedMessage) {}
+        private static void ExpandCanvas() {}
         private static void SendToRpc(string _) {}
         private static void SendToJs(string _) {}
 #endif
@@ -809,7 +816,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task SetOrientationLockState(OrientationLockStateType lockState)
+            public static async Task SetOrientationLockState(OrientationLockStateType lockState, OrientationLockStateType? pipLockState = null, OrientationLockStateType? gridLockState = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
@@ -821,7 +828,7 @@ namespace Dissonity
                     return;
                 }
 
-                await SendCommand<SetOrientationLockState, NoResponse>(new (lockState));
+                await SendCommand<SetOrientationLockState, NoResponse>(new (lockState, pipLockState, gridLockState));
             }
 
 
@@ -914,6 +921,33 @@ namespace Dissonity
                 var response = await SendCommand<GetInstanceConnectedParticipants, GetInstanceConnectedParticipantsResponse>(new ());
 
                 return response.Data.Participants;
+            }
+        
+            /// <summary>
+            /// Presents a modal for the user to share a link to your activity with custom query params. <br/> <br/>
+            /// No scopes required. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ⛔️ | iOS <br/>
+            /// ⛔️ | Android <br/>
+            /// ---------------------- <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<ShareLinkData> ShareLink(string message, string? customId = null, string? referrerId = null)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<ShareLinkResponse>();
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<ShareLink, ShareLinkResponse>(new (message, customId, referrerId));
+
+                return response.Data;
             }
         }
 
@@ -1247,11 +1281,11 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> ActivityInstanceParticipantsUpdate(Action<Participant[]> listener)
+            public static async Task<DiscordSubscription> ActivityInstanceParticipantsUpdate(Action<Participant[]> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
-                var reference = await SubscribeCommandFactory<ActivityInstanceParticipantsUpdate>(new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reference = await SubscribeCommandFactory<ActivityInstanceParticipantsUpdate>(new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not ActivityInstanceParticipantsUpdate _) return;
 
@@ -1270,11 +1304,11 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> ActivityLayoutModeUpdate(Action<LayoutModeType> listener)
+            public static async Task<DiscordSubscription> ActivityLayoutModeUpdate(Action<LayoutModeType> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
-                var reference = await SubscribeCommandFactory<ActivityLayoutModeUpdate>(new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reference = await SubscribeCommandFactory<ActivityLayoutModeUpdate>(new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not ActivityLayoutModeUpdate _) return;
 
@@ -1293,7 +1327,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> CurrentUserUpdate(Action<User> listener)
+            public static async Task<DiscordSubscription> CurrentUserUpdate(Action<User> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1320,7 +1354,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> CurrentGuildMemberUpdate(long guildId, Action<GuildMemberRpc> listener)
+            public static async Task<DiscordSubscription> CurrentGuildMemberUpdate(long guildId, Action<GuildMemberRpc> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1348,11 +1382,11 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> EntitlementCreate(Action<Entitlement> listener)
+            public static async Task<DiscordSubscription> EntitlementCreate(Action<Entitlement> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
-                var reference = await SubscribeCommandFactory<EntitlementCreate>(new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reference = await SubscribeCommandFactory<EntitlementCreate>(new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not EntitlementCreate _) return;
 
@@ -1371,12 +1405,12 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static SubscriptionReference Error(Action<ErrorEventData> listener)
+            public static DiscordSubscription Error(Action<ErrorEventData> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 //\ Create reader
-                var reader = new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reader = new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not ErrorEvent _) return;
 
@@ -1384,11 +1418,11 @@ namespace Dissonity
                 });
 
                 //\ Create reference
-                var reference = new SubscriptionReference();
+                var reference = new DiscordSubscription();
                 reference.SaveSubscriptionData(reader, DiscordEventType.Error);
 
                 //\ Save reader in message bus
-                messageBus.AddReader(DiscordEventType.Error, reader);
+                discordMessageBus.AddReader(DiscordEventType.Error, reader);
 
                 return reference;
             }
@@ -1400,11 +1434,11 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> OrientationUpdate(Action<OrientationType> listener)
+            public static async Task<DiscordSubscription> OrientationUpdate(Action<OrientationType> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
-                var reference = await SubscribeCommandFactory<OrientationUpdate>(new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reference = await SubscribeCommandFactory<OrientationUpdate>(new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not OrientationUpdate _) return;
 
@@ -1423,7 +1457,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> SpeakingStart(long channelId, Action<SpeakingData> listener)
+            public static async Task<DiscordSubscription> SpeakingStart(long channelId, Action<SpeakingData> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1450,7 +1484,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> SpeakingStop(long channelId, Action<SpeakingData> listener)
+            public static async Task<DiscordSubscription> SpeakingStop(long channelId, Action<SpeakingData> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1477,11 +1511,11 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> ThermalStateUpdate(Action<ThermalStateType> listener)
+            public static async Task<DiscordSubscription> ThermalStateUpdate(Action<ThermalStateType> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
-                var reference = await SubscribeCommandFactory<ThermalStateUpdate>(new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                var reference = await SubscribeCommandFactory<ThermalStateUpdate>(new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                 {
                     if (discordEvent is not ThermalStateUpdate _) return;
 
@@ -1500,7 +1534,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<SubscriptionReference> VoiceStateUpdate(long channelId, Action<UserVoiceState> listener)
+            public static async Task<DiscordSubscription> VoiceStateUpdate(long channelId, Action<UserVoiceState> listener)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
 
@@ -1521,17 +1555,17 @@ namespace Dissonity
             }
 
             // Method used to simplify the subscription methods
-            internal static async Task<SubscriptionReference> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null, bool isInternal = false, bool once = false) where TEvent : DiscordEvent
+            internal static async Task<DiscordSubscription> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null, bool isInternal = false, bool once = false) where TEvent : DiscordEvent
             {
                 string eventString = EventUtility.GetStringFromType(typeof(TEvent));
 
                 //\ Create reader
-                MessageBusReader reader;
+                MessageBusReader<DiscordEvent> reader;
 
                 //? Once
                 if (once)
                 {
-                    reader = new MessageBusReaderOnce(listener, (discordEvent) =>
+                    reader = new MessageBusReaderOnce<DiscordEvent>(listener, (discordEvent) =>
                     {
                         if (discordEvent is not TEvent _) return;
 
@@ -1542,7 +1576,7 @@ namespace Dissonity
                 //? Indefinite
                 else
                 {
-                    reader = new MessageBusReaderIndefinite(listener, (discordEvent) =>
+                    reader = new MessageBusReaderIndefinite<DiscordEvent>(listener, (discordEvent) =>
                     {
                         if (discordEvent is not TEvent _) return;
 
@@ -1551,11 +1585,11 @@ namespace Dissonity
                 }
 
                 //\ Create reference
-                var reference = new SubscriptionReference();
+                var reference = new DiscordSubscription();
                 reference.SaveSubscriptionData(reader, eventString);
 
                 //\ Save reader in message bus
-                messageBus.AddReader(eventString, reader, isInternal);
+                discordMessageBus.AddReader(eventString, reader, isInternal);
 
                 //? Not subscribed to RPC
                 if (!_mock && !subscribedRpcSet.Contains(eventString))
@@ -1579,17 +1613,17 @@ namespace Dissonity
                 return reference;
             }
         
-            // SubcribeCommandFactory but with a manual reader. Used to return <Event>.Data.<UniqueProperty>
-            internal static async Task<SubscriptionReference> SubscribeCommandFactory<TEvent>(MessageBusReader reader, object? args = null, bool isInternal = false) where TEvent : DiscordEvent
+            // SubcribeCommandFactory but with a manual reader. Used to return <Event>.Data.<UniqueProperty> in Discord subscriptions
+            internal static async Task<DiscordSubscription> SubscribeCommandFactory<TEvent>(MessageBusReader<DiscordEvent> reader, object? args = null, bool isInternal = false) where TEvent : DiscordEvent
             {
                 string eventString = EventUtility.GetStringFromType(typeof(TEvent));
 
                 //\ Create reference
-                var reference = new SubscriptionReference();
+                var reference = new DiscordSubscription();
                 reference.SaveSubscriptionData(reader, eventString);
 
                 //\ Save reader in message bus
-                messageBus.AddReader(eventString, reader, isInternal);
+                discordMessageBus.AddReader(eventString, reader, isInternal);
 
                 //? Not subscribed to RPC
                 if (!_mock && !subscribedRpcSet.Contains(eventString))
@@ -1615,12 +1649,135 @@ namespace Dissonity
         }
 
         //# HIRPC - - - - -
-        //todo it would be nice to be able to subscribe to hirpc messages
         public static class HiRpc
         {
-            public static void Send(string data)
+            /// <summary>
+            /// Send a message to JavaScript through this hiRPC channel. <br/> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public static void Send(object payload, string hiRpcChannel)
             {
-                SendToJs(data);
+                if (isEditor) throw new InvalidOperationException("Cannot send messages through hiRPC while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to send a hiRPC message without being ready");
+
+                BridgeMessage message = new()
+                {
+                    AppHash = bridge!.appHash,
+                    Data = payload,
+                    Channel = hiRpcChannel
+                };
+
+                SendToJs(JsonConvert.SerializeObject(message));
+            }
+
+
+            /// <summary>
+            /// Receive messages sent through this hiRPC channel from JavaScript. <br/> <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public static HiRpcSubscription Subscribe(Action<object> listener, string hiRpcChannel)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot subscribe to a hiRPC channel while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                var reference = SubscribeCommandFactory(new MessageBusReaderIndefinite<HiRpcMessage>(listener, (hiRpcMessage) =>
+                {
+                    listener(hiRpcMessage.Data);
+                }), hiRpcChannel);
+
+                return reference;
+            }
+
+
+            //# UNSUBSCRIBE HIRPC - - - - -
+            /// <summary>
+            /// Remove a hiRPC subscription via a HiRpcSubscription instance (returned by HiRpc.Subscribe).
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            public static void Unsubscribe(HiRpcSubscription reference)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
+                
+                if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a HiRpcSubscription that no longer exists ({reference.EventString})");
+
+                var readerSet = hiRpcMessageBus.ReaderSetDictionary[reference.EventString];
+
+                //? Reader set has reader
+                if (!readerSet.Contains(reference.Reader)) throw new ArgumentException("Tried to unsubscribe from a HiRpcSubscription that no longer exists");
+            
+                hiRpcMessageBus.RemoveReader(reference.EventString, reference.Reader);
+            }
+
+
+            /// <summary>
+            /// Remove a hiRPC subscription via a method and a channel.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            public static void Unsubscribe(Action<object> listener, string hiRpcChannel)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
+
+                if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) throw new ArgumentException($"Tried to unsubscribe from a hiRPC channel you're not subscribed to ({hiRpcChannel})");
+
+                var readerSet = hiRpcMessageBus.ReaderSetDictionary[hiRpcChannel];
+
+                //? Reader set has reader
+                var reader = readerSet.FirstOrDefault(r => (Action<object>) r.UserListener == listener);
+                if (reader == null) throw new ArgumentException($"Tried to unsubscribe from a listener that no longer exists");
+            
+                hiRpcMessageBus.RemoveReader(hiRpcChannel, reader);
+            }
+
+
+            /// <summary>
+            /// Remove all subscriptions related to a single hiRPC channel.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public static void UnsubscribeFromChannel(string hiRpcChannel)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
+                
+                if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) return;
+
+                hiRpcMessageBus.ReaderSetDictionary.Remove(hiRpcChannel);
+            }
+
+
+            /// <summary>
+            /// Remove all subscriptions from every hiRPC channel.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            public static void ClearAllSubscriptions()
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
+
+                hiRpcMessageBus.ReaderSetDictionary.Clear();
+            }
+
+
+            // SubcribeCommandFactory but with a manual reader. It allows to use the hiRPC bus type
+            internal static HiRpcSubscription SubscribeCommandFactory(MessageBusReader<HiRpcMessage> reader, string hiRpcChannel, bool isInternal = false)
+            {
+                //\ Create reference
+                var reference = new HiRpcSubscription();
+                reference.SaveSubscriptionData(reader, hiRpcChannel);
+
+                //\ Save reader in message bus
+                hiRpcMessageBus.AddReader(hiRpcChannel, reader, isInternal);
+
+                return reference;
             }
         }
 
@@ -1670,6 +1827,8 @@ namespace Dissonity
 
                 _ready = true;
 
+                readyTask.SetResult(true);
+
                 return Task.FromResult(new MockMultiEvent().ToMultiEvent());
             }
 
@@ -1683,7 +1842,18 @@ namespace Dissonity
             {
                 // OverrideConsoleLogging is done in the hiRPC layer.
                 // The RPC handshake is handled by the hiRPC even before the Unity build loads.
-                MultiEvent multiEvent = await bridge!.ExeMultiEvent();
+                MultiEvent? multiEvent = await bridge!.ExeMultiEvent();
+
+                _hiRpcReady = true;
+
+                //? Null Multi Event
+                if (multiEvent == null)
+                {
+                    tcs.TrySetException(new OutsideDiscordException("The Multi Event is null — the environment is outside Discord"));
+                    readyTask.SetResult(false);
+                    return;
+                }
+
                 _userId = multiEvent.AuthenticateData.User.Id;
 
                 string query = await bridge!.ExeQuery();
@@ -1694,12 +1864,23 @@ namespace Dissonity
             ListenToPayload();
 
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
-            // From then, the JS and C# layers can interact.
+            // From then, the JS and C# layer can interact.
             OpenDownwardFlow();
 
             return tcs.Task;
         }
 
+
+        /// <summary>
+        /// Use this method to wait for initialization to complete. <br/> <br/>
+        /// Returns true if the game is executed inside Discord.
+        /// </summary>
+        public static async Task<bool> OnReady()
+        {
+            if (_ready) return true;
+
+            return await readyTask.Task;
+        }
 
         /// <summary>
         /// Use this method to easily access external resources.
@@ -1793,22 +1974,22 @@ namespace Dissonity
 
         //# UNSUBSCRIBE - - - - -
         /// <summary>
-        /// Remove a subscription via a SubscriptionReference instance (returned by subscription methods).
+        /// Remove a subscription via a DiscordSubscription instance (returned by subscription methods).
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public static void Unsubscribe(SubscriptionReference reference)
+        public static void Unsubscribe(DiscordSubscription reference)
         {
             if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
             
-            if (!messageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a SubscriptionReference that no longer exists ({reference.EventString})");
+            if (!discordMessageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a DiscordSubscription that no longer exists ({reference.EventString})");
 
-            var readerSet = messageBus.ReaderSetDictionary[reference.EventString];
+            var readerSet = discordMessageBus.ReaderSetDictionary[reference.EventString];
 
             //? Reader set has reader
-            if (!readerSet.Contains(reference.Reader)) throw new ArgumentException("Tried to unsubscribe from a SubscriptionReference that no longer exists");
+            if (!readerSet.Contains(reference.Reader)) throw new ArgumentException("Tried to unsubscribe from a DiscordSubscription that no longer exists");
         
-            bool setIsGone = messageBus.RemoveReader(reference.EventString, reference.Reader);
+            bool setIsGone = discordMessageBus.RemoveReader(reference.EventString, reference.Reader);
 
             //? Should unsubscribe from RPC
             if (setIsGone && !_mock)
@@ -1826,17 +2007,19 @@ namespace Dissonity
         /// <exception cref="ArgumentException"></exception>
         public static void Unsubscribe<T>(Action<T> listener)
         {
+            if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
+
             string eventString = EventUtility.GetStringFromReturnDataType(typeof(T));
             
-            if (!messageBus.ReaderSetDictionary.ContainsKey(eventString)) throw new ArgumentException($"Tried to unsubscribe from an event you're not subscribed to ({eventString})");
+            if (!discordMessageBus.ReaderSetDictionary.ContainsKey(eventString)) throw new ArgumentException($"Tried to unsubscribe from an event you're not subscribed to ({eventString})");
 
-            var readerSet = messageBus.ReaderSetDictionary[eventString];
+            var readerSet = discordMessageBus.ReaderSetDictionary[eventString];
 
             //? Reader set has reader
             var reader = readerSet.FirstOrDefault(r => (Action<T>) r.UserListener == listener);
             if (reader == null) throw new ArgumentException($"Tried to unsubscribe from a listener that no longer exists");
         
-            bool setIsGone = messageBus.RemoveReader(eventString, reader);
+            bool setIsGone = discordMessageBus.RemoveReader(eventString, reader);
 
             //? Should unsubscribe from RPC
             if (setIsGone && !_mock)
@@ -1851,17 +2034,14 @@ namespace Dissonity
         /// Remove all subscriptions related to a single event.
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        /// <exception cref="ArgumentException"></exception>
         public static void UnsubscribeFromEvent(string eventString)
         {
             if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
             
-            if (!messageBus.ReaderSetDictionary.ContainsKey(eventString)) throw new ArgumentException($"Tried to unsubscribe from an event that had no subscriptions ({eventString})");
-
-            messageBus.ReaderSetDictionary.Remove(eventString);
+            discordMessageBus.ReaderSetDictionary.Remove(eventString);
 
             //\ Unsubscribe from RPC
-            if (_mock || messageBus.ReaderSetExists(eventString)) return;
+            if (_mock || discordMessageBus.ReaderSetExists(eventString)) return;
 
             subscribedRpcSet.Remove(eventString);
             SendCommand<Unsubscribe, SubscribeResponse>(new (eventString));
@@ -1876,13 +2056,13 @@ namespace Dissonity
         {
             if (!_ready) throw new InvalidOperationException("Tried to unsubscribe without being ready");
 
-            messageBus.ReaderSetDictionary.Clear();
+            discordMessageBus.ReaderSetDictionary.Clear();
 
             if (_mock) return;
 
             foreach (string key in subscribedRpcSet)
             {
-                if (messageBus.ReaderSetExists(key)) continue;
+                if (discordMessageBus.ReaderSetExists(key)) continue;
 
                 subscribedRpcSet.Remove(key);
 
@@ -1903,10 +2083,16 @@ namespace Dissonity
             if (!_mock)
             {
                 SendToBridge<Close, NoResponse>(new Close(code, message));
-                CloseDownwardFlow();
+
+                BridgeMessage bridgeMessage = new()
+                {
+                    AppHash = bridge!.appHash,
+                };
+
+                CloseDownwardFlow(JsonConvert.SerializeObject(bridgeMessage));
             }
 
-            messageBus.ReaderSetDictionary.Clear();
+            discordMessageBus.ReaderSetDictionary.Clear();
             subscribedRpcSet.Clear();
             GameObject.Destroy(bridge);
             _ready = false;
@@ -1919,7 +2105,7 @@ namespace Dissonity
 
 
         //# PRIVATE METHODS - - - - -
-        private static async void InitializeQuery(TaskCompletionSource<MultiEvent> tcs, MultiEvent multiEvent, string stringifiedQuery)
+        private static void InitializeQuery(TaskCompletionSource<MultiEvent> tcs, MultiEvent multiEvent, string stringifiedQuery)
         {
             var query = JsonConvert.DeserializeObject<QueryData>(stringifiedQuery);
 
@@ -1933,7 +2119,7 @@ namespace Dissonity
             // Frame id
             if (query.FrameId == null)
             {
-                tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled."));
+                tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined — Running outside of Discord or too nested to access query. Initialization is canceled."));
                 return;
             }
             _frameId = query.FrameId;
@@ -1995,6 +2181,11 @@ namespace Dissonity
                 _locationId = query.LocationId;
             }
 
+            CompleteInitialization(tcs, multiEvent);
+        }
+
+        private static async void CompleteInitialization(TaskCompletionSource<MultiEvent> tcs, MultiEvent multiEvent)
+        {
             //# CHECK STATE - - - - -
             var code = await bridge!.ExeState();
 
@@ -2076,8 +2267,47 @@ namespace Dissonity
                 }
             }
         
+            //? Desktop
+            if (_platform == Models.Platform.Desktop)
+            {
+                //? Using max resolution
+                if (_configuration.DesktopResolution == ScreenResolution.Max)
+                {
+                    SetupCanvasExpansion();
+                }
+            }
+
+            //? Mobile
+            else
+            {
+                //? Using max resolution
+                if (_configuration.MobileResolution == ScreenResolution.Max)
+                {
+                    SetupCanvasExpansion();
+                }
+            }
+
             _ready = true;
+            readyTask.SetResult(true);
             tcs.TrySetResult(multiEvent);
+        }
+
+        /// <summary>
+        /// After calling this method, window.dso_expand_canvas will be called if it exists (when using max resolution).
+        /// </summary>
+        private static async void SetupCanvasExpansion()
+        {
+            // Indefinite orientation update
+            await Subscribe.SubscribeCommandFactory<OrientationUpdate, OrientationUpdateData>(_ =>
+            {
+                ExpandCanvas();
+            }, null, true);
+
+            // Indefinite layout update
+            await Subscribe.SubscribeCommandFactory<ActivityLayoutModeUpdate, ActivityLayoutModeUpdateData>(_ =>
+            {
+                ExpandCanvas();
+            }, null, true);
         }
 
         private static Task<TResponse> SendCommand<TCommand, TResponse>(TCommand command) where TCommand : DiscordCommand where TResponse : DiscordEvent
@@ -2128,12 +2358,16 @@ namespace Dissonity
                 payload = command;
             }
 
-            string stringifiedMessage = JsonConvert.SerializeObject(new object[2] { command.Opcode, payload });
-
             if (!isEditor)
             {
+                BridgeMessage message = new()
+                {
+                    Data = new object[2] { command.Opcode, payload },
+                    AppHash = bridge!.appHash
+                };
+
                 //\ Send data to RPC
-                SendToRpc(stringifiedMessage);
+                SendToRpc(JsonConvert.SerializeObject(message));
             }
         }
         
@@ -2364,6 +2598,19 @@ namespace Dissonity
                     };
 
                     ((TaskCompletionSource<UserSettingsGetLocaleResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // ShareLinkResponse
+                else if (typeof(TResponse) == typeof(ShareLinkResponse))
+                {
+                    var response = new ShareLinkResponse();
+
+                    response.Data = new()
+                    {
+                        Success = true
+                    };
+
+                    ((TaskCompletionSource<ShareLinkResponse>) (object) tcs).TrySetResult(response);
                 }
 
                 else

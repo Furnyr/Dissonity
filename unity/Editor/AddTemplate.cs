@@ -1,5 +1,6 @@
 
 using System.IO;
+using Dissonity.Editor.Dialogs;
 using Newtonsoft.Json;
 using UnityEditor;
 using UnityEngine;
@@ -25,13 +26,14 @@ namespace Dissonity.Editor
 
         static void OnPostprocessAllAssets(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload)
         {
+            // SessionState isn't used because we need this to execute again on package updates.
             if (loaded) return;
             loaded = true;
 
-            ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload);
+            ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload, false);
         }
 
-        static void ExecuteProcess(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload)
+        static void ExecuteProcess(string[] _importedAssets, string[] _deletedAssets, string[] _movedAssets, string[] _movedFromAssetPaths, bool _didDomainReload, bool updating)
         {
             // To access package.json we need the folder where Dissonity is.
             // This is achieved by accessing the resources folder.
@@ -43,7 +45,25 @@ namespace Dissonity.Editor
             string targetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity");
             string metaTargetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity.meta");
 
-            //# DIRECTORIES - - - - -
+            //# ASSETS/DISSONITY - - - - -
+            string pathToFolder = CombinePath(Application.dataPath, "Dissonity");
+
+            // If Assets/Dissonity doesn't exist, create it and the Dialogs object.
+            if (!Directory.Exists(pathToFolder))
+            {
+                Directory.CreateDirectory(pathToFolder);
+
+                Debug.Log("[Dissonity Editor] Created folder: Assets/Dissonity");
+
+                //\ Create Dialogs object
+                // For AssetDatabase, the path needs to be relative to the project folder.
+                string pathToDialogs = CombinePath("Assets/Dissonity", "Dialogs.asset");
+
+                DialogAsset asset = ScriptableObject.CreateInstance<DialogAsset>();
+                AssetDatabase.CreateAsset(asset, pathToDialogs);
+            }
+
+            //# WEBGL TEMPLATE - - - - -
             string pathToTemplates = CombinePath(Application.dataPath, "WebGLTemplates");
 
             if (!Directory.Exists(pathToTemplates))
@@ -53,9 +73,17 @@ namespace Dissonity.Editor
 
             string pathToDissonityTemplate = CombinePath(pathToTemplates, "Dissonity");
 
+            // The welcome dialog is triggered if Assets/WebGLTemplates/Dissonity doesn't exist.
             if (!Directory.Exists(pathToDissonityTemplate))
             {
                 Directory.CreateDirectory(pathToDissonityTemplate);
+
+                if (!updating)
+                {
+                    Debug.Log("[Dissonity Editor] Created folder: Assets/WebGLTemplates/Dissonity.");
+
+                    WelcomeDialog.ShowDialog();
+                }
             }
 
             string pathToBridge = CombinePath(pathToDissonityTemplate, "Bridge");
@@ -79,24 +107,21 @@ namespace Dissonity.Editor
 
                 if (packageData.Version != versionFileData.Dissonity)
                 {
-                    Debug.Log($"[Dissonity Editor] The installed Dissonity version is {packageData.Version} but your WebGL template is {versionFileData.Dissonity}");
+                    UpdateDialog.ShowDialog();
 
                     FileUtil.DeleteFileOrDirectory(targetPath);
                     FileUtil.DeleteFileOrDirectory(metaTargetPath);
 
-                    ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload);
+                    ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload, true);
                 }
 
                 return;
             }
 
-            //todo remove in the final release
-            Debug.LogWarning("[Dissonity] WARNING! Version 2 isn't released yet. You should only be using this package for testing purposes.");
-
-            Debug.Log("[Dissonity Editor] Adding WebGL Template to your assets.");
-
             LoadTextAssets("WebGLTemplateSource/Dissonity", targetPath);
             LoadPngAssets("WebGLTemplateSource/Dissonity", targetPath);
+
+            AssetDatabase.Refresh();
         }
 
         static void LoadTextAssets(string source, string target)
@@ -168,7 +193,8 @@ namespace Dissonity.Editor
             return CombinePath(target, RelativePath(source));
         }
 
-        static string CombinePath(string path1, string path2)
+        // This method is used in other files related to file generation
+        public static string CombinePath(string path1, string path2)
         {
             return Path.Combine(path1, path2).Replace("\\", "/");
         }

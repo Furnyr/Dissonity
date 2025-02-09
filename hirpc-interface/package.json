@@ -6,6 +6,9 @@
     "build": "pnpm tsc && node scripts/build.js",
     "move": "node scripts/move.js"
   },
+  "imports": {
+    "#hirpc/*": "../hirpc/src/*"
+  },
   "author": "Furnyr",
   "license": "Apache-2.0",
   "devDependencies": {

@@ -14,15 +14,17 @@ namespace Dissonity.Commands
         [JsonProperty("lock_state")]
         public OrientationLockStateType LockState { get; set; }
         
-        [JsonProperty("picture_in_picture_lock_state")]
+        [JsonProperty("picture_in_picture_lock_state", NullValueHandling = NullValueHandling.Ignore)]
         public OrientationLockStateType? PictureInPictureLockState { get; set; }
         
-        [JsonProperty("grid_lock_state")]
+        [JsonProperty("grid_lock_state", NullValueHandling = NullValueHandling.Ignore)]
         public OrientationLockStateType? GridLockState { get; set; }
 
-        public SetOrientationLockState(OrientationLockStateType lockState)
+        public SetOrientationLockState(OrientationLockStateType lockState, OrientationLockStateType? pipLockState, OrientationLockStateType? gridLockState)
         {
             LockState = lockState;
+            PictureInPictureLockState = pipLockState;
+            GridLockState = gridLockState;
         }
     }
 }

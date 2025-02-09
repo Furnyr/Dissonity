@@ -9,8 +9,8 @@ interface Window {
             default: { new(): unknown } // Build variables class [import needed]
         }
     };
-    dso_hirpc: unknown;                 // hiRPC instance
-    dso_build_variables: unknown;       // Build variables instance
+    dso_hirpc: unknown;             // hiRPC instance
+    dso_build_variables: unknown;   // Build variables instance
 }
 
 interface SessionStorage {

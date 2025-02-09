@@ -24,5 +24,6 @@ namespace Dissonity.Commands
         public const string OpenShareMomentDialog = "OPEN_SHARE_MOMENT_DIALOG";
         public const string InitiateImageUpload = "INITIATE_IMAGE_UPLOAD";
         public const string GetActivityInstanceConnectedParticipants = "GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS";
+        public const string ShareLink = "SHARE_LINK";
     }
 }

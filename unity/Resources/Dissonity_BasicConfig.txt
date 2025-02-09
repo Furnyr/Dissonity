@@ -1,0 +1,18 @@
+using Dissonity;
+using Dissonity.Models;
+
+[DissonityConfig]
+public class DissonityConfiguration : SdkConfiguration<ServerTokenRequest, ServerTokenResponse>
+{
+    // Basic configuration
+    // Hover over properties for more information!
+
+    // Initialization
+    public override long ClientId => 0;
+    public override string[] OauthScopes => new string[] { OauthScope.Identify, /*, your-oauth-scopes*/ };
+    public override string TokenRequestPath => "/api/token";
+
+    // Resolution
+    public override ScreenResolution DesktopResolution => ScreenResolution.Max;
+    public override ScreenResolution MobileResolution => ScreenResolution.Max;
+}
