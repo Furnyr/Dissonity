@@ -15,9 +15,13 @@
   </h3>
 </div>
 
+> ⚠️ This is a pre-release meant to work with Dissonity Version 2 Beta. ⚠️
+
 ## About
 
 Utility package for using the hiRPC API from the JavaScript layer.
+
+hiRPC allows JavaScript to interact with a game engine and the Discord client safely.
 
 ## Developing
 
@@ -28,3 +32,7 @@ We use [pnpm](https://pnpm.io) as the package manager.
 Dissonity is licensed under the Apache License, Version 2.0
 
 This project includes code from the [Discord Embedded App SDK](https://github.com/discord/embedded-app-sdk), licensed under the [MIT License](MIT_LICENSE.md).
+
+## Links
+
+- [Source code](https://github.com/Furnyr/Dissonity/tree/dev/hirpc-kit#readme)

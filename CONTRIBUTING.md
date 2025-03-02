@@ -30,7 +30,7 @@ We recommend using [Conventional Commits](https://www.conventionalcommits.org/en
 
 ---
 
-It's important to keep in mind that version 2 is currently in alpha, so the codebase is very prone to big changes.
+It's important to keep in mind that version 2 is currently in beta, so the codebase is still prone to changes.
 
 We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki) up to date for contributors, although the more experimental features are not so well documented:
 
@@ -50,7 +50,7 @@ We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki
     <td></td>
   </tr>
   <tr>
-    <td>/unity/Resources</td>
+    <td>/unity/Editor/Assets/Template</td>
     <td>WebGL Template used to run the hiRPC interface before the game build.</td>
     <td>Unlikely to undergo major unexpected changes.</td>
     <td>✅</td>
@@ -80,16 +80,16 @@ We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki
   <tr>
     <td>/examples</td>
     <td>Code samples and basic backend.</td>
-    <td>No work on it yet.</td>
-    <td>❌</td>
-    <td>Some time after the end of the alpha phase.</td>
+    <td>Contributions are accepted. Open an issue to discuss new examples.</td>
+    <td>✅</td>
+    <td></td>
   </tr>
   <tr>
     <td>/website</td>
     <td>Site that hosts documentation and guides.</td>
-    <td>Early work in progress.</td>
-    <td>❌</td>
-    <td>When <a href="https://github.com/Furnyr/Dissonity/tree/full-website">full-website</a> is merged into dev.</td>
+    <td>Contributions are accepted.</td>
+    <td>✅</td>
+    <td></td>
   </tr>
   <tr>
 </table>
@@ -108,7 +108,7 @@ In the long term, it's planned to collaborate with [Robo.js](https://github.com/
 
 ## What will happen after the alpha?
 
-When version 2 is stable, it will enter the **beta** phase, which could last for around a month. During that time, users of version 1 should reinstall the Unity package from the v1 branch.
+When version 2 is stable, it will enter the **beta** phase, which could last for a few months. During that time, users of version 1 should reinstall the Unity package from the v1 branch.
 
 Then, the dev branch will be merged into main and version 1 will be deprecated in 3 months.
 

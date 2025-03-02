@@ -7,8 +7,6 @@ namespace Dissonity.Editor.Dialogs
 {
     internal class UninstallerDialog : EditorWindow
     {
-        private const string PackageName = "com.furnyr.dissonity";
-
         public static void ShowDialog()
         {
             var window = GetWindow<UninstallerDialog>(true, "Dissonity — Uninstaller", true);
@@ -64,12 +62,18 @@ namespace Dissonity.Editor.Dialogs
         private void DeleteFolders()
         {
             string pathToDissonity = AddTemplate.CombinePath(Application.dataPath, "Dissonity");
+            string pathToDissonityMeta = AddTemplate.CombinePath(Application.dataPath, "Dissonity.meta");
+
             string pathToTemplates = AddTemplate.CombinePath(Application.dataPath, "WebGLTemplates");
+            string pathToTemplatesMeta = AddTemplate.CombinePath(Application.dataPath, "WebGLTemplates.meta");
+
             string pathToDissonityTemplate = AddTemplate.CombinePath(pathToTemplates, "Dissonity");
+            string pathToDissonityTemplateMeta = AddTemplate.CombinePath(pathToTemplates, "Dissonity.meta");
 
             if (Directory.Exists(pathToDissonity))
             {
                 FileUtil.DeleteFileOrDirectory(pathToDissonity);
+                FileUtil.DeleteFileOrDirectory(pathToDissonityMeta);
             }
 
             //? Only using the Dissonity template
@@ -78,20 +82,24 @@ namespace Dissonity.Editor.Dialogs
             if (Directory.Exists(pathToDissonityTemplate) && templates <= 1)
             {
                 FileUtil.DeleteFileOrDirectory(pathToTemplates);
+                FileUtil.DeleteFileOrDirectory(pathToTemplatesMeta);
             }
 
             //? Using the Dissonity template and others
             else if (Directory.Exists(pathToDissonityTemplate))
             {
                 FileUtil.DeleteFileOrDirectory(pathToDissonityTemplate);
+                FileUtil.DeleteFileOrDirectory(pathToDissonityTemplateMeta);
             }
 
             // In any other case, the Dissonity template is already deleted.
+
+            AssetDatabase.Refresh();
         }
     
         private void UninstallPackage()
         {
-            Client.Remove(PackageName);
+            Client.Remove(Loady.PackageName);
         }
     }
 }

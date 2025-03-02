@@ -4,5 +4,5 @@ yalc.lock
 build
 _unity_colyseus
 node_modules
-src/client/*
-!src/client/README.md
+src/client/Unity/*
+!src/client/Unity/README.md

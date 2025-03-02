@@ -91,7 +91,7 @@ if (process.env.COLYSEUS!.toLowerCase() == "true") {
   colyseusServer.listen(Number(process.env.PORT!));
 }
 
-//? Just express server
+//? Express server
 else {
   app.listen(Number(process.env.PORT!));
 }

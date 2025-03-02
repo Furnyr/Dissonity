@@ -21,9 +21,9 @@ mergeInto(LibraryManager.library, {
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     SendToJs: function (stringifiedMessage) {
-        const { payload, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.sendToJs(app_hash, channel, payload);
+        hiRpc.sendToJs(app_hash, channel, data);
     },
     PatchUrlMappings: function (stringifiedMessage) {
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
@@ -45,7 +45,7 @@ mergeInto(LibraryManager.library, {
         }, locale);
         const payload = {
             nonce,
-            formatted_price: formattedPrice
+            response: formattedPrice
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
@@ -55,7 +55,7 @@ mergeInto(LibraryManager.library, {
         const query = JSON.stringify(hiRpc.getQueryObject());
         const payload = {
             nonce,
-            query
+            response: query
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
@@ -82,6 +82,24 @@ mergeInto(LibraryManager.library, {
     DissonityError: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+    LocalStorageSetItem: function (stringifiedMessage) {
+        const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
+        localStorage.setItem(data[0], data[1]);
+    },
+    LocalStorageGetItem: function (stringifiedMessage) {
+        const { nonce, app_hash, data } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const hiRpc = window.dso_hirpc;
+        const response = localStorage.getItem(data);
+        const payload = {
+            nonce,
+            response,
+            nullable_response: true
+        };
+        hiRpc.sendToApp(app_hash, "dissonity", payload);
+    },
+    LocalStorageClear: function () {
+        localStorage.clear();
     },
     CloseDownwardFlow: function (stringifiedMessage) {
         const { app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));

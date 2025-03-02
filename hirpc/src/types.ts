@@ -35,9 +35,9 @@ export type DissonityChannelHandshake = {
 
 // Used in the hiRPC interface. Normal payload in the dissonity channel.
 export type DissonityChannelPayload = {
-    nonce?: string, // Only included in a response
-    query?: string,
-    formatted_price?: string
+    nonce?: string,
+    response?: string | null,
+    nullable_response?: boolean
 };
 
 export type HiRpcMessage = {

@@ -14,25 +14,25 @@ namespace Dissonity.Models.Builders
         [JsonProperty("type")]
         public ActivityType Type { get; set; }
 
-        [JsonProperty("timestamps")]
+        [JsonProperty("timestamps", NullValueHandling = NullValueHandling.Ignore)]
         public Timeframe? Timestamps { get; set; }
 
-        [JsonProperty("details")]
+        [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
         public string? Details { get; set; }
 
-        [JsonProperty("state")]
+        [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         public string? State { get; set; }
         
-        [JsonProperty("party")]
+        [JsonProperty("party", NullValueHandling = NullValueHandling.Ignore)]
         public ActivityParty? Party { get; set; }
 
-        [JsonProperty("assets")]
+        [JsonProperty("assets", NullValueHandling = NullValueHandling.Ignore)]
         public ActivityAssets? Assets { get; set; }
         
-        [JsonProperty("secrets")]
+        [JsonProperty("secrets", NullValueHandling = NullValueHandling.Ignore)]
         public ActivitySecrets? Secrets { get; set; }
         
-        [JsonProperty("instance")]
+        [JsonProperty("instance", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Instance { get; set; }
 
         internal Activity ToActivity()

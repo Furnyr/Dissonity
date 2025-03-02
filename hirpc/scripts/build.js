@@ -15,13 +15,14 @@ function main() {
     }
 
     // Target
-    const targetFile = `./dist/version.json`;
+    const versionJsFile = `./dist/version.js`;
+    const versionTsFile = `./dist/version.d.ts`;
 
-    fs.writeFileSync(targetFile, JSON.stringify({
-        hirpc: version
-    }, null, 4));
+    fs.writeFileSync(versionJsFile, `export const version = "${version}";`);
+    fs.writeFileSync(versionTsFile, `export declare const version = "${version}";`);
 
-    console.log(chalk.green(`Added ${targetFile} successfully!`));
+    console.log(chalk.green(`Added ${versionJsFile} successfully!`));
+    console.log(chalk.green(`Added ${versionTsFile} successfully!`));
 }
 
 main();

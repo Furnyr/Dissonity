@@ -1,13 +1,13 @@
 
 > [!WARNING]
-> Dissonity Version 2 is still in alpha and will break your code between updates. Use it only for testing or preview!
+> Dissonity Version 2 is still in beta and may cause issues with your code between updates. Use it at your own discretion!
 
 <div align="center">
     <img src="https://i.imgur.com/60Sv0ak.png" width="650">
 </div>
 
 <div align="center">
-<img src="https://img.shields.io/badge/version-alpha%205%20v2.0.0-red">
+<img src="https://img.shields.io/badge/version-beta%201%20v2.0.0-yellow">
 </div>
 
 

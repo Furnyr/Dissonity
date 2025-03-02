@@ -1,5 +1,5 @@
 
-import type _HiRpcModule from "@hirpc/index";
+import type _HiRpcModule from "#hirpc/index";
 export type HiRpcModule = InstanceType<typeof _HiRpcModule>;
 
-export type { DissonityChannelPayload } from "@hirpc/types";
+export type { DissonityChannelPayload } from "#hirpc/types";

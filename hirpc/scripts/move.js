@@ -17,12 +17,13 @@ function main() {
     const sourcePath = "./dist/";
 
     // Targets
-    const templateTargetPath = "../unity/Resources/WebGLTemplateSource/Dissonity/Bridge/";
+    const templateTargetPath = "../unity/Editor/Assets/Template/Dissonity/Bridge/";
 
     // Move main files
     fs.renameSync(`${sourcePath}dissonity_hirpc.js`, `${templateTargetPath}dissonity_hirpc.js.txt`);
     fs.renameSync(`${sourcePath}dissonity_build_variables.js`, `${templateTargetPath}dissonity_build_variables.js.txt`);
-    fs.renameSync(`${sourcePath}version.json`, `${templateTargetPath}version.json.txt`);
+    fs.renameSync(`${sourcePath}version.js`, `${templateTargetPath}version.js.txt`);
+    fs.renameSync(`${sourcePath}version.d.ts`, `${templateTargetPath}version.d.ts.txt`);
     console.log(chalk.green(`Files moved to ${templateTargetPath} successfully!`));
 }
 

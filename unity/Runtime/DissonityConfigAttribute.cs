@@ -50,7 +50,7 @@ namespace Dissonity
             PatchUrlMappingsConfigBuilder patchConfig = ((ISdkConfiguration) instance).PatchUrlMappingsConfig;
             ScreenResolution desktopResolution = ((ISdkConfiguration) instance).DesktopResolution;
             ScreenResolution mobileResolution = ((ISdkConfiguration) instance).MobileResolution;
-            ScreenResolution browserResolution = ((ISdkConfiguration) instance).BrowserResolution;
+            ScreenResolution webResolution = ((ISdkConfiguration) instance).BrowserResolution;
             bool synchronizeUser = ((ISdkConfiguration) instance).SynchronizeUser;
             bool synchronizeGuildMemberRpc = ((ISdkConfiguration) instance).SynchronizeGuildMemberRpc;
 
@@ -71,7 +71,7 @@ namespace Dissonity
                 PatchUrlMappingsConfig = patchConfig,
                 DesktopResolution = desktopResolution,
                 MobileResolution = mobileResolution,
-                BrowserResolution = browserResolution,
+                BrowserResolution = webResolution,
                 SynchronizeUser = synchronizeUser,
                 SynchronizeGuildMemberRpc = synchronizeGuildMemberRpc
             };

@@ -47,6 +47,9 @@ namespace Dissonity
 
         [DllImport("__Internal")]
         private static extern void SendToJs(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void LocalStorageGetItem(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
@@ -55,6 +58,7 @@ namespace Dissonity
         private static void PatchUrlMappings(string _) {}
         private static void FormatPrice(string _) {}
         private static void SendToJs(string _) {}
+        private static void LocalStorageGetItem(string _) {}
 #endif
 
 
@@ -92,6 +96,24 @@ namespace Dissonity
             };
 
             GetQueryObject(JsonConvert.SerializeObject(data));
+
+            return tcs.Task;
+        }
+
+        internal Task<string?> ExeLocalStorageGetItem(string key)
+        {
+            string nonce = Guid.NewGuid().ToString();            
+            var tcs = new TaskCompletionSource<string?>();
+            pendingTasks.Add(nonce, tcs);
+
+            BridgeMessage data = new()
+            {
+                Nonce = nonce,
+                AppHash = appHash,
+                Data = key
+            };
+
+            LocalStorageGetItem(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -204,6 +226,18 @@ namespace Dissonity
             pendingTasks.Remove(nonce);
         }
 
+        // LocalStorageGetItem
+        private void HandleNullableString(string nonce, string? stringData)
+        {
+            //? No task
+            if (!pendingTasks.ContainsKey(nonce)) return;
+
+            var tcs = (TaskCompletionSource<string?>) pendingTasks[nonce];
+            tcs.TrySetResult(stringData);
+
+            pendingTasks.Remove(nonce);
+        }
+
         // App hash
         private void HandleHash(string hash)
         {
@@ -273,7 +307,6 @@ namespace Dissonity
                 }
             }
 
-
             //? Normal payload
             else
             {
@@ -294,16 +327,16 @@ namespace Dissonity
                 throw new Exception("No nonce found in hiRPC message with channel 'dissonity'");
             }
 
-            //? Query
-            else if (payload.Query != null)
+            //? Nullable string
+            else if (payload.NullableResponse == true)
             {
-                HandleString(payload.Nonce, payload.Query);
+                HandleNullableString(payload.Nonce, payload.Response);
             }
 
-            //? Formatted price
-            else if (payload.FormattedPrice != null)
+            //? String
+            else if (payload.Response != null)
             {
-                HandleString(payload.Nonce, payload.FormattedPrice);
+                HandleString(payload.Nonce, payload.Response);
             }
 
             //? Empty
@@ -359,7 +392,6 @@ namespace Dissonity
                 ? Deserialize(true, payload, rawDiscordEvent)
                 : Deserialize(false, payload, rawDiscordEvent);
                 
-
             if (deserializedEvent.Command == Dispatch)
             {
                 Api.discordMessageBus.DispatchEvent(deserializedEvent);
@@ -431,12 +463,23 @@ namespace Dissonity
             if (!Api.pendingCommands.ContainsKey(nonce)) return;
             var commandTask = Api.pendingCommands[nonce];
 
-            // At this point we already have access to the command task and command response.
-            // Reflections are used since to call TrySetResult we would need to cast (TaskCompletionSource<T>) but we have typeof(T)
+            //? No Response
+            Type responseType = CommandUtility.GetResponseFromString(responseEvent.Command);
+            if (responseType == typeof(NoResponse))
+            {
+                // Cast, as we know this is a NoResponse
+                ((TaskCompletionSource<NoResponse>) commandTask).TrySetResult(new NoResponse());
+            }
 
-            //\ Access TrySetResult
-            MethodInfo trySetResult = commandTask.GetType().GetMethod(nameof(TaskCompletionSource<object>.TrySetResult));
-            trySetResult.Invoke(commandTask, new object[] { responseEvent });
+            else
+            {
+                // At this point we already have access to the command task and command response.
+                // Reflections are used since to call TrySetResult we would need to cast (TaskCompletionSource<T>) but we have typeof(T)
+
+                //\ Access TrySetResult
+                MethodInfo trySetResult = commandTask.GetType().GetMethod(nameof(TaskCompletionSource<object>.TrySetResult));
+                trySetResult.Invoke(commandTask, new object[] { responseEvent });
+            }
 
             //¡ Remove the pending command
             Api.pendingCommands.Remove(nonce);

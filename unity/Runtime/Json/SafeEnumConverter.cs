@@ -65,7 +65,7 @@ namespace Dissonity.Json
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            writer.WriteValue(value.ToString());
+            writer.WriteValue(Convert.ToInt32(value));
         }
 
         private bool IsNullableType(Type t)

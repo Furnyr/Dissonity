@@ -19,7 +19,7 @@ function main() {
 
     // Targets
     const pluginTargetPath = "../unity/Plugins/"
-    const templateTargetPath = "../unity/Resources/WebGLTemplateSource/Dissonity/";
+    const templateTargetPath = "../unity/Editor/Assets/Template/Dissonity/";
 
     // Move main files
     fs.renameSync(`${sourcePath}plugin.js`, `${pluginTargetPath}HiRpcPlugin.jslib`);

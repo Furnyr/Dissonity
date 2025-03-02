@@ -15,10 +15,10 @@ namespace Dissonity.Models.Interop
         [JsonProperty("nonce")]
         public string? Nonce { get; set; }
 
-        [JsonProperty("query")]
-        public string? Query { get; set; }
+        [JsonProperty("response")]
+        public string? Response { get; set; }
 
-        [JsonProperty("formatted_price")]
-        public string? FormattedPrice { get; set; }
+        [JsonProperty("nullable_response")]
+        public bool? NullableResponse { get; set; }
     }
 }

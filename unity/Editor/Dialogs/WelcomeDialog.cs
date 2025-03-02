@@ -8,7 +8,7 @@ namespace Dissonity.Editor.Dialogs
     {
         public static void ShowDialog()
         {
-            var window = GetWindow<WelcomeDialog>(true, "Dissonity — Create Discord activities using Unity", true);
+            var window = GetWindow<WelcomeDialog>(true, "Dissonity — Create Discord activities with Unity", true);
             window.minSize = new Vector2(600, 600);
         }
 
@@ -17,13 +17,18 @@ namespace Dissonity.Editor.Dialogs
             GUIStyle headerStyle = new GUIStyle(EditorStyles.largeLabel)
             {
                 fontSize = 20,
-                font = EditorStyles.boldFont
+                fontStyle = FontStyle.Bold
             };
 
             GUIStyle subHeaderStyle = new GUIStyle(EditorStyles.largeLabel)
             {
                 fontSize = 17,
-                font = EditorStyles.boldFont
+                fontStyle = FontStyle.Bold
+            };
+
+            GUIStyle boxStyle = new GUIStyle(EditorStyles.helpBox)
+            {
+                fontSize = 12
             };
 
             // Top margin
@@ -35,6 +40,11 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.BeginVertical();
             
             GUILayout.Label("Welcome to Dissonity!", headerStyle);
+
+            //todo remove in final version
+            GUI.backgroundColor = new Color(0.85f, 0.88f, 0.28f);
+            GUILayout.Label("This is a beta version. Watch out for unexpected breaking changes!", boxStyle);
+            GUI.backgroundColor = Color.white;
 
             GUILayout.Space(15);
 
@@ -68,7 +78,7 @@ namespace Dissonity.Editor.Dialogs
             {
                 Close();
 
-                string fileData = Resources.Load<TextAsset>("Dissonity_BasicConfig").text;
+                string fileData = Loady.Load<TextAsset>("BasicConfig.txt").text;
                 SetConfiguration(fileData);
             }
 
@@ -78,7 +88,7 @@ namespace Dissonity.Editor.Dialogs
             {
                 Close();
 
-                string fileData = Resources.Load<TextAsset>("Dissonity_StandardConfig").text;
+                string fileData = Loady.Load<TextAsset>("StandardConfig.txt").text;
                 SetConfiguration(fileData);
             }
 
@@ -88,7 +98,7 @@ namespace Dissonity.Editor.Dialogs
             {
                 Close();
 
-                string fileData = Resources.Load<TextAsset>("Dissonity_AdvancedConfig").text;
+                string fileData = Loady.Load<TextAsset>("AdvancedConfig.txt").text;
                 SetConfiguration(fileData);
             }
 

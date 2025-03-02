@@ -96,7 +96,9 @@ namespace Dissonity.Editor
             var mappings = JsonConvert.SerializeObject(data.Mappings);
 
             //? Null
-            if (mappings == "null")
+            bool emptyMappings = data.Mappings.Length == 0;
+            bool onlyNullMapping = data.Mappings.Length == 1 && data.Mappings[0].Prefix == null;
+            if (mappings == "null" || emptyMappings || onlyNullMapping)
             {
                 mappings = "";
             }

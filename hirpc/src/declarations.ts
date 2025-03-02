@@ -18,4 +18,5 @@ interface SessionStorage {
     dso_needs_prefix:       "true" | "false" | null;  // True if .proxy is needed
     dso_connected:          "true" | "false" | null;  // True after handshake
     dso_authenticated:      "true" | "false" | null;  // True after authentication
+    dso_instance_id:        string | null;  // Will match the activity instance ID if the hiRPC kit is enabled (used to clear session storage)
 }

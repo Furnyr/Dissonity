@@ -13,8 +13,8 @@ export type DissonityChannelHandshake = {
 };
 export type DissonityChannelPayload = {
     nonce?: string;
-    query?: string;
-    formatted_price?: string;
+    response?: string | null;
+    nullable_response?: boolean;
 };
 export type HiRpcMessage = {
     channel: string;

@@ -69,7 +69,8 @@ The files included in the game build are:
 
 - `dist/dissonity_hirpc.js`
 - `dist/dissonity_build_variables.js`
-- `dist/version.json`
+- `dist/version.js`
+- `dist/version.d.ts`
 
 ## License
 

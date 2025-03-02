@@ -5,6 +5,16 @@ import { build } from "esbuild";
 import glob from "glob";
 import fs from "fs";
 
+const args = process.argv.slice(2);
+const clean = args[0] == "clean";
+
+//? Delete build folder
+if (clean && fs.existsSync("./build")) {
+  fs.rmSync("./build", {
+    recursive: true
+  });
+}
+
 console.log("\n----- Building project... -----\n");
 
 //? Create main folders
@@ -44,12 +54,16 @@ build({
 
 //# OTHER FILES - - - - -
 // .env
-const envBuffer = fs.readFileSync("./.env");
-fs.writeFileSync("./build/.env", envBuffer);
+//const envBuffer = fs.readFileSync("./.env");
+//fs.writeFileSync("./build/.env", envBuffer);
 
 //\ Copy client folder into build
 fs.cpSync("./src/client", "./build/client", {
-  recursive: true
+  recursive: true,
+  filter: src => {
+    if (src.endsWith(".ts")) return false;
+    return true;
+  }
 });
 
 console.log("\n----- Project build ready -----\n");

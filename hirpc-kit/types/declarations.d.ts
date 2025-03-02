@@ -19,4 +19,5 @@ interface SessionStorage {
     dso_needs_prefix: "true" | "false" | null;
     dso_connected: "true" | "false" | null;
     dso_authenticated: "true" | "false" | null;
+    dso_instance_id: string | null;
 }

@@ -16,6 +16,8 @@ const roomsMap = new Map<string, boolean>();
 // This is your game room!
 export class GameRoom extends Room {
 
+    //todo here would be a good place to implement authentication
+    //todo https://discord.com/developers/docs/activities/development-guides#preventing-unwanted-activity-sessions
     override onCreate(options: ExpectedCreateOptions): void | Promise<any> {
 
         //? Check validity

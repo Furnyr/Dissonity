@@ -4,16 +4,11 @@ import type { BuildVariables, RpcPayload } from "./types";
 /**
  * Main hiRPC class. An instance should be located in window.dso_hirpc.
  *
- * Since this class is loaded from the hiRPC interface, we can assume the following properties exist:
- * - window.dso_hirpc
- * - sessionStorage.dso_outside_discord
- * - sessionStorage.dso_needs_prefix
- *
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-export default class HiRpc0_4 {
+export default class HiRpc0_5 {
     #private;
     constructor();
     /**
@@ -46,7 +41,7 @@ export default class HiRpc0_4 {
     /**
      * Request a hash to access restricted functionality.
      *
-     * Call this method before loading the game build.
+     * Call this method after hiRPC `load` and before loading the game build.
      */
     requestHash(): Promise<string | null>;
     /**
@@ -63,8 +58,8 @@ export default class HiRpc0_4 {
      * Send data to the game build through a hiRPC channel.
      */
     sendToApp(hash: string, channel: string, payload: unknown): Promise<void>;
-    addAppListener(hash: string, listener: (data: unknown) => void): void;
-    removeAppListener(hash: string, listener: (data: unknown) => void): void;
+    addAppListener(hash: string, channel: string, listener: (data: unknown) => void): void;
+    removeAppListener(hash: string, channel: string, listener: (data: unknown) => void): void;
     /**
      * Lock hash access before opening the downward flow. After this call, `requestHash` will return null.
      */

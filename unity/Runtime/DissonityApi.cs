@@ -18,13 +18,6 @@ using System.Net;
 using System.Linq;
 using System.Globalization;
 
-//todo main tasks
-// Test hiRPC
-// Test that everything users don't need to see is internal
-// Documentation
-// Logo and brand
-// GitHub repository stuff
-
 namespace Dissonity
 {
     public static class Api
@@ -38,6 +31,7 @@ namespace Dissonity
         internal static long? _guildId;
         internal static long? _channelId;
         internal static long? _userId = null;
+        internal static string? _accessToken = null;
         internal static string? _frameId;
         internal static string? _mobileAppVersion = null;
         internal static string? _customId = null;
@@ -61,7 +55,7 @@ namespace Dissonity
         internal static bool isEditor = UnityEngine.Application.isEditor;
 
         // Initialization
-        private static bool _initialized = false; // called Initialize
+        private static bool _initialized = false; // Called Initialize
         private static bool _hiRpcReady = false; // hiRPC available
         private static bool _ready = false; // RPC available
         private static bool _mock = false;
@@ -91,7 +85,7 @@ namespace Dissonity
         /// Unique string id for each activity instance.
         /// </summary>
         public static string InstanceId
-        { 
+        {
             get
             {
                 if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
@@ -257,6 +251,24 @@ namespace Dissonity
                 return _userId;
             }
         }
+
+        /// <summary>
+        /// Your client access token.
+        /// </summary>
+        public static string AccessToken
+        {
+            get
+            {
+                if (!_ready) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                if (_mock) {
+
+                    return GameObject.FindAnyObjectByType<DiscordMock>()._accessToken;
+                }
+
+                return _accessToken!;
+            }
+        }
         
         /// <summary>
         /// True after the first <c> Api.Initialize </c> call, regardless of success.
@@ -372,6 +384,12 @@ namespace Dissonity
 
         [DllImport("__Internal")]
         private static extern void SendToJs(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void LocalStorageSetItem(string stringifiedMessage);
+
+        [DllImport("__Internal")]
+        private static extern void LocalStorageClear();
 #endif
 
 #if !UNITY_WEBGL
@@ -380,6 +398,8 @@ namespace Dissonity
         private static void ExpandCanvas() {}
         private static void SendToRpc(string _) {}
         private static void SendToJs(string _) {}
+        private static void LocalStorageSetItem(string _) {}
+        private static void LocalStorageClear() {}
 #endif
 
 
@@ -1655,7 +1675,7 @@ namespace Dissonity
             /// Send a message to JavaScript through this hiRPC channel. <br/> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public static void Send(object payload, string hiRpcChannel)
+            public static void Send(string hiRpcChannel, object payload)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot send messages through hiRPC while inside Unity");
 
@@ -1676,7 +1696,7 @@ namespace Dissonity
             /// Receive messages sent through this hiRPC channel from JavaScript. <br/> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            public static HiRpcSubscription Subscribe(Action<object> listener, string hiRpcChannel)
+            public static HiRpcSubscription Subscribe(string hiRpcChannel, Action<object> listener)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot subscribe to a hiRPC channel while inside Unity");
 
@@ -1719,7 +1739,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="ArgumentException"></exception>
-            public static void Unsubscribe(Action<object> listener, string hiRpcChannel)
+            public static void Unsubscribe(string hiRpcChannel, Action<object> listener)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
 
@@ -1778,6 +1798,45 @@ namespace Dissonity
                 hiRpcMessageBus.AddReader(hiRpcChannel, reader, isInternal);
 
                 return reference;
+            }
+        }
+
+        //# LOCAL STORAGE - - - - -
+        public static class LocalStorage
+        {
+            /// <summary>
+            /// Add persistent data to the local storage.
+            /// </summary>
+            public static void SetItem(string key, string value)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
+
+                BridgeMessage message = new()
+                {
+                    Data = new string[] { key, value }
+                };
+
+                LocalStorageSetItem(JsonConvert.SerializeObject(message));
+            }
+
+            public async static Task<string?> GetItem(string key)
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
+
+                return await bridge!.ExeLocalStorageGetItem(key);
+            }
+
+            public static void Clear()
+            {
+                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
+
+                if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
+                
+                LocalStorageClear();
             }
         }
 
@@ -1849,12 +1908,13 @@ namespace Dissonity
                 //? Null Multi Event
                 if (multiEvent == null)
                 {
-                    tcs.TrySetException(new OutsideDiscordException("The Multi Event is null — the environment is outside Discord"));
+                    tcs.TrySetException(new OutsideDiscordException("The Multi Event is null - the environment is outside Discord"));
                     readyTask.SetResult(false);
                     return;
                 }
 
                 _userId = multiEvent.AuthenticateData.User.Id;
+                _accessToken = multiEvent.AuthenticateData.AccessToken;
 
                 string query = await bridge!.ExeQuery();
 
@@ -1881,6 +1941,7 @@ namespace Dissonity
 
             return await readyTask.Task;
         }
+
 
         /// <summary>
         /// Use this method to easily access external resources.
@@ -2119,7 +2180,7 @@ namespace Dissonity
             // Frame id
             if (query.FrameId == null)
             {
-                tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined — Running outside of Discord or too nested to access query. Initialization is canceled."));
+                tcs.TrySetException(new OutsideDiscordException("'frame_id' query param is not defined - Running outside of Discord or too nested to access query. Initialization is canceled."));
                 return;
             }
             _frameId = query.FrameId;
@@ -2322,18 +2383,8 @@ namespace Dissonity
             // Only the handshake command lacks a nonce
             string commandNonce = command.Guid.ToString();
 
-
-            if (typeof(TResponse) == typeof(NoResponse))
-            {
-                // Seems hacky, but I don't think there's other way around
-                // if this method is intended to serve the command response.
-                ((TaskCompletionSource<NoResponse>) (object) tcs).TrySetResult(new NoResponse());
-            }
-
-            else
-            {
-                pendingCommands.Add(commandNonce, tcs);
-            }
+            // Even for NoResponse commands. This allows CommandException(s) to be raised correctly.
+            pendingCommands.Add(commandNonce, tcs);
 
             SendToBridge<TCommand, TResponse>(command);
 
