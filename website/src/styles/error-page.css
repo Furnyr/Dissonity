@@ -34,6 +34,12 @@
     margin-left: auto;
     width: 100%;
 }
+
+#error-page-footer-container {
+    display: block;
+    width: 59.1%;
+    margin: 0 auto;
+}
   
 #error-page-margin {
     margin-bottom: 200px;

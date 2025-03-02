@@ -40,9 +40,11 @@ function Team () {
       //todo
       */}
 
-      <BoxWarn title="WIP">
-        <p>Work in progress!</p>
-      </BoxWarn>
+        <BoxWarn title="WIP">
+            <p>
+                Article under construction! Come back soon!
+            </p>
+        </BoxWarn>
 
       <Footer />
 

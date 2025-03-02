@@ -34,7 +34,10 @@ export default function ErrorPage() {
           </div>
 
         </div>
+        <div id="error-page-footer-container">
+
         <Footer />
+        </div>
         </div>
       </>
     );

@@ -9,19 +9,14 @@ function DocsPage () {
 
   const context = useOutletContext() as DocsContext;
 
-  context.setActiveItem("/docs/v2/internals/mock");
+  context.setActiveItem("/docs/v2/api/exceptions");
 
   return (
     <div className="doc-page">
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Mock <HashLink link="/docs/v2/internals/mock#start"/></h1> 
+        <h1 id="start">Exceptions <HashLink link="/docs/v2/api/exceptions#start"/></h1> 
 
-        {/*<h2 id="subtitle">Subtitle <HashLink link="/docs/v2/internals/mock#subtitle" /></h2>*/}
-
-        {/*
-        //todo
-        // */}
         <BoxWarn title="WIP">
             <p>
                 Article under construction! Come back soon!

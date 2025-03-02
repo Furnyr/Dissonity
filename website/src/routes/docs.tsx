@@ -15,11 +15,10 @@ export default function Docs() {
   const [collapsed, setCollapsed] = useState(mobile);
   const [eventAdded, setEventAdded] = useState(false);
   const [activeItem, setActiveItem] = useState(location.pathname);
-  console.log(activeItem);
 
-  const SIDEBAR_WIDTH = mobile ? "200px" : "250px";
+  const SIDEBAR_WIDTH = mobile ? "230px" : "250px";
   const SIDEBAR_COLLAPSED_WIDTH = "0px";
-  const SIDEBAR_TRANSITION_DURATION = 600;
+  const SIDEBAR_TRANSITION_DURATION = 300;
 
   // Ctrl+B sidebar
   if (!eventAdded) {
@@ -43,6 +42,14 @@ export default function Docs() {
     });
   }
 
+  // Close sidebar on mobile
+  function closeSidebarMobile () {
+
+    if (!mobile) return;
+
+    setCollapsed(true);
+  }
+
   return (
     <>
       <Sidebar
@@ -62,33 +69,42 @@ export default function Docs() {
       >
       <Menu
         menuItemStyles={{
-          button: ({ level, active, disabled }) => {
+          button: ({ level, active, disabled, isSubmenu }) => {
             if (lightMode) {
               return {
                 color: disabled ? "#949396" : undefined,
-                backgroundColor: active ? "#b8b3ff" : "#f1f0f5",
+                backgroundColor: isSubmenu
+                  ? active ? "#cdcadb" : "#f1f0f5"
+                  : active ? "#b8b3ff" : "#f1f0f5",
                 borderRadius: level == 0 ? "7px" : undefined,
                 "&:hover": {
-                  backgroundColor: active? "#aca6ff" : "#dddce0",
+                  backgroundColor: isSubmenu
+                    ? active ? "#cdcadb" : "#dddce0"
+                    : active ? "#aca6ff" : "#dddce0",
                 },
               };
             }
 
             else {
               return {
+                fontSize: mobile ? "13px" : "16px",
                 color: disabled ? "#828282" : undefined,
-                backgroundColor: active ? "#776ee0" : "#1d1d1f",
-                borderRadius: level == 0 ? "7px" : undefined,
+                backgroundColor: isSubmenu
+                  ? active ? "#383840" : "#1d1d1f"
+                  : active ? "#776ee0" : "#1d1d1f",
+                borderRadius: "7px",
                 "&:hover": {
-                  backgroundColor: active? "#8e86f7" : "#2d2d30",
+                  backgroundColor: isSubmenu
+                  ? active ? "#383840" : "#2d2d30"
+                  : active ? "#8e86f7" : "#2d2d30",
                 },
               };
             }
           },
           subMenuContent() {
             return {
-              backgroundCOlor: "#aaa444"
-            }
+              backgroundColor: lightMode ? "#f1f0f5" : "#1d1d1f"
+            };
           },
         }}
       >
@@ -103,7 +119,7 @@ export default function Docs() {
         component={<Link to="/docs/v2/getting-started" />}
         active={activeItem === "/docs/v2/getting-started" || activeItem === "/docs"}
         icon={<FaBook />}
-        onClick={() => setActiveItem("/docs/v2/getting-started")}>
+        onClick={closeSidebarMobile}>
           Getting Started
       </MenuItem>
 
@@ -111,16 +127,28 @@ export default function Docs() {
         component={<Link to="/docs/v2/how-does-it-work" />}
         active={activeItem === "/docs/v2/how-does-it-work"}
         icon={<FaQuestionCircle />}
-        onClick={() => setActiveItem("/docs/v2/how-does-it-work")}>
+        onClick={closeSidebarMobile}>
           How does it work?
       </MenuItem>
       
-      <SubMenu label="Development" icon={<FaCode />} defaultOpen={location.pathname.includes("/docs/v2/development/")}>
+      <SubMenu
+        label="Development"
+        icon={<FaCode />}
+        defaultOpen={location.pathname.includes("/docs/v2/development/")}
+        active={activeItem.includes("/docs/v2/development/") ? true : undefined}
+      >
+        <MenuItem
+          component={<Link to="/docs/v2/development/performance" />}
+          active={activeItem === "/docs/v2/development/performance"}
+          icon={"🚀"}
+          onClick={closeSidebarMobile}>
+            Performance
+        </MenuItem>
         <MenuItem
           component={<Link to="/docs/v2/development/authentication" />}
           active={activeItem === "/docs/v2/development/authentication"}
           icon={"🔒"}
-          onClick={() => setActiveItem("/docs/v2/development/authentication")}>
+          onClick={closeSidebarMobile}>
             Authentication
         </MenuItem>
 
@@ -128,7 +156,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/development/security" />}
           active={activeItem === "/docs/v2/development/security"}
           icon={"⚔️"}
-          onClick={() => setActiveItem("/docs/v2/development/security")}>
+          onClick={closeSidebarMobile}>
             Security
         </MenuItem>
         
@@ -136,7 +164,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/development/multiplayer" />}
           active={activeItem === "/docs/v2/development/multiplayer"}
           icon={"🤝"}
-          onClick={() => setActiveItem("/docs/v2/development/multiplayer")}>
+          onClick={closeSidebarMobile}>
             Multiplayer
         </MenuItem>
 
@@ -144,17 +172,22 @@ export default function Docs() {
           component={<Link to="/docs/v2/development/debugging" />}
           active={activeItem === "/docs/v2/development/debugging"}
           icon={"🐛"}
-          onClick={() => setActiveItem("/docs/v2/development/debugging")}>
+          onClick={closeSidebarMobile}>
             Debugging
         </MenuItem>
       </SubMenu>
 
-      <SubMenu label="API" icon={<FaCube />} defaultOpen={location.pathname.includes("/docs/v2/api/")}>
+      <SubMenu
+        label="API"
+        icon={<FaCube />}
+        defaultOpen={location.pathname.includes("/docs/v2/api/")}
+        active={activeItem.includes("/docs/v2/api/") ? true : undefined}
+      >
         <MenuItem
           component={<Link to="/docs/v2/api" />}
-          active={activeItem === "/docs/v2/api"}
+          active={activeItem === "/docs/v2/api/"}
           icon={"🎨"}
-          onClick={() => setActiveItem("/docs/v2/api")}>
+          onClick={closeSidebarMobile}>
             Static API
         </MenuItem>
 
@@ -162,7 +195,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/api/config" />}
           active={activeItem === "/docs/v2/api/config"}
           icon={"🔧"}
-          onClick={() => setActiveItem("/docs/v2/api/config")}>
+          onClick={closeSidebarMobile}>
             Configuration
         </MenuItem>
 
@@ -170,7 +203,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/api/utils" />}
           active={activeItem === "/docs/v2/api/utils"}
           icon={"🎁"}
-          onClick={() => setActiveItem("/docs/v2/api/utils")}>
+          onClick={closeSidebarMobile}>
             Utils
         </MenuItem>
 
@@ -178,17 +211,30 @@ export default function Docs() {
           component={<Link to="/docs/v2/api/exceptions" />}
           active={activeItem === "/docs/v2/api/exceptions"}
           icon={"💥"}
-          onClick={() => setActiveItem("/docs/v2/api/exceptions")}>
+          onClick={closeSidebarMobile}>
             Exceptions
         </MenuItem>
       </SubMenu>
 
-      <SubMenu label="Internals" icon={<FaGear />} defaultOpen={location.pathname.includes("/docs/v2/internals/")}>
+      <SubMenu
+        label="Internals"
+        icon={<FaGear />}
+        defaultOpen={location.pathname.includes("/docs/v2/internals/")}
+        active={activeItem.includes("/docs/v2/internals/") ? true : undefined}
+      >
+        <MenuItem
+          component={<Link to="/docs/v2/internals/local-development" />}
+          active={activeItem === "/docs/v2/internals/local-development"}
+          icon={"📼"}
+          onClick={closeSidebarMobile}>
+            Local development
+        </MenuItem>
+
         <MenuItem
           component={<Link to="/docs/v2/internals/design" />}
           active={activeItem === "/docs/v2/internals/design"}
           icon={"📋"}
-          onClick={() => setActiveItem("/docs/v2/internals/design")}>
+          onClick={closeSidebarMobile}>
             Design
         </MenuItem>
 
@@ -196,7 +242,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/internals/mock" />}
           active={activeItem === "/docs/v2/internals/mock"}
           icon={"🎭"}
-          onClick={() => setActiveItem("/docs/v2/internals/mock")}>
+          onClick={closeSidebarMobile}>
             Mock
         </MenuItem>
 
@@ -204,7 +250,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/internals/webgl-template" />}
           active={activeItem === "/docs/v2/internals/webgl-template"}
           icon={"🏢"}
-          onClick={() => setActiveItem("/docs/v2/internals/webgl-template")}>
+          onClick={closeSidebarMobile}>
             WebGL Template
         </MenuItem>
 
@@ -212,7 +258,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/internals/build-variables" />}
           active={activeItem === "/docs/v2/internals/build-variables"}
           icon={"🔗"}
-          onClick={() => setActiveItem("/docs/v2/internals/build-variables")}>
+          onClick={closeSidebarMobile}>
             Build variables
         </MenuItem>
 
@@ -220,7 +266,7 @@ export default function Docs() {
           component={<Link to="/docs/v2/internals/hirpc" />}
           active={activeItem === "/docs/v2/internals/hirpc"}
           icon={"👋"}
-          onClick={() => setActiveItem("/docs/v2/internals/hirpc")}>
+          onClick={closeSidebarMobile}>
             hiRPC
         </MenuItem>
       </SubMenu>
@@ -238,7 +284,7 @@ export default function Docs() {
         }}
       />
       <div id="outlet-container">
-        <Outlet context={{onClick:() => setCollapsed(!collapsed), collapsed}}/>
+        <Outlet context={{onClick:() => setCollapsed(!collapsed), collapsed, setActiveItem}}/>
       </div>
     </>
   );

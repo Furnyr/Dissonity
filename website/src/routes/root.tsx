@@ -11,7 +11,7 @@ function App () {
 
         {/* Header (brand) */}
         <header className="header">
-          <img className="header-image" src={HeaderImage} alt="Dissonity logo" width="570" />
+          <img className="header-image" src={HeaderImage} alt="Dissonity logo" width="670" />
           <div className="inter">
             <h1 className="header-title">Integrate <span className="unity-text">Unity</span> games into <span className="discord-text">Discord</span> activities</h1>
           </div>

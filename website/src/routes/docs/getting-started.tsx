@@ -7,13 +7,22 @@ import CodeBlock from "../../components/CodeBlock";
 import BoxInfo from "../../components/BoxInfo";
 import BoxWarn from "../../components/BoxWarn";
 import Footer from "../../components/Footer";
+import { GITHUB_NODE_LINK } from "../../constants";
+import { Link } from "react-router-dom";
+import { DocsContext } from "../../types";
 
 function DocsPage () {
 
-  const context = useOutletContext() as { onClick: () => void, collapsed: boolean };
+  const context = useOutletContext() as DocsContext;
+
+  context.setActiveItem("/docs/v2/getting-started");
+
+  const mobile = window.matchMedia && window.matchMedia("(max-width: 600px)").matches;
 
   const [isCopiedPackage, setIsCopiedPackage] = useState(false);
   const [isCopiedRedirect, setIsCopiedRedirect] = useState(false);
+  const [isCopiedNpmI, setIsCopiedNpmI] = useState(false);
+  const [isCopiedCloudflared, setIsCopiedCloudflared] = useState(false);
 
   return (
     <div className="doc-page">
@@ -21,10 +30,10 @@ function DocsPage () {
       
       <BoxWarn title="Warning!">
         <p>
-          This documentation is for Dissonity Version 2, which is still in alpha, so it will break your code between updates!
+          This documentation is for Dissonity Version 2, which is still in beta. Keep in mind there might be breaking changes between updates!
         </p>
         <p>
-          Use it for preview or wait for the full release. <a href="https://github.com/Furnyr/Dissonity/releases" target="_blank">(Releases)</a>
+          If you need stability, you should wait for the full release. <a href="https://github.com/Furnyr/Dissonity/releases" target="_blank">(Releases)</a>
         </p>
       </BoxWarn>
 
@@ -65,6 +74,7 @@ function DocsPage () {
         <li>Install package from git URL: <CopyText text="https://github.com/Furnyr/Dissonity.git?path=/unity#v2" stateFunction={setIsCopiedPackage} stateBool={isCopiedPackage}/></li>
         <li>Set the build platform to Web / WebGL</li>
         <li>Player settings &gt; Resolution and Presentation &gt; Set the WebGL template to Dissonity</li>
+        <li>Use the pop-up dialog to choose the configuration file you are most comfortable with</li>
       </ol>
 
       <p>
@@ -72,8 +82,8 @@ function DocsPage () {
       </p>
 
       <ul>
-        <li>A new folder was added (Assets/WebGLTemplates)</li>
-        <li>A new file was added (Assets/DissonityUserConfiguration.cs)</li>
+        <li>Two new folders were added (Assets/Dissonity and Assets/WebGLTemplates/Dissonity)</li>
+        <li>A configuration file was added (Assets/Dissonity/DissonityConfiguration.cs)</li>
       </ul>
 
       <h2 id="create-an-app">3. Create an App <HashLink link="/docs/v2/getting-started#create-an-app"/></h2>
@@ -97,12 +107,12 @@ function DocsPage () {
       <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/docs/v2/getting-started#configure-dissonity"/></h2>
 
       <p>
-        Unlike your <code>BOT_TOKEN</code> or <code>CLIENT_SECRET</code>, the application ID (<code>CLIENT_ID</code>) is not sensitive data, which means that it can be publicly exposed without problem.
+        Unlike your bot token or client secret, the application ID is not sensitive data, which means that it can be publicly exposed without problem.
       </p>
 
       <ol>
         <li>Go to <b>OAuth2</b> and copy <b>Client ID</b></li>
-        <li>In your Unity project, open Assets/DissonityUserConfiguration.cs</li>
+        <li>In your Unity project, open Assets/Dissonity/DissonityConfiguration.cs</li>
         <li>Paste the application ID in <b>ClientId</b></li>
       </ol>
 
@@ -167,23 +177,73 @@ public class MyScript : MonoBehaviour
       </ol>
 
       <p>
-        For the simplicity of this guide, we will use an already configured Node.js server, but you can use anything that fits.
+        For the simplicity of this guide, we will use an already configured Node.js server, but you can use anything that can handle <Link to="/docs/v2/development/authentication">authentication</Link>.
       </p>
 
-      <h2 id="build-the-game">7. Preparing the server <HashLink link="/docs/v2/getting-started#build-the-game"/></h2>
+      <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/docs/v2/getting-started#preparing-the-server"/></h2>
 
-      {/*
-        //todo
-      */}
-      <BoxWarn title="WIP">
-        <p>
-          This last part will be written in the future since I still need to finish a few things.
-        </p>
-      </BoxWarn>
+      <p>
+        An example server can be found in <a href={GITHUB_NODE_LINK} target="_blank">{GITHUB_NODE_LINK}</a>.
+      </p>
+
+      <ol>
+        <li>Download the example server</li>
+        <li>Put your Unity build inside src/client/Unity (you can directly build the game here)</li>
+        <li>Rename .example.env to .env</li>
+        <li>Update PUBLIC_CLIENT_ID to your app's Client ID</li>
+        <li>Update CLIENT_SECRET to your Client Secret</li>
+        <li>Install dependencies with <CopyText text="npm install" stateFunction={setIsCopiedNpmI} stateBool={isCopiedNpmI}/></li>
+      </ol>
+
+      <p>
+        The server code should be ready! There's one last obstacle between your activity and Discord: the Internet can't access your localhost.
+      </p>
 
       <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/docs/v2/getting-started#opening-an-http-tunnel"/></h2>
 
+      <p>
+        As mentioned earlier, to keep your activity available at all times you need to use a hosting service to keep your backend running.
+        But for development, it's useful to be able to host the activity in your own computer and temporarily expose it to the Internet.
+      </p>
+
+      <p>
+        In this guide we'll be using <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank">cloudflared</a>, but you can use any other reverse proxy solutions you prefer.
+
+        Open a terminal window and start a network tunnel:
+      </p>
+
+      <CopyText text="cloudflared tunnel --url http://localhost:3000" stateFunction={setIsCopiedCloudflared} stateBool={isCopiedCloudflared}/>
+
+      <p>
+        This command will generate a public URL. Back in the developer portal, go to <b>URL Mappings</b> under <b>Activities</b> and enter the URL.
+      </p>
+
+      <p>
+        Now you should be able to launch your activity from Discord.
+      </p>
+
       <h2 id="next-steps">9. Done! What's next? <HashLink link="/docs/v2/getting-started#next-steps"/></h2>
+
+      <p>
+        Congratulations on building a Discord activity using Unity! 🎉
+      </p>
+
+      <p>
+        Dissonity covers 100% of the official SDK, so if you can do something with the Embedded App SDK, you can do it with Dissonity.
+        For example, use <code>Dissonity.Api.Commands</code> to send <a href="https://discord.com/developers/docs/developer-tools/embedded-app-sdk#sdk-commands" target="_blank">commands</a> or <code>Dissonity.Api.Subscribe</code> to receive <a href="https://discord.com/developers/docs/developer-tools/embedded-app-sdk#sdk-events" target="_blank">events</a>.
+      </p>
+
+      <p>
+        {
+          mobile
+            ? 'If you want to learn more, you should read further in the documentation by clicking the "Expand" button in the upper left corner.'
+            : "If you want to learn more, you should read further in the documentation."
+        }
+      </p>
+
+      <p>
+        Good luck out there!
+      </p>
 
       <Footer />
 
