@@ -2,7 +2,7 @@ import CollapseButton from "../../../components/CollapseButton";
 import Footer from "../../../components/Footer";
 import HashLink from "../../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
-import { DocsContext } from "../../../types";
+import { PageContext } from "../../../types";
 
 import NoP2PLight from "../../../assets/diagrams/no_p2p_light.png";
 import NoP2PDark from "../../../assets/diagrams/no_p2p_dark.png";
@@ -14,9 +14,7 @@ import CodeBlock from "../../../components/CodeBlock";
 
 function DocsPage () {
 
-  const context = useOutletContext() as DocsContext;
-
-  context.setActiveItem("/docs/v2/development/multiplayer");
+  const context = useOutletContext() as PageContext;
 
   const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
 

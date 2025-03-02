@@ -1,6 +1,5 @@
 
-export type DocsContext = {
+export type PageContext = {
     onClick: () => void,
-    collapsed: boolean,
-    setActiveItem: (item: string) => void
+    collapsed: boolean
 };

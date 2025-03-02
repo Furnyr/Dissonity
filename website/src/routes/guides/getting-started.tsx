@@ -9,13 +9,11 @@ import BoxWarn from "../../components/BoxWarn";
 import Footer from "../../components/Footer";
 import { GITHUB_NODE_LINK } from "../../constants";
 import { Link } from "react-router-dom";
-import { DocsContext } from "../../types";
+import { PageContext } from "../../types";
 
-function DocsPage () {
+function GuidesPage () {
 
-  const context = useOutletContext() as DocsContext;
-
-  context.setActiveItem("/docs/v2/getting-started");
+  const context = useOutletContext() as PageContext;
 
   const mobile = window.matchMedia && window.matchMedia("(max-width: 600px)").matches;
 
@@ -37,10 +35,12 @@ function DocsPage () {
         </p>
       </BoxWarn>
 
-      <h1 id="start">Getting Started <HashLink link="/docs/v2/getting-started#start"/></h1>
+      <h1 id="start">Getting Started <HashLink link="/guides/v2/getting-started#start"/></h1>
 
       <p>
         In this section you will learn how to create your first Discord activity using Unity. You should have installed:
+      </p>
+
         <ul>
           <li><a href="https://unity.com/download" target="_blank">Unity</a></li>
           <li><a href="https://discord.com/download" target="_blank">Discord PTB</a> (recommended)</li>
@@ -48,26 +48,28 @@ function DocsPage () {
           <li><a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" target="_blank">cloudflared</a> (only for this guide)</li>
         </ul>
 
+      <p>
         This article is equivalent to the official <a href="https://discord.com/developers/docs/activities/building-an-activity" target="_blank">Quickstart guide</a>.
       </p>
 
-      <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/docs/v2/getting-started#enable-developer-mode"/></h2>
+      <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/guides/v2/getting-started#enable-developer-mode"/></h2>
 
       <p>
         Enabling Developer Mode in your Discord account will allow you to run in-development activities and expose resource IDs that will be helpful later. To enable Developer Mode:
-        <ol>
-          <li>Go to your User Settings in your Discord client</li>
-          <li>Click on <b>Advanced</b> tab from the left-hand sidebar and toggle on <b>Developer Mode</b></li>
-        </ol>
       </p>
+        
+      <ol>
+        <li>Go to your User Settings in your Discord client</li>
+        <li>Click on <b>Advanced</b> tab from the left-hand sidebar and toggle on <b>Developer Mode</b></li>
+      </ol>
 
-      <h2 id="create-a-unity-project">1. Create a Unity project <HashLink link="/docs/v2/getting-started#create-a-unity-project"/></h2>
+      <h2 id="create-a-unity-project">1. Create a Unity project <HashLink link="/guides/v2/getting-started#create-a-unity-project"/></h2>
 
       <p>
         Open Unity Hub and create a new project using v2021.3 or later. If you want to support mobile devices, you must use v6000 or later.
       </p>
 
-      <h2 id="install-dissonity">2. Install Dissonity <HashLink link="/docs/v2/getting-started#install-dissonity"/></h2>
+      <h2 id="install-dissonity">2. Install Dissonity <HashLink link="/guides/v2/getting-started#install-dissonity"/></h2>
 
       <ol>
         <li>Open the package manager (Window &gt; Package Manager)</li>
@@ -86,7 +88,7 @@ function DocsPage () {
         <li>A configuration file was added (Assets/Dissonity/DissonityConfiguration.cs)</li>
       </ul>
 
-      <h2 id="create-an-app">3. Create an App <HashLink link="/docs/v2/getting-started#create-an-app"/></h2>
+      <h2 id="create-an-app">3. Create an App <HashLink link="/guides/v2/getting-started#create-an-app"/></h2>
 
       <p>
         Now that Dissonity is installed in our Unity project, let's create a Discord app that will hold the activity.
@@ -104,7 +106,7 @@ function DocsPage () {
         </li>
       </ol>
 
-      <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/docs/v2/getting-started#configure-dissonity"/></h2>
+      <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/guides/v2/getting-started#configure-dissonity"/></h2>
 
       <p>
         Unlike your bot token or client secret, the application ID is not sensitive data, which means that it can be publicly exposed without problem.
@@ -153,7 +155,7 @@ public class MyScript : MonoBehaviour
         Congratulations, you are using <b>API Mock Mode</b>!
       </p>
 
-      <h2 id="api-mock-mode">5. API Mock Mode <HashLink link="/docs/v2/getting-started#api-mock-mode"/></h2>
+      <h2 id="api-mock-mode">5. API Mock Mode <HashLink link="/guides/v2/getting-started#api-mock-mode"/></h2>
 
       <p>
         Dissonity simulates the Discord client inside Unity so you don't need to build the game each time you want to test it. This is called <b>mocking</b>.
@@ -162,7 +164,7 @@ public class MyScript : MonoBehaviour
         By right clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it was a Discord server.
       </p>
 
-      <h2 id="build-the-game">6. Build the game <HashLink link="/docs/v2/getting-started#build-the-game"/></h2>
+      <h2 id="build-the-game">6. Build the game <HashLink link="/guides/v2/getting-started#build-the-game"/></h2>
 
       <p>
         Add some changes to the game as you want, then open the build settings and check <b>Development build</b>. This will make building the game much faster, but the final product will be heavier, so make sure to disable it when making a final build!
@@ -180,7 +182,7 @@ public class MyScript : MonoBehaviour
         For the simplicity of this guide, we will use an already configured Node.js server, but you can use anything that can handle <Link to="/docs/v2/development/authentication">authentication</Link>.
       </p>
 
-      <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/docs/v2/getting-started#preparing-the-server"/></h2>
+      <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/guides/v2/getting-started#preparing-the-server"/></h2>
 
       <p>
         An example server can be found in <a href={GITHUB_NODE_LINK} target="_blank">{GITHUB_NODE_LINK}</a>.
@@ -199,7 +201,7 @@ public class MyScript : MonoBehaviour
         The server code should be ready! There's one last obstacle between your activity and Discord: the Internet can't access your localhost.
       </p>
 
-      <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/docs/v2/getting-started#opening-an-http-tunnel"/></h2>
+      <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/guides/v2/getting-started#opening-an-http-tunnel"/></h2>
 
       <p>
         As mentioned earlier, to keep your activity available at all times you need to use a hosting service to keep your backend running.
@@ -222,7 +224,7 @@ public class MyScript : MonoBehaviour
         Now you should be able to launch your activity from Discord.
       </p>
 
-      <h2 id="next-steps">9. Done! What's next? <HashLink link="/docs/v2/getting-started#next-steps"/></h2>
+      <h2 id="next-steps">9. Done! What's next? <HashLink link="/guides/v2/getting-started#next-steps"/></h2>
 
       <p>
         Congratulations on building a Discord activity using Unity! 🎉
@@ -251,4 +253,4 @@ public class MyScript : MonoBehaviour
   );
 }
 
-export default DocsPage
+export default GuidesPage

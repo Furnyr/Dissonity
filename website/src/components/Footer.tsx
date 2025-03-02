@@ -15,11 +15,15 @@ function Footer() {
                         <br />
                         <Link to="/docs">Documentation</Link>
                         <br />
-                        <Link to="/docs/v2/how-does-it-work#why-use-dissonity">Why use Dissonity?</Link>
+                        <Link to="/guides">Guides</Link>
                     </div>
                     <div className="footer-link-column">
                         <p className="footer-link-header">About</p>
                         <Link to="/about">Team</Link>
+                        {/*<br />
+                        <Link to="/blog">Blog</Link>*/
+                        //todo
+                        }
                     </div>
                     <div className="footer-link-column">
                         <p className="footer-link-header">External</p>

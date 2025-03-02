@@ -2,13 +2,11 @@ import CollapseButton from "../../../components/CollapseButton";
 import Footer from "../../../components/Footer";
 import HashLink from "../../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
-import { DocsContext } from "../../../types";
+import { PageContext } from "../../../types";
 
 function DocsPage () {
 
-  const context = useOutletContext() as DocsContext;
-
-  context.setActiveItem("/docs/v2/development/performance");
+  const context = useOutletContext() as PageContext;
 
   return (
     <div className="doc-page">
@@ -17,7 +15,7 @@ function DocsPage () {
         <h1 id="start">Performance <HashLink link="/docs/v2/development/performance#start"/></h1> 
 
         <p>
-          Performance is an important topic when using Unity to make a WebGL game. During the development of Dissonity, we concluded that it is possible to use Unity to create web applications with good performance, if performance considerations are kept in mind.
+          Performance is an important topic when using Unity to make a WebGL game. You need to take performance considerations into account to ensure that your activity is not too heavy.
         </p>
 
         <p>

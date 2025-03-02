@@ -25,6 +25,7 @@ function App () {
         {/* Buttons */}
         <div className="button-container">
           <Button text="Documentation" goto={"docs"}/>
+          <Button text="Guides" goto={"guides"}/>
           <Button text="GitHub" link={GITHUB_LINK}/>
         </div>
 

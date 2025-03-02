@@ -27,6 +27,7 @@ export default function ErrorPage() {
             <ul>
               <li><Link to={"/"}>Home Page</Link></li>
               <li><Link to={"/docs"}>Documentation</Link></li>
+              <li><Link to={"/guides"}>Guides</Link></li>
             </ul>
           </div>
           <div id="error-page-img">

@@ -15,10 +15,14 @@ import csharpHl from "highlight.js/lib/languages/csharp";
 
 import Root from "./routes/root.tsx";
 import Docs from "./routes/docs.tsx";
-import GettingStarted from "./routes/docs/getting-started.tsx";
-import HowDoesItWork from "./routes/docs/how-does-it-work.tsx";
+import Guides from "./routes/guides.tsx";
 import ErrorPage from "./routes/error-page.tsx";
 import About from "./routes/about.tsx";
+
+import GettingStarted from "./routes/guides/getting-started.tsx";
+import HowDoesItWork from "./routes/guides/how-does-it-work.tsx";
+import WhyDissonity from "./routes/guides/why-dissonity.tsx";
+import MigrationV2 from "./routes/guides/migration-v2.tsx";
 
 import Performance from "./routes/docs/development/performance.tsx";
 import Authentication from "./routes/docs/development/authentication.tsx";
@@ -37,6 +41,9 @@ import Mock from "./routes/docs/internals/mock.tsx";
 import WebGLTemplate from "./routes/docs/internals/webgl-template.tsx";
 import BuildVariables from "./routes/docs/internals/build-variables.tsx";
 import HiRpc from "./routes/docs/internals/hirpc.tsx";
+
+import DoxygenPage from "./routes/doxygen/index.tsx";
+import DoxygenApi from "./routes/doxygen/api.tsx";
 
 import AutoScrollOnLoad from "./components/AutoScrollOnLoad.tsx";
 
@@ -87,19 +94,30 @@ const router = createBrowserRouter([
   },
   {
     path: "/docs",
-    element: <Navigate to="/docs/v2/getting-started" replace />
+    element: <Navigate to="/docs/v2/api" replace />
   },
   {
     path: "/docs/v2",
     element: wrapElement(<Docs />),
     children: [
       {
-        path: "/docs/v2/getting-started",
-        element: <GettingStarted />
+        path: "/docs/v2/api",
+        element: <StaticApi />
       },
       {
-        path: "/docs/v2/how-does-it-work",
-        element: <HowDoesItWork />
+        path: "/docs/v2/api/config",
+        element: <Configuration />
+      },
+      {
+        path: "/docs/v2/api/utils",
+        element: <Utils />
+      },{
+        path: "/docs/v2/api/configuration",
+        element: <Configuration />
+      },
+      {
+        path: "/docs/v2/api/exceptions",
+        element: <Exceptions />
       },
       {
         path: "/docs/v2/development/performance",
@@ -120,25 +138,6 @@ const router = createBrowserRouter([
       {
         path: "/docs/v2/development/debugging",
         element: <Debugging />
-      },
-      {
-        path: "/docs/v2/api",
-        element: <StaticApi />
-      },
-      {
-        path: "/docs/v2/api/config",
-        element: <Configuration />
-      },
-      {
-        path: "/docs/v2/api/utils",
-        element: <Utils />
-      },{
-        path: "/docs/v2/api/configuration",
-        element: <Configuration />
-      },
-      {
-        path: "/docs/v2/api/exceptions",
-        element: <Exceptions />
       },
       {
         path: "/docs/v2/internals/local-development",
@@ -169,6 +168,40 @@ const router = createBrowserRouter([
         element: <GettingStarted />
       }
     ]
+  },
+  {
+    path: "/guides",
+    element: <Navigate to="/guides/v2/getting-started" replace />
+  },
+  {
+    path: "/guides/v2",
+    element: wrapElement(<Guides />),
+    children: [
+      {
+        path: "/guides/v2/getting-started",
+        element: <GettingStarted />
+      },
+      {
+        path: "/guides/v2/how-does-it-work",
+        element: <HowDoesItWork />
+      },
+      {
+        path: "/guides/v2/why-dissonity",
+        element: <WhyDissonity />
+      },
+      {
+        path: "/guides/v2/migration-v2",
+        element: <MigrationV2 />
+      },
+    ]
+  },
+  {
+    path: "/doxygen",
+    element: <DoxygenPage />
+  },
+  {
+    path: "/doxygen/api",
+    element: <DoxygenApi />
   }
 ])
 

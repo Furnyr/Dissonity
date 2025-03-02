@@ -2,14 +2,12 @@ import CollapseButton from "../../../components/CollapseButton";
 import Footer from "../../../components/Footer";
 import HashLink from "../../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
-import { DocsContext } from "../../../types";
+import { PageContext } from "../../../types";
 import CodeBlock from "../../../components/CodeBlock";
 
 function DocsPage () {
 
-  const context = useOutletContext() as DocsContext;
-
-  context.setActiveItem("/docs/v2/development/debugging");
+  const context = useOutletContext() as PageContext;
 
   return (
     <div className="doc-page">
