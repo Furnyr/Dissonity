@@ -1693,14 +1693,13 @@ namespace Dissonity
 
 
             /// <summary>
+            /// <c> ☄️ </c> <b> Initialization not required. </b> <br/> <br/>
             /// Receive messages sent through this hiRPC channel from JavaScript. <br/> <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             public static HiRpcSubscription Subscribe(string hiRpcChannel, Action<object> listener)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot subscribe to a hiRPC channel while inside Unity");
-
-                if (!_hiRpcReady) throw new InvalidOperationException("Tried to subscribe without being ready");
 
                 var reference = SubscribeCommandFactory(new MessageBusReaderIndefinite<HiRpcMessage>(listener, (hiRpcMessage) =>
                 {
@@ -1713,6 +1712,7 @@ namespace Dissonity
 
             //# UNSUBSCRIBE HIRPC - - - - -
             /// <summary>
+            /// <c> ☄️ </c> <b> Initialization not required. </b> <br/> <br/>
             /// Remove a hiRPC subscription via a HiRpcSubscription instance (returned by HiRpc.Subscribe).
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -1721,8 +1721,6 @@ namespace Dissonity
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
 
-                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
-                
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a HiRpcSubscription that no longer exists ({reference.EventString})");
 
                 var readerSet = hiRpcMessageBus.ReaderSetDictionary[reference.EventString];
@@ -1735,6 +1733,7 @@ namespace Dissonity
 
 
             /// <summary>
+            /// <c> ☄️ </c> <b> Initialization not required. </b> <br/> <br/>
             /// Remove a hiRPC subscription via a method and a channel.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -1742,8 +1741,6 @@ namespace Dissonity
             public static void Unsubscribe(string hiRpcChannel, Action<object> listener)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
-
-                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
 
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) throw new ArgumentException($"Tried to unsubscribe from a hiRPC channel you're not subscribed to ({hiRpcChannel})");
 
@@ -1758,6 +1755,7 @@ namespace Dissonity
 
 
             /// <summary>
+            /// <c> ☄️ </c> <b> Initialization not required. </b> <br/> <br/>
             /// Remove all subscriptions related to a single hiRPC channel.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -1765,8 +1763,6 @@ namespace Dissonity
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
 
-                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
-                
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) return;
 
                 hiRpcMessageBus.ReaderSetDictionary.Remove(hiRpcChannel);
@@ -1774,14 +1770,13 @@ namespace Dissonity
 
 
             /// <summary>
+            /// <c> ☄️ </c> <b> Initialization not required. </b> <br/> <br/>
             /// Remove all subscriptions from every hiRPC channel.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             public static void ClearAllSubscriptions()
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
-
-                if (!_hiRpcReady) throw new InvalidOperationException("Tried to unsubscribe without being ready");
 
                 hiRpcMessageBus.ReaderSetDictionary.Clear();
             }

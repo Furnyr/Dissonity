@@ -1,6 +1,6 @@
 import { Opcode } from "./enums";
 import type { Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, RpcPayload } from "./types";
+import type { BuildVariables, RpcInputPayload } from "./types";
 /**
  * Main hiRPC class. An instance should be located in window.dso_hirpc.
  *
@@ -47,7 +47,7 @@ export default class HiRpc0_5 {
     /**
      * Send data to Discord through RPC.
      */
-    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcPayload): Promise<void>;
+    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
     /**
      * **Only used inside the game build.**
      *

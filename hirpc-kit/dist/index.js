@@ -30,10 +30,18 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  RpcOpcode: () => RpcOpcode,
   loadIframe: () => loadIframe,
   setupHiRpc: () => setupHiRpc
 });
 module.exports = __toCommonJS(index_exports);
+var RpcOpcode = /* @__PURE__ */ ((RpcOpcode2) => {
+  RpcOpcode2[RpcOpcode2["Handshake"] = 0] = "Handshake";
+  RpcOpcode2[RpcOpcode2["Frame"] = 1] = "Frame";
+  RpcOpcode2[RpcOpcode2["Close"] = 2] = "Close";
+  RpcOpcode2[RpcOpcode2["Hello"] = 3] = "Hello";
+  return RpcOpcode2;
+})(RpcOpcode || {});
 async function setupHiRpc(_hiRpcVersion) {
   if (typeof window == "undefined") {
     throw new Error("Cannot load hiRPC Module outside of a web environment");
@@ -96,6 +104,7 @@ function loadIframe(src, id) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  RpcOpcode,
   loadIframe,
   setupHiRpc
 });

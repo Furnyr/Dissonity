@@ -43,11 +43,11 @@ declare class BuildVariables$1 {
     constructor();
 }
 
-type RpcPayload = {
+type RpcInputPayload = {
     evt?: string;
     cmd?: string;
     nonce?: string;
-    data?: unknown;
+    args?: unknown;
 };
 type BuildVariables = InstanceType<typeof BuildVariables$1>;
 
@@ -97,7 +97,7 @@ declare class HiRpc0_5 {
     /**
      * Send data to Discord through RPC.
      */
-    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcPayload): Promise<void>;
+    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
     /**
      * **Only used inside the game build.**
      *
@@ -131,7 +131,21 @@ declare class HiRpc0_5 {
 type StartWith<V extends string> = `${V}${string}`;
 type HiRpc<V extends string> = V extends StartWith<"0.5"> ? HiRpc0_5 : UnknownHiRpc;
 
+declare enum RpcOpcode {
+    Handshake = 0,
+    Frame = 1,
+    Close = 2,
+    Hello = 3
+}
+/**
+ * Prepare a hiRPC instance in `window.dso_hirpc`.
+ *
+ * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
+ */
 declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpc<V>>;
+/**
+ * Load an HTML file as the activity iframe.
+ */
 declare function loadIframe(src: string, id: string): void;
 
-export { loadIframe, setupHiRpc };
+export { RpcOpcode, loadIframe, setupHiRpc };

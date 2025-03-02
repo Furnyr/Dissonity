@@ -7,6 +7,12 @@ export type RpcPayload = {
     nonce?: string;
     data?: unknown;
 };
+export type RpcInputPayload = {
+    evt?: string;
+    cmd?: string;
+    nonce?: string;
+    args?: unknown;
+};
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null;
     hash: string;

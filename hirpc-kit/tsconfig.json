@@ -9,7 +9,6 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "skipLibCheck": true,
-    "removeComments": true,
     "strict": true,
     "useDefineForClassFields": false,
     "noEmit": true

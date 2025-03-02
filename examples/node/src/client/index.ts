@@ -13,7 +13,7 @@ async function main () {
     const hash = (await hiRpc.requestHash())!;
 
     // (You can use hiRPC functionality here)
-    
+
     // Begin loading the Unity game
     loadIframe("Unity/index.html", "dissonity-child");
 

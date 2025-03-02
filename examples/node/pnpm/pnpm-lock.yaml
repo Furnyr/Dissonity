@@ -15,8 +15,8 @@ importers:
         specifier: ^0.15.1
         version: 0.15.3(@colyseus/core@0.15.57(@colyseus/schema@2.0.36))(@colyseus/schema@2.0.36)
       '@dissonity/hirpc-kit':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       colyseus:
         specifier: ^0.15.15
         version: 0.15.57(@colyseus/schema@2.0.36)(express@4.21.2)
@@ -80,8 +80,8 @@ packages:
       '@colyseus/core': 0.15.x
       '@colyseus/schema': '>=1.0.0'
 
-  '@dissonity/hirpc-kit@0.1.0':
-    resolution: {integrity: sha512-XfJQhpq13zsV7jy2XyVMo1YGX0yGQdgJvI6VPYstsC7ebWnElaFo2yyv77Q+zM5rgxppNLOT6oztIShKtq5oJA==}
+  '@dissonity/hirpc-kit@0.1.1':
+    resolution: {integrity: sha512-wW12H7QtIAaROBQDiNsits/uneCo6lnK82DFjyG9Lt/N7wGdd3f8FZ1FSdiAfDXHY0p7nuQ7SrA7ET1zXaKhBw==}
 
   '@esbuild/aix-ppc64@0.25.0':
     resolution: {integrity: sha512-O7vun9Sf8DFjH2UtqK8Ku3LkquL9SZL8OLY1T5NZkA34+wG3OQF7cl4Ql8vdNzM6fzBbYfLaiRLIOZ+2FOCgBQ==}
@@ -939,7 +939,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@dissonity/hirpc-kit@0.1.0': {}
+  '@dissonity/hirpc-kit@0.1.1': {}
 
   '@esbuild/aix-ppc64@0.25.0':
     optional: true

@@ -10,7 +10,7 @@ import { OfficialUtils } from "./modules/official_utils";
 import { Rpc } from "./modules/rpc";
 
 import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcPayload } from "./types";
+import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcInputPayload, RpcPayload } from "./types";
 
 /**
  * Main hiRPC class. An instance should be located in window.dso_hirpc.
@@ -316,7 +316,7 @@ export default class HiRpc0_5 {
     /**
      * Send data to Discord through RPC.
      */
-    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcPayload): Promise<void> {
+    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
 
         if (!this.#hashes.verifyHash(hash)) return;
 

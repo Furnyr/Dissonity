@@ -1,5 +1,13 @@
 import { HiRpc } from "./types";
 
+// import type { Opcode } from "../types/enums";
+export enum RpcOpcode {
+    Handshake = 0,
+    Frame = 1,
+    Close = 2,
+    Hello = 3
+};
+
 /**
  * Prepare a hiRPC instance in `window.dso_hirpc`.
  * 

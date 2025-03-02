@@ -27,6 +27,13 @@ export type RpcPayload = {
     data?: unknown
 };
 
+export type RpcInputPayload = {
+    evt?: string,
+    cmd?: string,
+    nonce?: string,
+    args?: unknown
+};
+
 // Sent when the downward flow is opened.
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null // Only null outside Discord
