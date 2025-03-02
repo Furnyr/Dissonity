@@ -2,12 +2,6 @@ import { useEffect } from "react";
 import hljs from "highlight.js/lib/core";
 import "./CodeBlock.css";
 
-const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-
-lightMode
-    ? await import("highlight.js/styles/atom-one-light.css")
-    : await import("highlight.js/styles/atom-one-dark.css");
-
 function CodeBlock (props: { children?: string, language: string }) {
 
 
