@@ -4,6 +4,7 @@
     box-shadow: 0px 0px 5px hsla(0, 0%, 100%, 0.315);
     padding: 25px;
     margin: 20px;
+    margin-top: 10px;
     transition: .2s;
     text-align: center;
     max-width: 250px;
@@ -12,7 +13,7 @@
 
 .card:hover {
     box-shadow: 0px 0px 5px hsla(0, 0%, 100%, 0.63);
-    transform: translateY(-10px);
+    transform: translateY(-5px);
 }
 
 .card .card-image {
@@ -22,6 +23,8 @@
     margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
+    padding: 4px;
+    border-radius: 6px;
 }
 
 .card .card-title {
@@ -29,5 +32,20 @@
 }
 
 .card .card-text {
-    margin: 0
+    margin-top: 10px;
+    margin-bottom: 0;
+    font-size: 14px;
+}
+
+.card .card-subtitle {
+    margin-top: -5px;
+}
+
+@media (prefers-color-scheme: light) {
+    .card {
+        box-shadow: 0px 0px 5px hsla(0, 0%, 0%, 0.615);
+    }
+    .card:hover {
+        box-shadow: 0px 0px 5px hsla(0, 0%, 0%, 0.93);
+    }
 }

@@ -1,0 +1,15 @@
+
+.doc-page {
+    margin: 22px;
+    padding-bottom: 40px;
+}
+
+@media only screen and (max-width: 600px) {
+    .doc-page {
+        max-width: 70%;
+    }
+}
+
+#outlet-container {
+    width: 100%;
+}

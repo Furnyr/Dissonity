@@ -1,0 +1,14 @@
+
+.property {
+    color: rgb(148, 90, 182);
+    border-radius: 5px;
+    padding: 1px 3px;
+}
+
+.separator {
+    width: 50%;
+    margin-left: 0;
+    background-color:#4b4b4b;
+    border: none;
+    height: 3px;
+}
