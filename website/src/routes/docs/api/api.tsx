@@ -304,7 +304,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#aee332a137401d70c6d529e5879f66ad4">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#aee332a137401d70c6d529e5879f66ad4">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -321,7 +321,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#ae96a8fcf051d554b6f0d43e1ebb0b5d2">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#ae96a8fcf051d554b6f0d43e1ebb0b5d2">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -338,7 +338,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a267e90de6dfebf49584b6f5009d3ec5c">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a267e90de6dfebf49584b6f5009d3ec5c">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -355,7 +355,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a49abcdcbb58b0e92d45653782642c540">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a49abcdcbb58b0e92d45653782642c540">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -372,7 +372,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a23154ae634444b215bddbfe9fe2e8f54">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a23154ae634444b215bddbfe9fe2e8f54">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -389,7 +389,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a1e699f7c809eddbca57ddbb5f6273a9b">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a1e699f7c809eddbca57ddbb5f6273a9b">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -406,7 +406,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a6befe0a5110dd160099cab87ef8d39df">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a6befe0a5110dd160099cab87ef8d39df">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -423,7 +423,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a81811d7036e47ebaf9da13a5af50a75f">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a81811d7036e47ebaf9da13a5af50a75f">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -440,7 +440,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#af64347e1bbfdcf09474c00b9eef30013">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#af64347e1bbfdcf09474c00b9eef30013">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -457,7 +457,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#af44c32993063036149a845ee9e271c5b">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#af44c32993063036149a845ee9e271c5b">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -474,7 +474,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#aa5008100bb8433ef489365ef76b267bc">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#aa5008100bb8433ef489365ef76b267bc">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -491,7 +491,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a907f2306c56c29032e50f17978fa56d0">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a907f2306c56c29032e50f17978fa56d0">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -508,7 +508,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a09a3634840b387857389e354dd2f1790">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a09a3634840b387857389e354dd2f1790">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -525,7 +525,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#aa00adfa3ac1d6e0a0fa7a039119d4445">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#aa00adfa3ac1d6e0a0fa7a039119d4445">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -542,7 +542,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#a30012f79bc3658b5a200a0f13a56ffc6">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#a30012f79bc3658b5a200a0f13a56ffc6">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -559,7 +559,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#af23f5b1f73193c09d183858923130bb2">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#af23f5b1f73193c09d183858923130bb2">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -576,7 +576,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#af31c1b90e98fccad7d7c5fcaa61c955a">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#af31c1b90e98fccad7d7c5fcaa61c955a">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -593,7 +593,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_commands.html#ad299068dd147ad2aa75bd8d2f8b4cbb3">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Commands.html#ad299068dd147ad2aa75bd8d2f8b4cbb3">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -612,7 +612,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_proxy.html#ade6619a01c683eabcf68a700ad5ffe05">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Proxy.html#ade6619a01c683eabcf68a700ad5ffe05">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -629,7 +629,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_proxy.html#a5ca9aabaef76e47e96dd446c2a6d4c71">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Proxy.html#a5ca9aabaef76e47e96dd446c2a6d4c71">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -646,7 +646,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_proxy.html#a1a2fae2800d36675c3d5aeb692487937">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Proxy.html#a1a2fae2800d36675c3d5aeb692487937">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -663,7 +663,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_proxy.html#a57754e086011bbf5e2f122042cdb14ab">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Proxy.html#a57754e086011bbf5e2f122042cdb14ab">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -680,7 +680,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_proxy.html#ab0032f5af12055968b0dbf4e68bdc130">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Proxy.html#ab0032f5af12055968b0dbf4e68bdc130">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -699,7 +699,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#ad245994d5950d3b6a5b35b85de5fa884">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#ad245994d5950d3b6a5b35b85de5fa884">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -716,7 +716,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#aff26e54ef2dda8b3b160638e15ca0d6d">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#aff26e54ef2dda8b3b160638e15ca0d6d">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -733,7 +733,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#af9691932eec98663da9289d95e8c01f6">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#af9691932eec98663da9289d95e8c01f6">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -750,7 +750,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#aed5d5d1a610a3ca4c66d8986ee0131b4">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#aed5d5d1a610a3ca4c66d8986ee0131b4">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -767,7 +767,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a70ae67243ef5ddbc7ede6dadef386471">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a70ae67243ef5ddbc7ede6dadef386471">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -784,7 +784,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a468f0cd2e2b6d75a2cce13b5c31be666">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a468f0cd2e2b6d75a2cce13b5c31be666">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -801,7 +801,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a1b7d280fb551110a8752afcb558a77cd">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a1b7d280fb551110a8752afcb558a77cd">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -818,7 +818,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a22d4bc068ca06d26f824cdcabc26b5a3">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a22d4bc068ca06d26f824cdcabc26b5a3">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -835,7 +835,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a3be3370243b41cc8c7832c807d85fc41">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a3be3370243b41cc8c7832c807d85fc41">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -852,7 +852,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#ab4e5966625903474dde5dfcf899d6ac2">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#ab4e5966625903474dde5dfcf899d6ac2">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -869,7 +869,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_subscribe.html#a2125c623fa23a70291ee15d63e7d2f8f">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1Subscribe.html#a2125c623fa23a70291ee15d63e7d2f8f">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -888,7 +888,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#ae6190d23276e7431d9a041c4a45c510d">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#ae6190d23276e7431d9a041c4a45c510d">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -905,7 +905,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#a6f9eff6029ba00d05d23cf37d4c1256f">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#a6f9eff6029ba00d05d23cf37d4c1256f">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -922,7 +922,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#a5e2cd1463ded49f3dc5554245cd69dc3">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#a5e2cd1463ded49f3dc5554245cd69dc3">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -936,7 +936,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#a23df9c09c73ae5469da6d6026bb1e4a0">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#a23df9c09c73ae5469da6d6026bb1e4a0">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -953,7 +953,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#abe631c1544c6d73101cbb5a15cb024f3">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#abe631c1544c6d73101cbb5a15cb024f3">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -970,7 +970,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_hi_rpc.html#af6f8ff9721ab29c135f8dfe02150516b">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1HiRpc.html#af6f8ff9721ab29c135f8dfe02150516b">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -989,7 +989,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_local_storage.html#a5d1dab69f101411d9bf6d882a4183263">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1LocalStorage.html#a5d1dab69f101411d9bf6d882a4183263">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1006,7 +1006,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_local_storage.html#a86965731ecccdfc70ef34cc634673882">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1LocalStorage.html#a86965731ecccdfc70ef34cc634673882">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1023,7 +1023,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api_1_1_local_storage.html#a1068d075a79557fd870e2160cdc1a601">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api_1_1LocalStorage.html#a1068d075a79557fd870e2160cdc1a601">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1042,7 +1042,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a273fdd6c042921a3d722fa71ebb50092">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a273fdd6c042921a3d722fa71ebb50092">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1060,7 +1060,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a79c124012633da539a0beae757699500">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a79c124012633da539a0beae757699500">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1078,7 +1078,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a094fdd62d81f420d64cc802a09bbc2c3">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a094fdd62d81f420d64cc802a09bbc2c3">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1095,7 +1095,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#aae39a0054dc26c4d19bf0938d01296e7">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#aae39a0054dc26c4d19bf0938d01296e7">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1112,7 +1112,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a200115efbf49cd10e5bed96db4b440e9">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a200115efbf49cd10e5bed96db4b440e9">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1126,7 +1126,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#aaaad9dc8c0b9099be5623c5a793c223b">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#aaaad9dc8c0b9099be5623c5a793c223b">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1143,7 +1143,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a35b7ccd9e110d2ba143e1b3258f69687">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a35b7ccd9e110d2ba143e1b3258f69687">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1160,7 +1160,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a4f50def33afb522f7c7e0bef2c4e15de">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a4f50def33afb522f7c7e0bef2c4e15de">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
@@ -1177,7 +1177,7 @@ function DocsPage () {
         </p>
 
         <code className="doxygen">
-          <a href="/doxygen/class_dissonity_1_1_api.html#a4b5e36d16eb2a5d7898747e0e10dde85">Doxygen Reference</a>
+          <a href="/doxygen/classDissonity_1_1Api.html#a4b5e36d16eb2a5d7898747e0e10dde85">Doxygen Reference</a>
         </code>
 
         <CodeBlock language="csharp">
