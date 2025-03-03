@@ -28,13 +28,6 @@ export default class HiRpc0_5 {
 
     constructor() {
 
-        //\ Load build variables by accessing them
-        const buildVariables = this.getBuildVariables();
-    
-        if (!buildVariables.DISABLE_INFO_LOGS) {
-            this.#greet();
-        }
-
         this.#state = new State();
         this.#hashes = new HashGenerator(this.#state);
         this.#utils = new OfficialUtils();
@@ -53,6 +46,13 @@ export default class HiRpc0_5 {
         });
 
         if (typeof window != "undefined") {
+
+            //\ Load build variables by accessing them
+            const buildVariables = this.getBuildVariables();
+        
+            if (!buildVariables.DISABLE_INFO_LOGS) {
+                this.#greet();
+            }
 
             //\ Add main RPC listener
             window.addEventListener("message", this.#rpc.receive);
