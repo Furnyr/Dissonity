@@ -73,6 +73,10 @@ namespace Dissonity.Editor
                 var localeProperty = serializedObject.FindProperty(nameof(DiscordMock._locale));
                 EditorGUILayout.PropertyField(localeProperty, true);
 
+                // Access token
+                var accessTokenProperty = serializedObject.FindProperty(nameof(DiscordMock._accessToken));
+                EditorGUILayout.PropertyField(accessTokenProperty, true);
+
                 //# CURRENT PLAYER - - - - -      
                 var currentPlayerProperty = serializedObject.FindProperty(nameof(DiscordMock._currentPlayer));
                 EditorGUILayout.PropertyField(currentPlayerProperty, false);

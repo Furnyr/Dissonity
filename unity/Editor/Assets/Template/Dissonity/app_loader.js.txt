@@ -1,0 +1,249 @@
+/*
+        This file has been generated from a TypeScript source.
+        Don't modify it manually.
+    
+        https://github.com/Furnyr/Dissonity/
+*/
+
+function getPath() {
+    const pathname = window.location.pathname;
+    const isFile = /\.[^\/]+$/.test(pathname);
+    if (isFile) {
+        return pathname.substring(0, pathname.lastIndexOf("/") + 1);
+    }
+    return pathname;
+}
+let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`;
+if (!baseUrl.endsWith("/"))
+    baseUrl += "/";
+let outsideDiscord = false;
+let proxyPrefixAdded = false;
+let needsProxyPrefix = false;
+let loaderPath = "Build/{{{ FRAMEWORK_FILENAME }}}".replace("framework", "loader");
+const versionCheckPath = baseUrl + ".proxy/version.json";
+const proxyBridgeImport = "dso_proxy_bridge/";
+const normalBridgeImport = "dso_bridge/";
+const hirpcFileName = "dissonity_hirpc.js";
+const buildVariablesFileName = "dissonity_build_variables.js";
+const MOBILE = "mobile";
+let initialWidth = window.innerWidth;
+let initialHeight = window.innerHeight;
+async function initialize() {
+    async function fileExists(url) {
+        const response = await fetch(url, { method: "HEAD" });
+        return response.ok;
+    }
+    async function updatePaths() {
+        let { pathname } = window.location;
+        const pathSegments = pathname.split("/");
+        pathSegments.shift();
+        proxyPrefixAdded = pathSegments[0] == ".proxy";
+        const prefixData = sessionStorage.getItem("dso_needs_prefix");
+        needsProxyPrefix = !proxyPrefixAdded && prefixData != "false" && (prefixData == "true" || await fileExists(versionCheckPath));
+        outsideDiscord = !proxyPrefixAdded && !needsProxyPrefix;
+        if (needsProxyPrefix) {
+            loaderPath = ".proxy/" + loaderPath;
+        }
+        if (outsideDiscord) {
+            window.sessionStorage.setItem("dso_outside_discord", "true");
+        }
+        else {
+            window.sessionStorage.setItem("dso_outside_discord", "false");
+        }
+        loaderPath = baseUrl + loaderPath;
+    }
+    await updatePaths();
+}
+async function handleHiRpc() {
+    const isNested = window.parent != window.parent.parent;
+    if (isNested && typeof window.parent.dso_hirpc == "object") {
+        window.dso_hirpc = window.parent.dso_hirpc;
+        window.dso_build_variables = window.parent.dso_build_variables;
+        window.Dissonity = window.parent.Dissonity;
+        initialize(window.parent.dso_hirpc, true);
+        return;
+    }
+    if (typeof window.dso_hirpc == "object") {
+        initialize(window.dso_hirpc, true);
+        return;
+    }
+    window.dso_hirpc = await new Promise(async (resolve, _) => {
+        if (needsProxyPrefix) {
+            await import(`${proxyBridgeImport}${hirpcFileName}`);
+            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
+            load();
+        }
+        else {
+            await import(`${normalBridgeImport}${hirpcFileName}`);
+            await import(`${normalBridgeImport}${buildVariablesFileName}`);
+            load();
+        }
+        async function load() {
+            const hiRpc = new window.Dissonity.HiRpc.default();
+            await initialize(hiRpc, false);
+            resolve(hiRpc);
+        }
+    });
+    async function initialize(hiRpc, loaded) {
+        hiRpc.lockHashAccess();
+        if (!loaded) {
+            await hiRpc.load(0);
+        }
+    }
+}
+async function handleUnityBuild() {
+    const hiRpc = window.dso_hirpc;
+    const query = hiRpc.getQueryObject();
+    const canvas = document.querySelector("#unity-canvas");
+    const defaultWidth = Number('{{{ WIDTH }}}');
+    const defaultHeight = Number('{{{ HEIGHT }}}');
+    let width;
+    let height;
+    let autoSize = false;
+    async function loadUnityBuild() {
+        const loader = document.createElement("script");
+        loader.setAttribute("src", loaderPath);
+        loader.setAttribute("type", "text/javascript");
+        const loaderPromise = new Promise(resolve => {
+            loader.addEventListener("load", resolve);
+        });
+        document.head.appendChild(loader);
+        await loaderPromise;
+    }
+    function handleResolution() {
+        const RESOLUTION_TYPE = {
+            Default: 1,
+            Viewport: 2,
+            Dynamic: 3,
+            Max: 4
+        };
+        let viewportWidth = "[[[ WIDTH ]]]§";
+        let viewportHeight = "[[[ HEIGHT ]]]§";
+        let desktopResolution = "[[[ DESKTOP_RESOLUTION ]]]§";
+        let mobileResolution = "[[[ MOBILE_RESOLUTION ]]]§";
+        let browserResolution = "[[[ BROWSER_RESOLUTION ]]]§";
+        let resolution;
+        viewportWidth = Number(parseVariable(viewportWidth));
+        viewportHeight = Number(parseVariable(viewportHeight));
+        desktopResolution = Number(parseVariable(desktopResolution));
+        mobileResolution = Number(parseVariable(mobileResolution));
+        browserResolution = Number(parseVariable(browserResolution));
+        if (outsideDiscord)
+            resolution = browserResolution;
+        if (query.platform == MOBILE || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            if (!resolution)
+                resolution = mobileResolution;
+            var meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+            canvas.style.width = "100%";
+            canvas.style.height = "100%";
+            canvas.style.position = "fixed";
+            document.body.style.textAlign = "left";
+        }
+        else if (!resolution) {
+            resolution = desktopResolution;
+        }
+        switch (resolution) {
+            case RESOLUTION_TYPE.Default: {
+                width = defaultWidth;
+                height = defaultHeight;
+                break;
+            }
+            case RESOLUTION_TYPE.Viewport: {
+                width = viewportWidth;
+                height = viewportHeight;
+                break;
+            }
+            case RESOLUTION_TYPE.Dynamic: {
+                autoSize = true;
+                break;
+            }
+            case RESOLUTION_TYPE.Max: {
+                width = initialWidth;
+                height = initialHeight;
+                setRatio();
+                window.dso_expand_canvas = () => {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                    setRatio();
+                };
+            }
+        }
+        if (!autoSize) {
+            setRatio();
+            window.addEventListener("resize", () => {
+                setRatio();
+            });
+        }
+    }
+    function parseVariable(variable) {
+        const raw = variable.split("]]] ")[1].slice(0, -1);
+        return raw;
+    }
+    function setRatio() {
+        canvas.width = width;
+        canvas.height = height;
+        const aspectRatio = canvas.width / canvas.height;
+        let newWidth = window.innerWidth;
+        let newHeight = window.innerHeight;
+        if (newWidth / newHeight > aspectRatio) {
+            newWidth = newHeight * aspectRatio;
+        }
+        else {
+            newHeight = newWidth / aspectRatio;
+        }
+        canvas.style.width = `${newWidth}px`;
+        canvas.style.height = `${newHeight}px`;
+    }
+    let background = "{{{ BACKGROUND_FILENAME ? 'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
+    if (background != "#000000") {
+        background = needsProxyPrefix
+            ? "url('.proxy/" + background
+            : "url('" + background;
+    }
+    canvas.style.background = background;
+    await loadUnityBuild();
+    handleResolution();
+    const USE_THREADS = /true|1/i.test("{{{ USE_THREADS }}}");
+    const USE_WASM = /true|1/i.test("{{{ USE_WASM }}}");
+    const MEMORY_FILENAME = /true|1/i.test("{{{ MEMORY_FILENAME }}}");
+    const SYMBOLS_FILENAME = /true|1/i.test("{{{ SYMBOLS_FILENAME }}}");
+    const dataUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ DATA_FILENAME }}}` : `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
+    const frameworkUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ FRAMEWORK_FILENAME }}}` : `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
+    let workerUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ WORKER_FILENAME }}}` : `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
+    let codeUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ CODE_FILENAME }}}` : `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
+    let memoryUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ MEMORY_FILENAME }}}` : `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
+    let symbolsUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ SYMBOLS_FILENAME }}}` : `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
+    if (!USE_THREADS)
+        workerUrl = undefined;
+    if (!USE_WASM)
+        codeUrl = undefined;
+    if (!MEMORY_FILENAME)
+        memoryUrl = undefined;
+    if (!SYMBOLS_FILENAME)
+        symbolsUrl = undefined;
+    const companyName = '{{{ JSON.stringify(COMPANY_NAME) }}}'.replace('"', "");
+    const productName = '{{{ JSON.stringify(PRODUCT_NAME) }}}'.replace('"', "");
+    const productVersion = '{{{ JSON.stringify(PRODUCT_VERSION) }}}'.replace('"', "");
+    createUnityInstance(canvas, {
+        dataUrl,
+        frameworkUrl,
+        streamingAssetsUrl: "StreamingAssets",
+        workerUrl,
+        codeUrl,
+        memoryUrl,
+        symbolsUrl,
+        companyName,
+        productName,
+        productVersion,
+        matchWebGLToCanvasSize: autoSize,
+    });
+}
+(async () => {
+    await initialize();
+    await handleHiRpc();
+    await handleUnityBuild();
+})();
+export {};

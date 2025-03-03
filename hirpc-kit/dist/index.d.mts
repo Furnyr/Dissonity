@@ -1,4 +1,5 @@
 interface UnknownHiRpc {
+    getQueryObject(): Record<string, string>;
 }
 
 /**
@@ -42,27 +43,22 @@ declare class BuildVariables$1 {
     constructor();
 }
 
-type RpcPayload = {
+type RpcInputPayload = {
     evt?: string;
     cmd?: string;
     nonce?: string;
-    data?: unknown;
+    args?: unknown;
 };
 type BuildVariables = InstanceType<typeof BuildVariables$1>;
 
 /**
  * Main hiRPC class. An instance should be located in window.dso_hirpc.
  *
- * Since this class is loaded from the hiRPC interface, we can assume the following properties exist:
- * - window.dso_hirpc
- * - sessionStorage.dso_outside_discord
- * - sessionStorage.dso_needs_prefix
- *
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-declare class HiRpc0_4_0 {
+declare class HiRpc0_5 {
     #private;
     constructor();
     /**
@@ -95,13 +91,13 @@ declare class HiRpc0_4_0 {
     /**
      * Request a hash to access restricted functionality.
      *
-     * Call this method before loading the game build.
+     * Call this method after hiRPC `load` and before loading the game build.
      */
     requestHash(): Promise<string | null>;
     /**
      * Send data to Discord through RPC.
      */
-    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcPayload): Promise<void>;
+    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
     /**
      * **Only used inside the game build.**
      *
@@ -112,8 +108,8 @@ declare class HiRpc0_4_0 {
      * Send data to the game build through a hiRPC channel.
      */
     sendToApp(hash: string, channel: string, payload: unknown): Promise<void>;
-    addAppListener(hash: string, listener: (data: unknown) => void): void;
-    removeAppListener(hash: string, listener: (data: unknown) => void): void;
+    addAppListener(hash: string, channel: string, listener: (data: unknown) => void): void;
+    removeAppListener(hash: string, channel: string, listener: (data: unknown) => void): void;
     /**
      * Lock hash access before opening the downward flow. After this call, `requestHash` will return null.
      */
@@ -133,8 +129,23 @@ declare class HiRpc0_4_0 {
 }
 
 type StartWith<V extends string> = `${V}${string}`;
-type HiRpc<V extends string> = V extends StartWith<"0.4"> ? HiRpc0_4_0 : UnknownHiRpc;
+type HiRpc<V extends string> = V extends StartWith<"0.5"> ? HiRpc0_5 : UnknownHiRpc;
 
+declare enum RpcOpcode {
+    Handshake = 0,
+    Frame = 1,
+    Close = 2,
+    Hello = 3
+}
+/**
+ * Prepare a hiRPC instance in `window.dso_hirpc`.
+ *
+ * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
+ */
 declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpc<V>>;
+/**
+ * Load an HTML file as the activity iframe.
+ */
+declare function loadIframe(src: string, id: string): void;
 
-export { setupHiRpc };
+export { RpcOpcode, loadIframe, setupHiRpc };

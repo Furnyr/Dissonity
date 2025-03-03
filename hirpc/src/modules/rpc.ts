@@ -89,7 +89,7 @@ export class Rpc {
                         rpc_message: rpcMessage
                     }
 
-                    this.#state.appSender!(JSON.stringify(interopMessage));
+                    this.#state.appSender!(this.serializePayload(interopMessage));
 
                     return;
                 }
@@ -97,7 +97,7 @@ export class Rpc {
                 // Here, authentication is happening through this.authentication.
                 // We only need to act on responses, not trigger new actions.
 
-                const buildVariables =  window.dso_build_variables as BuildVariables;
+                const buildVariables = window.dso_build_variables as BuildVariables;
 
                 const payload = rpcMessage?.[1];
                 const data = payload?.data;
@@ -107,7 +107,14 @@ export class Rpc {
                 //? Ready event
                 if (command == RpcCommands.DISPATCH && event == RpcEvents.READY) {
 
-                    this.#state.multiEvent.ready = this.#serializePayload(data);
+                    sessionStorage.setItem("dso_connected", "true" as NonNullable<SessionStorage["dso_connected"]>);
+
+                    const multiEvent = this.#state.getMultiEvent();
+                    multiEvent.ready = this.serializePayload(data);
+
+                    this.#state.getMultiEvent = () => {
+                        return multiEvent;
+                    }
 
                     //? Console log override
                     if (!buildVariables.DISABLE_CONSOLE_LOG_OVERRIDE) {
@@ -138,13 +145,25 @@ export class Rpc {
                 //? Authorize
                 else if (command == RpcCommands.AUTHORIZE && event != RpcEvents.ERROR) {
 
-                    this.#state.multiEvent.authorize = this.#serializePayload(data);
+                    const multiEvent = this.#state.getMultiEvent();
+                    multiEvent.authorize = this.serializePayload(data);
+
+                    this.#state.getMultiEvent = () => {
+                        return multiEvent;
+                    }
                 }
 
                 //? Authenticate
                 else if (command == RpcCommands.AUTHENTICATE) {
 
-                    this.#state.multiEvent.authenticate = this.#serializePayload(data);
+                    sessionStorage.setItem("dso_authenticated", "true" as NonNullable<SessionStorage["dso_authenticated"]>);
+
+                    const multiEvent = this.#state.getMultiEvent();
+                    multiEvent.authenticate = this.serializePayload(data);
+
+                    this.#state.getMultiEvent = () => {
+                        return multiEvent;
+                    }
 
                     this.#state.dispatchAuth!();
                     // Multi event is dispatched when the app sender is established (on openDownwardFlow).
@@ -221,7 +240,7 @@ export class Rpc {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(body)
+                    body: this.serializePayload(body)
                 });
     
                 //\ Parse data
@@ -234,8 +253,13 @@ export class Rpc {
 
                     return;
                 }
+                
+                const multiEvent = this.#state.getMultiEvent();
+                multiEvent.response = this.serializePayload(json);
 
-                this.#state.multiEvent.response = JSON.stringify(json);
+                this.#state.getMultiEvent = () => {
+                    return multiEvent;
+                }
 
                 //\ Authenticate
                 this.send(Opcode.Frame, {
@@ -260,8 +284,29 @@ export class Rpc {
 
     send(opcode: Opcode, payload: unknown): void {
 
-        const source: Window = window.parent.opener ?? window.parent;
-        const sourceOrigin = !!document.referrer ? document.referrer : "*";
+        // The hiRPC needs to work inside a nested iframe. So it can be two iframes in the Discord client.
+
+        let source: Window;
+        let sourceOrigin: string;
+
+        const isNested = window.parent != window.parent.parent;
+        if (isNested) {
+
+            const parent = window.parent.parent;
+            const activity = window.parent;
+
+            source = parent.opener ?? parent;
+            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
+        }
+
+        else {
+
+            const parent = window.parent;
+            const activity = window;
+
+            source = parent.opener ?? parent;
+            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
+        }
 
         source.postMessage([opcode, payload], sourceOrigin);
     }
@@ -281,7 +326,7 @@ export class Rpc {
         return uuid.map((x) => x.toString(16)).join("");
     }
 
-    #serializePayload(payload: unknown): string {
+    serializePayload(payload: unknown): string {
 
         return JSON.stringify(payload, (_, value) => {
             if (typeof value == "bigint") return value.toString();

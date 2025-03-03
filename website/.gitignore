@@ -8,7 +8,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
+dist/*
+public/doxygen
+.vite
 dist-ssr
 *.local
 

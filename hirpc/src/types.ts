@@ -27,6 +27,13 @@ export type RpcPayload = {
     data?: unknown
 };
 
+export type RpcInputPayload = {
+    evt?: string,
+    cmd?: string,
+    nonce?: string,
+    args?: unknown
+};
+
 // Sent when the downward flow is opened.
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null // Only null outside Discord
@@ -35,9 +42,9 @@ export type DissonityChannelHandshake = {
 
 // Used in the hiRPC interface. Normal payload in the dissonity channel.
 export type DissonityChannelPayload = {
-    nonce?: string, // Only included in a response
-    query?: string,
-    formatted_price?: string
+    nonce?: string,
+    response?: string | null,
+    nullable_response?: boolean
 };
 
 export type HiRpcMessage = {

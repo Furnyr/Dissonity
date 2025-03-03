@@ -1,6 +1,45 @@
-.footer {
-    position:relative;
-    bottom: 10px;
-    margin-top: 110px;
-    margin-left: 5%;
+.footer-container {
+    display: block;
+    margin-top: 150px;
+    padding-bottom: 40px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: right;
+}
+
+.footer-link-column {
+    margin-right: 65px;
+    margin-bottom: 10px;
+}
+
+.footer-link-column {
+    line-height: 27px;
+}
+
+.footer-link-column p {
+    margin-bottom: 8px;
+}
+
+.footer-copyright {
+    display: flex;
+    justify-content: right;
+}
+
+.footer-copyright-text {
+    padding: 20px;
+}
+
+.footer-link-header {
+    font-weight: 600;
+}
+
+@media only screen and (max-width: 600px) {
+    .footer-copyright-text {
+        margin: 0 0;
+    }
+    .footer-link-column {
+        margin: 0 12px;
+    }
 }

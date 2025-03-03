@@ -8,7 +8,7 @@ namespace Dissonity.Editor
         [MenuItem("Assets/Create/Dissonity/Standard Configuration", priority = 2)]
         public static void CreateConfiguration()
         {
-            string fileData = Resources.Load<TextAsset>("Dissonity_StandardConfig").text;
+            string fileData = Loady.Load<TextAsset>("StandardConfig.txt").text;
 
             ProjectWindowUtil.CreateAssetWithContent(
                 "DissonityConfiguration.cs",

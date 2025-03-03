@@ -1,0 +1,23 @@
+
+.property {
+    color: rgb(148, 90, 182);
+    border-radius: 5px;
+    padding: 1px 3px;
+}
+
+.class {
+    color: rgb(90, 182, 110);
+    border-radius: 5px;
+    padding: 1px 3px;
+}
+
+.method {
+    color: rgb(83, 123, 231);
+    border-radius: 5px;
+    padding: 1px 3px;
+}
+
+.doxygen {
+    padding: 9px;
+    border-radius: 9px;
+}

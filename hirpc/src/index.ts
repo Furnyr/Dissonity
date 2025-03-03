@@ -10,21 +10,16 @@ import { OfficialUtils } from "./modules/official_utils";
 import { Rpc } from "./modules/rpc";
 
 import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, DissonityChannelHandshake, HiRpcMessage, InteropMessage, RpcPayload } from "./types";
+import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcInputPayload, RpcPayload } from "./types";
 
 /**
  * Main hiRPC class. An instance should be located in window.dso_hirpc.
- * 
- * Since this class is loaded from the hiRPC interface, we can assume the following properties exist:
- * - window.dso_hirpc
- * - sessionStorage.dso_outside_discord
- * - sessionStorage.dso_needs_prefix
  * 
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */ 
-export default class HiRpc0_4 {
+export default class HiRpc0_5 {
 
     #state: State;
     #hashes: HashGenerator;
@@ -52,6 +47,13 @@ export default class HiRpc0_4 {
 
         if (typeof window != "undefined") {
 
+            //\ Load build variables by accessing them
+            const buildVariables = this.getBuildVariables();
+        
+            if (!buildVariables.DISABLE_INFO_LOGS) {
+                this.#greet();
+            }
+
             //\ Add main RPC listener
             window.addEventListener("message", this.#rpc.receive);
         }
@@ -71,7 +73,7 @@ export default class HiRpc0_4 {
      * sessionStorage.setItem("dso_authenticated", true);
      * ```
      */
-    async load(maxAccessCount = 1) {
+    async load(maxAccessCount = 1): Promise<void> {
 
         if (this.#state.loaded) {
             throw new Error("hiRPC Module already loaded");
@@ -85,66 +87,86 @@ export default class HiRpc0_4 {
             throw new Error("Cannot load hiRPC Module outside of a web environment");
         }
 
+        //\ Ready to request hash
         this.#state.loaded = true;
         this.#state.maxAccessCount = maxAccessCount;
 
-        //\ Load build variables by accessing them
-        const buildVariables = await this.getBuildVariables();
-
-        if (!buildVariables.DISABLE_INFO_LOGS) {
-            this.#greet();
-        }
-
-        //? In browser
-        const outsideDiscord = sessionStorage.getItem("dso_outside_discord") as SessionStorage["dso_outside_discord"];
-        if (outsideDiscord == "true") {
-
-            // For browser-only environments, returning at this point provides basic hiRPC functionality
-            
-            this.#state.stateCode = StateCode.OutsideDiscord;
-
-            return;
-        }
-
+        //? Clear RPC session storage
         const query = this.getQueryObject();
+        const saveInstanceId = sessionStorage.getItem("dso_instance_id") as SessionStorage["dso_instance_id"];
+        if (query.instance_id != saveInstanceId) {
 
-        //? No query params
-        if (!query.frame_id || !query.instance_id || !query.platform) {
-            
-            this.#state.stateCode = StateCode.OutsideDiscord;
+            // If these ids don't match, it means that the hiRPC kit isn't enabled,
+            // so the RPC external session values can be outdated.
 
-            return;
+            // In this case, RPC session storage is only used to prevent
+            // initialization triggering multiple times.
+
+            // Meaningless casts to provoke an error if the SessionStorage property changes.
+            sessionStorage.removeItem("dso_connected" as NonNullable<SessionStorage["dso_connected"]>);
+            sessionStorage.removeItem("dso_authenticated" as NonNullable<SessionStorage["dso_authenticated"]>);
+
+            sessionStorage.setItem("dso_instance_id", query.instance_id as NonNullable<SessionStorage["dso_instance_id"]>);
         }
+        
+        return new Promise(async (resolve, reject) => {
 
-        //? Send handshake
-        const connected = sessionStorage.getItem("dso_connected") as SessionStorage["dso_connected"];
-        if (connected == "false" || connected == null) {
-            await this.#connect();
-        }
-
-        else if (connected == "true") {
-            this.#state.dispatchReady!();
-        }
-
-        else {
-            throw new Error(`Invalid session storage item: { dso_connected: ${connected} }`);
-        }
-
-        //? Authenticate
-        const authenticated = sessionStorage.getItem("dso_authenticated") as SessionStorage["dso_authenticated"];
-        if (authenticated == "false" || authenticated == null) {
-            await this.#authenticate();
-        }
-
-        else if (authenticated == "true") {
-            this.#state.dispatchAuth!();
-        }
-
-        else {
-            throw new Error(`Invalid session storage item: { dso_authenticated: ${authenticated} }`);
-        }
-
-        this.#state.stateCode = StateCode.Stable;
+            //? In browser
+            const outsideDiscord = sessionStorage.getItem("dso_outside_discord") as SessionStorage["dso_outside_discord"];
+            if (outsideDiscord == "true") {
+    
+                // For browser-only environments, returning at this point provides basic hiRPC functionality
+                
+                this.#state.stateCode = StateCode.OutsideDiscord;
+    
+                resolve();
+                return;
+            }
+    
+            const query = this.getQueryObject();
+    
+            //? No query params
+            if (!query.frame_id || !query.instance_id || !query.platform) {
+                
+                this.#state.stateCode = StateCode.OutsideDiscord;
+    
+                resolve();
+                return;
+            }
+    
+            //? Send handshake
+            const connected = sessionStorage.getItem("dso_connected") as SessionStorage["dso_connected"];
+            if (connected == "false" || connected == null) {
+                await this.#connect();
+            }
+    
+            else if (connected == "true") {
+                this.#state.dispatchReady!();
+            }
+    
+            else {
+                reject(new Error(`Invalid session storage item: { dso_connected: ${connected} }`));
+                return;
+            }
+    
+            //? Authenticate
+            const authenticated = sessionStorage.getItem("dso_authenticated") as SessionStorage["dso_authenticated"];
+            if (authenticated == "false" || authenticated == null) {
+                await this.#authenticate();
+            }
+    
+            else if (authenticated == "true") {
+                this.#state.dispatchAuth!();
+            }
+    
+            else {
+                reject(new Error(`Invalid session storage item: { dso_authenticated: ${authenticated} }`));
+                return;
+            }
+    
+            this.#state.stateCode = StateCode.Stable;
+            resolve();
+        });
     }
 
     /**
@@ -185,7 +207,7 @@ export default class HiRpc0_4 {
      * - Resolves authPromise
      */
     async #authenticate(): Promise<void> {
-        
+
         //\ Add authentication RPC listener
         window.addEventListener("message", this.#rpc.authentication);
 
@@ -282,16 +304,19 @@ export default class HiRpc0_4 {
     /**
      * Request a hash to access restricted functionality.
      * 
-     * Call this method before loading the game build.
+     * Call this method after hiRPC `load` and before loading the game build.
      */
     async requestHash(): Promise<string | null> {
+
+        if (!this.#state.loaded) return null;
+
         return this.#hashes.requestHash();
     }
 
     /**
      * Send data to Discord through RPC.
      */
-    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcPayload): Promise<void> {
+    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
 
         if (!this.#hashes.verifyHash(hash)) return;
 
@@ -310,13 +335,12 @@ export default class HiRpc0_4 {
         if (!this.#hashes.verifyAppHash(appHash)) return;
         if (channel == DISSONITY_CHANNEL) throw new Error(`Cannot send message through the "${DISSONITY_CHANNEL}" channel`);
 
-        const message: HiRpcMessage = {
-            channel,
-            data: payload
-        }
+        const channelListeners = this.#state.appListeners.get(channel);
 
-        for (const listener of this.#state.appListeners) {
-            listener(message);
+        if (!channelListeners) return;
+
+        for (const listener of channelListeners) {
+            listener(payload);
         }
     }
 
@@ -341,25 +365,38 @@ export default class HiRpc0_4 {
             }
         };
 
-        this.#state.appSender!(JSON.stringify(interopMessage));
+        this.#state.appSender!(this.#rpc.serializePayload(interopMessage));
     }
 
-    addAppListener(hash: string, listener: (data: unknown) => void): void {
+    addAppListener(hash: string, channel: string, listener: (data: unknown) => void): void {
 
         if (!this.#hashes.verifyHash(hash)) return;
 
-        this.#state.appListeners.push(listener);
+        if (!this.#state.appListeners.has(channel)) {
+            this.#state.appListeners.set(channel, []);
+        }
+
+        const channelListeners = this.#state.appListeners.get(channel)!;
+
+        channelListeners.push(listener);
     }
 
-    removeAppListener(hash: string, listener: (data: unknown) => void): void {
+    removeAppListener(hash: string, channel: string, listener: (data: unknown) => void): void {
 
         if (!this.#hashes.verifyHash(hash)) return;
+        if (!this.#state.appListeners.has(channel)) return;
 
-        const index = this.#state.appListeners.indexOf(listener);
+        const channelListeners = this.#state.appListeners.get(channel)!;
+
+        const index = channelListeners.indexOf(listener);
 
         if (index == -1) return;
 
-        this.#state.appListeners.splice(index, 1);
+        channelListeners.splice(index, 1);
+
+        if (channelListeners.length == 0) {
+            this.#state.appListeners.delete(channel);
+        }
     }
 
     /**
@@ -390,7 +427,7 @@ export default class HiRpc0_4 {
         }
 
         const hiRpcPayload: DissonityChannelHandshake = {
-            raw_multi_event: outsideDiscord != "true" ? this.#state.multiEvent : null,
+            raw_multi_event: outsideDiscord != "true" ? this.#state.getMultiEvent() : null,
             hash: await this.#hashes.generateHash(true)
         }
 
@@ -403,7 +440,7 @@ export default class HiRpc0_4 {
             }
         };
 
-        this.#state.appSender!(JSON.stringify(interopMessage));
+        this.#state.appSender!(this.#rpc.serializePayload(interopMessage));
 
         this.#state.dispatchAppSender!();
     }

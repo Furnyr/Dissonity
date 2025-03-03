@@ -7,14 +7,20 @@ export type RpcPayload = {
     nonce?: string;
     data?: unknown;
 };
+export type RpcInputPayload = {
+    evt?: string;
+    cmd?: string;
+    nonce?: string;
+    args?: unknown;
+};
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null;
     hash: string;
 };
 export type DissonityChannelPayload = {
     nonce?: string;
-    query?: string;
-    formatted_price?: string;
+    response?: string | null;
+    nullable_response?: boolean;
 };
 export type HiRpcMessage = {
     channel: string;

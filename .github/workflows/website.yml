@@ -57,6 +57,13 @@ jobs:
 
       - name: Build
         run: pnpm build
+      
+      - name: Install Doxygen
+        run: sudo apt-get install doxygen
+
+      - name: Generate Documentation
+        run: doxygen Doxyfile
+        working-directory: "doxygen"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

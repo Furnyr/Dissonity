@@ -13,4 +13,5 @@ export declare class Rpc {
     authentication(message: MessageEvent<RpcMessage>): Promise<void>;
     send(opcode: Opcode, payload: unknown): void;
     getNonce(): string;
+    serializePayload(payload: unknown): string;
 }

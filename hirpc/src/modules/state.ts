@@ -17,7 +17,7 @@ export class State {
     appSender: ((data: string) => void) | null = null;
     appSenderPromise: Promise<void> | null = null;
     dispatchAppSender: (() => void) | null = null;
-    appListeners: ((data: unknown) => void)[] = [];
+    appListeners: Map<string, ((data: unknown) => void)[]> = new Map();
 
     // RPC
     /**
@@ -29,10 +29,12 @@ export class State {
     dispatchReady: (() => void) | null = null;
     authPromise: Promise<void> | null = null;
     dispatchAuth: (() => void) | null = null;
-    multiEvent: MultiEvent = {
-        ready: "",
-        authorize: "",
-        authenticate: "",
-        response: ""
-    };
+    getMultiEvent: () => MultiEvent = () => {
+        return {
+            ready: "",
+            authorize: "",
+            authenticate: "",
+            response: ""
+        }
+    }
 }

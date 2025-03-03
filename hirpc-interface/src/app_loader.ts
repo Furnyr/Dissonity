@@ -9,14 +9,27 @@ import type { HiRpcModule } from "./types";
 
 
 // File paths - - - - -
-let baseUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}`;
+function getPath() {
+
+    const pathname = window.location.pathname;
+
+    const isFile = /\.[^\/]+$/.test(pathname);
+
+    if (isFile) {
+        return pathname.substring(0, pathname.lastIndexOf("/") + 1);
+    }
+
+    return pathname;
+}
+
+let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`;
 if (!baseUrl.endsWith("/")) baseUrl += "/";
 
 let outsideDiscord = false;
 let proxyPrefixAdded = false;
 let needsProxyPrefix = false;
 
-let loaderPath = "Build/client.loader.js"; 
+let loaderPath = "Build/{{{ FRAMEWORK_FILENAME }}}".replace("framework", "loader"); 
 const versionCheckPath = baseUrl + ".proxy/version.json";
 
 const proxyBridgeImport = "dso_proxy_bridge/";
@@ -46,23 +59,22 @@ async function initialize() {
         pathSegments.shift();
     
         proxyPrefixAdded = pathSegments[0] == ".proxy";
-        needsProxyPrefix = await fileExists(versionCheckPath);
+        const prefixData = sessionStorage.getItem("dso_needs_prefix") as SessionStorage["dso_needs_prefix"];
+        needsProxyPrefix = !proxyPrefixAdded && prefixData != "false" && (prefixData == "true" || await fileExists(versionCheckPath));
         outsideDiscord = !proxyPrefixAdded && !needsProxyPrefix;
     
         // Add .proxy
         if (needsProxyPrefix) {
             loaderPath = ".proxy/" + loaderPath;
-
-            window.sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-        }
-
-        else {
-            window.sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
         }
 
         // Mark as outside Discord
         if (outsideDiscord) {
             window.sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
+
+        else {
+            window.sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
         }
     
         loaderPath = baseUrl + loaderPath;
@@ -75,6 +87,21 @@ async function initialize() {
 async function handleHiRpc() {
 
     //? Module already created
+
+    // Nested
+    const isNested = window.parent != window.parent.parent;
+    if (isNested && typeof window.parent.dso_hirpc == "object") {
+
+        //\ Add shallow references to this window to use later
+        window.dso_hirpc = window.parent.dso_hirpc;
+        window.dso_build_variables = window.parent.dso_build_variables;
+        window.Dissonity = window.parent.Dissonity;
+
+        initialize(window.parent.dso_hirpc as HiRpcModule, true);
+        return;
+    }
+
+    // Not nested
     if (typeof window.dso_hirpc == "object") {
 
         initialize(window.dso_hirpc as HiRpcModule, true);
@@ -84,17 +111,17 @@ async function handleHiRpc() {
     //\ Create module
     window.dso_hirpc = await new Promise(async (resolve, _) => {
 
-        if (outsideDiscord) {
-
-            await import(`${normalBridgeImport}${hirpcFileName}`);
-            await import(`${normalBridgeImport}${buildVariablesFileName}`);
+        if (needsProxyPrefix) {
+            await import(`${proxyBridgeImport}${hirpcFileName}`);
+            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
+            
             load();
         }
 
         else {
+            await import(`${normalBridgeImport}${hirpcFileName}`);
+            await import(`${normalBridgeImport}${buildVariablesFileName}`);
             
-            await import(`${proxyBridgeImport}${hirpcFileName}`);
-            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
             load();
         }
 
@@ -282,12 +309,12 @@ async function handleUnityBuild() {
     const SYMBOLS_FILENAME = /true|1/i.test("{{{ SYMBOLS_FILENAME }}}");
 
     // Configuration - - - - -
-    const dataUrl = needsProxyPrefix ? ".proxy/Build/{{{ DATA_FILENAME }}}" : "Build/{{{ DATA_FILENAME }}}";
-    const frameworkUrl = needsProxyPrefix ? ".proxy/Build/{{{ FRAMEWORK_FILENAME }}}" : "Build/{{{ FRAMEWORK_FILENAME }}}";
-    let workerUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ WORKER_FILENAME }}}" : "Build/{{{ WORKER_FILENAME }}}";
-    let codeUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ CODE_FILENAME }}}" : "Build/{{{ CODE_FILENAME }}}";
-    let memoryUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ MEMORY_FILENAME }}}" : "Build/{{{ MEMORY_FILENAME }}}";
-    let symbolsUrl: string | undefined = needsProxyPrefix ? ".proxy/Build/{{{ SYMBOLS_FILENAME }}}" : "Build/{{{ SYMBOLS_FILENAME }}}";
+    const dataUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ DATA_FILENAME }}}` : `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
+    const frameworkUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ FRAMEWORK_FILENAME }}}` : `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
+    let workerUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ WORKER_FILENAME }}}` : `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
+    let codeUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ CODE_FILENAME }}}` : `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
+    let memoryUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ MEMORY_FILENAME }}}` : `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
+    let symbolsUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ SYMBOLS_FILENAME }}}` : `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
 
     if (!USE_THREADS) workerUrl = undefined;
     if (!USE_WASM) codeUrl = undefined;

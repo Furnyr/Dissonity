@@ -19,6 +19,7 @@ namespace Dissonity
 
         // Activity
         public MockLocale _locale = MockLocale.en_US;
+        public string _accessToken = "mock-access-token";
         public MockPlayer _currentPlayer = new();
         public List<MockPlayer> _otherPlayers = new();
         public List<MockChannel> _channels = new();

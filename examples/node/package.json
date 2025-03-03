@@ -1,0 +1,33 @@
+{
+  "name": "dissonity-node",
+  "version": "0.1.0",
+  "description": "Dissonity example Node.js app",
+  "scripts": {
+    "colyseus": "npx schema-codegen src/server/utils/structures.ts --csharp --output _unity_colyseus/",
+    "build": "npx tsc --project tsconfig.emit.json && node ./scripts/build.js",
+    "build:clean": "npx tsc --project tsconfig.emit.json && node ./scripts/build.js clean",
+    "execute": "node build/server/index.js",
+    "start": "npm run build && npm run execute"
+  },
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@colyseus/schema": "^2.0.30",
+    "@colyseus/ws-transport": "^0.15.1",
+    "@dissonity/hirpc-kit": "^0.1.1",
+    "colyseus": "^0.15.15",
+    "cross-fetch": "^3.1.5",
+    "dotenv": "^16.0.3",
+    "esbuild": "^0.25.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.5",
+    "glob": "^9.2.1",
+    "typescript": "^5.2.2"
+  },
+  "type": "module"
+}

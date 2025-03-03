@@ -21,7 +21,7 @@ export class HashGenerator {
     async generateHash(appHash = false): Promise<string> {
 
         if (appHash && this.#getAppHash() != null) return this.#getAppHash()!;
-        if (this.#getHash() != null) return this.#getHash()!;
+        if (!appHash && this.#getHash() != null) return this.#getHash()!;
 
         //\ Generate random bytes
         const salt = window.crypto.getRandomValues(new Uint8Array(HASH_RANDOM_BYTES));

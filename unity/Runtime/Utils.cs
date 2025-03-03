@@ -29,11 +29,14 @@ namespace Dissonity
         private static void DissonityError(string _) {}
 #endif
 
+        /// <summary>
+        /// Log a message adding [Dissonity] in the browser console.
+        /// </summary>
         public static void DissonityLog(object message)
         {
             if (Api.isEditor)
             {
-                Debug.Log($"[Dissonity] {message}");
+                Debug.Log(message);
             }
 
             else
@@ -42,11 +45,14 @@ namespace Dissonity
             }
         }
 
+        /// <summary>
+        /// Log a message adding [Dissonity] in the browser console.
+        /// </summary>
         public static void DissonityLogWarning(object message)
         {
             if (Api.isEditor)
             {
-                Debug.LogWarning($"[Dissonity] {message}");
+                Debug.LogWarning(message);
             }
 
             else
@@ -55,11 +61,14 @@ namespace Dissonity
             }
         }
 
+        /// <summary>
+        /// Log a message adding [Dissonity] in the browser console.
+        /// </summary>
         public static void DissonityLogError(object message)
         {
             if (Api.isEditor)
             {
-                Debug.LogError($"[Dissonity] {message}");
+                Debug.LogError(message);
             }
 
             else

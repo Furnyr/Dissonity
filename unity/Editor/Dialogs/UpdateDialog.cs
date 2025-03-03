@@ -16,13 +16,13 @@ namespace Dissonity.Editor.Dialogs
             GUIStyle headerStyle = new GUIStyle(EditorStyles.largeLabel)
             {
                 fontSize = 20,
-                font = EditorStyles.boldFont
+                fontStyle = FontStyle.Bold
             };
 
             GUIStyle subHeaderStyle = new GUIStyle(EditorStyles.largeLabel)
             {
                 fontSize = 17,
-                font = EditorStyles.boldFont
+                fontStyle = FontStyle.Bold
             };
 
             // Top margin
@@ -33,9 +33,9 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.Space(10);
             GUILayout.BeginVertical();
             
-            GUILayout.Label("Alpha 5 Overview", headerStyle);
+            GUILayout.Label("Beta 1 Overview", headerStyle);
 
-            GUILayout.Label("Quality of Life changes, hiRPC functionality and bug fixes.");
+            GUILayout.Label("Bug fixes and hiRPC improvements.");
 
             GUILayout.Space(15);
 
@@ -43,11 +43,8 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Api.HiRpc subclass methods");
-            GUILayout.Label("- Api.OnReady method");
-            GUILayout.Label("- Api.Commands.ShareLink command");
-            GUILayout.Label("- Configuration options");
-            GUILayout.Label("- Dialogs");
+            GUILayout.Label("- Api.AccessToken property");
+            GUILayout.Label("- Api.LocalStorage subclass");
 
             GUILayout.Space(15);
 
@@ -55,9 +52,8 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Default desktop and mobile resolution");
-            GUILayout.Label("- SubscriptionReference is now DiscordSubscription");
-            GUILayout.Label("- WebResolution is now BrowserResolution");
+            GUILayout.Label("- HiRpc methods now take the hiRPC channel as the first argument.");
+            GUILayout.Label("- The Resources folder is no longer used internally to load assets.");
 
             GUILayout.Space(15);
 
@@ -65,8 +61,10 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Missing SetOrientationLockState command arguments");
-            GUILayout.Label("- When using Max resolution, the game should resize correctly");
+            GUILayout.Label("- Generated folders are now deleted with the uninstaller.");
+            GUILayout.Label("- All commands should now raise exceptions properly.");
+            GUILayout.Label("- Serialize enums as integers.");
+            GUILayout.Label("And more!");
 
             GUILayout.Space(20);
 
@@ -81,7 +79,7 @@ namespace Dissonity.Editor.Dialogs
 
             if (EditorGUILayout.LinkButton("Full changelog"))
             {
-                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/dev/ALPHA_CHANGELOG.md");
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/dev/BETA_CHANGELOG.md");
             }
 
             if (EditorGUILayout.LinkButton("Documentation"))

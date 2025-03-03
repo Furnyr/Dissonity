@@ -37,9 +37,7 @@ namespace Dissonity.Editor
         {
             // To access package.json we need the folder where Dissonity is.
             // This is achieved by accessing the resources folder.
-            pathToPackage = "";
-            string indexAssetPath = AssetDatabase.GetAssetPath(Resources.Load<TextAsset>("WebGLTemplateSource/Dissonity/index.html"));
-            pathToPackage = GetPathToPackage(indexAssetPath);
+            pathToPackage = Loady.GetPackageRoot();
 
             // Target where the WebGL Template should be
             string targetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity");
@@ -47,20 +45,25 @@ namespace Dissonity.Editor
 
             //# ASSETS/DISSONITY - - - - -
             string pathToFolder = CombinePath(Application.dataPath, "Dissonity");
+            string pathToDialogs = CombinePath(pathToFolder, "Dialogs.asset");
 
-            // If Assets/Dissonity doesn't exist, create it and the Dialogs object.
+            // If Assets/Dissonity doesn't exist, create it.
             if (!Directory.Exists(pathToFolder))
             {
                 Directory.CreateDirectory(pathToFolder);
 
                 Debug.Log("[Dissonity Editor] Created folder: Assets/Dissonity");
+            }
 
+            // If Assets/Dissonity/Dialogs.asset doesn't exist, create it.
+            if (!File.Exists(pathToDialogs))
+            {
                 //\ Create Dialogs object
                 // For AssetDatabase, the path needs to be relative to the project folder.
-                string pathToDialogs = CombinePath("Assets/Dissonity", "Dialogs.asset");
+                string relativePathToDialogs = CombinePath("Assets/Dissonity", "Dialogs.asset");
 
                 DialogAsset asset = ScriptableObject.CreateInstance<DialogAsset>();
-                AssetDatabase.CreateAsset(asset, pathToDialogs);
+                AssetDatabase.CreateAsset(asset, relativePathToDialogs);
             }
 
             //# WEBGL TEMPLATE - - - - -
@@ -118,17 +121,17 @@ namespace Dissonity.Editor
                 return;
             }
 
-            LoadTextAssets("WebGLTemplateSource/Dissonity", targetPath);
-            LoadPngAssets("WebGLTemplateSource/Dissonity", targetPath);
+            LoadTextAssets("Template/Dissonity", targetPath);
+            LoadPngAssets("Template/Dissonity", targetPath);
 
             AssetDatabase.Refresh();
         }
 
         static void LoadTextAssets(string source, string target)
         {
-            //source = WebGLTemplateSource/Dissonity
+            //source = Template/Dissonity
 
-            TextAsset[] assets = Resources.LoadAll<TextAsset>(source);
+            TextAsset[] assets = Loady.LoadAll<TextAsset>(source);
 
             foreach (var asset in assets)
             {
@@ -163,14 +166,14 @@ namespace Dissonity.Editor
                 Dissonity = packageData.Version
             };
 
-            File.WriteAllText(CombinePath(target, "version.json"), JsonConvert.SerializeObject(versionFileData));
+            File.WriteAllText(CombinePath(target, "version.json"), JsonConvert.SerializeObject(versionFileData, Formatting.Indented));
         }
 
         static void LoadPngAssets(string source, string target)
         {
-            //source = WebGLTemplateSource/Dissonity
+            //source = Template/Dissonity
 
-            Texture2D[] assets = Resources.LoadAll<Texture2D>(source);
+            Texture2D[] assets = Loady.LoadAll<Texture2D>(source);
 
             foreach (var asset in assets)
             {
@@ -188,7 +191,7 @@ namespace Dissonity.Editor
 
         static string TargetPath(string target, string source)
         {
-            // .../WebGLTemplateSource/Dissonity/index.html.txt -> ...Assets/WebGLTemplateSource/Dissonity/index.html
+            // .../Template/Dissonity/index.html.txt -> ...Assets/Template/Dissonity/index.html
 
             return CombinePath(target, RelativePath(source));
         }
@@ -201,7 +204,7 @@ namespace Dissonity.Editor
 
         static string RelativePath(string source)
         {
-            // .../WebGLTemplateSource/Dissonity/index.html.txt -> index.html
+            // .../Template/Dissonity/index.html.txt -> index.html
 
             string file = Path.GetFileNameWithoutExtension(source);
             string dir = Path.GetDirectoryName(source);
@@ -222,13 +225,6 @@ namespace Dissonity.Editor
             {
                 Directory.CreateDirectory(directoryPath);
             }
-        }
-
-        static string GetPathToPackage(string pathToAsset)
-        {
-            int lastIndex = pathToAsset.IndexOf(CombinePath("Resources", "WebGLTemplateSource"));
-
-            return pathToAsset.Substring(0, lastIndex);
         }
     }
 }

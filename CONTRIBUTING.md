@@ -3,7 +3,14 @@
 
 Hi! First of all, thank you for showing interest in the project! This document will guide you on how to contribute to Dissonity.
 
-You don't need to write code to contribute — testing is also very appreciated! (See the Issues tab).
+You don't need to write code to contribute — testing or helping with documentation are examples of tasks that are also very appreciated!
+
+## Tools used in the project
+
+- [pnpm](https://pnpm.io) - Package manager
+- [Yalc](https://www.npmjs.com/package/yalc) - Testing npm packages locally
+- [Doxygen](https://www.doxygen.nl) - Generating documentation for the C# API
+- [Act](https://github.com/nektos/act) (and Docker) - Testing workflows locally
 
 ## Issues
 
@@ -28,11 +35,7 @@ After opening a pull request, a maintainer will review the code and may request 
 
 We recommend using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
----
-
-It's important to keep in mind that version 2 is currently in alpha, so the codebase is very prone to big changes.
-
-We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki) up to date for contributors, although the more experimental features are not so well documented:
+It's important to keep in mind that version 2 is currently in beta, so the codebase is still prone to changes.
 
 <table>
   <tr>
@@ -50,7 +53,7 @@ We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki
     <td></td>
   </tr>
   <tr>
-    <td>/unity/Resources</td>
+    <td>/unity/Editor/Assets/Template</td>
     <td>WebGL Template used to run the hiRPC interface before the game build.</td>
     <td>Unlikely to undergo major unexpected changes.</td>
     <td>✅</td>
@@ -80,19 +83,82 @@ We try to keep the [Wiki documentation](https://github.com/Furnyr/Dissonity/wiki
   <tr>
     <td>/examples</td>
     <td>Code samples and basic backend.</td>
-    <td>No work on it yet.</td>
-    <td>❌</td>
-    <td>Some time after the end of the alpha phase.</td>
+    <td>Contributions are accepted. Open an issue to discuss new examples.</td>
+    <td>✅</td>
+    <td></td>
   </tr>
   <tr>
     <td>/website</td>
     <td>Site that hosts documentation and guides.</td>
-    <td>Early work in progress.</td>
-    <td>❌</td>
-    <td>When <a href="https://github.com/Furnyr/Dissonity/tree/full-website">full-website</a> is merged into dev.</td>
+    <td>Contributions are accepted.</td>
+    <td>✅</td>
+    <td></td>
   </tr>
   <tr>
 </table>
+
+## Documentation
+
+### Wanted Changes
+
+1. Fixes to incorrect or outdated statements in the documentation
+2. Fixing grammatical errors
+3. Rewording to clarify complicated explanations
+
+### Unwanted Changes
+
+1. Subjective formatting changes
+2. Modifications to the overall structure of the documentation
+3. Additions that document private or unreleased functionality
+
+---
+
+## Specific maintenance for each module
+
+### Unity package
+
+#### RPC Commands
+
+- Add command models to Dissonity.Commands
+- Update CommandUtility
+- Add command to Api.Commands
+- Add mock response to Api.MockSendCommand
+
+#### RPC Events
+
+- Add event models to Dissonity.Events
+- Update EventUtility
+- Add event to Api.Subscribe
+- Add event to mock
+
+#### Other
+
+- Check if it needs initialization / hiRPC ready
+- Check if it needs a mock implementation
+
+After updating the C# API, the generated [Doxygen reference](https://www.doxygen.nl) on the website should be automatically updated via the deployment workflow.
+
+Bump the package.json version as required. Lastly, the update dialog should be updated to reflect the changes.
+
+### hiRPC
+
+- Check if functionality should require access to the hash
+- Bump the SDK_VERSION constant if required
+- Bump package.json version
+- Write tests if needed
+- Run pnpm build and pnpm move
+
+### hiRPC Interface
+
+- Build hiRPC
+- Bump package.json version
+- Run pnpm build and pnpm move
+
+### hiRPC Kit
+
+- Build hiRPC
+- Bump package.json version
+- Test locally using [Yalc](https://www.npmjs.com/package/yalc)
 
 ---
 
@@ -108,7 +174,7 @@ In the long term, it's planned to collaborate with [Robo.js](https://github.com/
 
 ## What will happen after the alpha?
 
-When version 2 is stable, it will enter the **beta** phase, which could last for around a month. During that time, users of version 1 should reinstall the Unity package from the v1 branch.
+When version 2 is stable, it will enter the **beta** phase, which could last for a few months. During that time, users of version 1 should reinstall the Unity package from the v1 branch.
 
 Then, the dev branch will be merged into main and version 1 will be deprecated in 3 months.
 

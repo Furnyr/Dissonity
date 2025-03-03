@@ -9,6 +9,8 @@ namespace Dissonity.Models.Mock
     {
         new public string InstanceId = "i-1234567891-ab-987654321-000000000";
 
+        new public string LocationId = "gc-912952092627435520-912954213460484116";
+
         new public long ChannelId = 123456789;
 
         new public long GuildId = 123456789;
@@ -22,7 +24,5 @@ namespace Dissonity.Models.Mock
         new public string CustomId = "custom-id";
 
         new public string ReferrerId = "referrer-id";
-
-        new public string LocationId = "location-id";
     }
 }

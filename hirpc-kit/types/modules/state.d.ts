@@ -11,7 +11,7 @@ export declare class State {
     appSender: ((data: string) => void) | null;
     appSenderPromise: Promise<void> | null;
     dispatchAppSender: (() => void) | null;
-    appListeners: ((data: unknown) => void)[];
+    appListeners: Map<string, ((data: unknown) => void)[]>;
     /**
      * True after a load method is called.
      */
@@ -21,5 +21,5 @@ export declare class State {
     dispatchReady: (() => void) | null;
     authPromise: Promise<void> | null;
     dispatchAuth: (() => void) | null;
-    multiEvent: MultiEvent;
+    getMultiEvent: () => MultiEvent;
 }

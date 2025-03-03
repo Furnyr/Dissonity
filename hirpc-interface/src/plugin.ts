@@ -42,11 +42,11 @@ mergeInto(LibraryManager.library, {
     //@unity
     SendToJs: function (stringifiedMessage: string): void {
 
-        const { payload, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.sendToJs(app_hash, channel, payload);
+        hiRpc.sendToJs(app_hash, channel, data);
     },
 
     //@unity-bridge
@@ -85,7 +85,7 @@ mergeInto(LibraryManager.library, {
 
         const payload: DissonityChannelPayload = {
             nonce,
-            formatted_price: formattedPrice
+            response: formattedPrice
         };
 
         hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
@@ -102,7 +102,7 @@ mergeInto(LibraryManager.library, {
 
         const payload: DissonityChannelPayload = {
             nonce,
-            query
+            response: query
         };
 
         hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
@@ -153,6 +153,38 @@ mergeInto(LibraryManager.library, {
         const message = UTF8ToString(stringifiedMessage);
 
         console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
+    },
+
+    //@unity-api
+    LocalStorageSetItem: function (stringifiedMessage: string): void {
+
+        const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
+
+        localStorage.setItem(data[0], data[1]);
+    },
+
+    //@unity-bridge
+    LocalStorageGetItem: function (stringifiedMessage: string): void {
+
+        const { nonce, app_hash, data } = JSON.parse(UTF8ToString(stringifiedMessage));
+
+        const hiRpc = window.dso_hirpc as HiRpcModule;
+
+        const response = localStorage.getItem(data);
+
+        const payload: DissonityChannelPayload = {
+            nonce,
+            response,
+            nullable_response: true
+        };
+
+        hiRpc.sendToApp(app_hash, DISSONITY_CHANNEL, payload);
+    },
+
+    //@unity-api
+    LocalStorageClear: function (): void {
+
+        localStorage.clear();
     },
 
     // End current communication

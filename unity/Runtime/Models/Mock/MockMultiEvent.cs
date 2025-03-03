@@ -57,6 +57,7 @@ namespace Dissonity.Models.Mock
         {
             var mock = GameObject.FindAnyObjectByType<DiscordMock>();
 
+            AuthenticateData.AccessToken = mock._accessToken;
             AuthenticateData.User.Id = mock._currentPlayer.Participant.Id;
             AuthenticateData.User.Username = mock._currentPlayer.Participant.Username;
             AuthenticateData.User.Avatar = mock._currentPlayer.Participant.Avatar;
