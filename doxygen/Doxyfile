@@ -48,7 +48,7 @@ PROJECT_NAME           = "Dissonity"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "0.0.0"
+PROJECT_NUMBER         = "v2.0.0 Beta 1 (v0.0.6)"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewers a
@@ -996,6 +996,8 @@ INPUT                 +="../unity/Runtime/Utils.cs"
 INPUT                 +="../unity/Runtime/Models"
 INPUT                 +="../unity/Runtime/Models/Builders"
 INPUT                 +="../unity/Runtime/Models/Interop"
+INPUT                 +="../unity/Runtime/Events"
+INPUT                 +="../unity/Runtime/Commands/Responses"
 
 # This tag can be used to specify the character encoding of the source files
 # that Doxygen parses. Internally Doxygen uses the UTF-8 encoding. Doxygen uses

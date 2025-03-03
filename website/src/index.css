@@ -12,6 +12,10 @@ body {
   overflow-x:hidden;
 }
 
+* {
+  scroll-margin-top: 40px;
+}
+
 i {
   color: #818181;
 }
@@ -31,7 +35,7 @@ h2 {
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #262627;
+  background-color: #242425;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

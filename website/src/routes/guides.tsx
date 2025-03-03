@@ -6,17 +6,29 @@ import "../styles/docs.css";
 
 export default function Guides() {
 
+  //? Close sidebar
+  let closeSidebar = false;
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const sidebarParam = urlParams.get("sidebar");
+
+  if (sidebarParam == "false") {
+    closeSidebar = true;
+  }
+
   const mobile = window.matchMedia && window.matchMedia("(max-width: 600px)").matches;
   const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
 
   const location = useLocation();
 
-  const [collapsed, setCollapsed] = useState(mobile);
+  const [collapsed, setCollapsed] = useState(mobile || closeSidebar);
   const [eventAdded, setEventAdded] = useState(false);
 
   const SIDEBAR_WIDTH = mobile ? "230px" : "250px";
   const SIDEBAR_COLLAPSED_WIDTH = "0px";
   const SIDEBAR_TRANSITION_DURATION = 300;
+
 
   // Ctrl+B sidebar
   if (!eventAdded) {

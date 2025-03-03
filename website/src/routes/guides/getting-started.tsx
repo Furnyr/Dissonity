@@ -53,6 +53,7 @@ function GuidesPage () {
       </p>
 
       <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/guides/v2/getting-started#enable-developer-mode"/></h2>
+      <hr className="separator"/>
 
       <p>
         Enabling Developer Mode in your Discord account will allow you to run in-development activities and expose resource IDs that will be helpful later. To enable Developer Mode:
@@ -64,19 +65,21 @@ function GuidesPage () {
       </ol>
 
       <h2 id="create-a-unity-project">1. Create a Unity project <HashLink link="/guides/v2/getting-started#create-a-unity-project"/></h2>
+      <hr className="separator"/>
 
       <p>
         Open Unity Hub and create a new project using v2021.3 or later. If you want to support mobile devices, you must use v6000 or later.
       </p>
 
       <h2 id="install-dissonity">2. Install Dissonity <HashLink link="/guides/v2/getting-started#install-dissonity"/></h2>
+      <hr className="separator"/>
 
       <ol>
         <li>Open the package manager (Window &gt; Package Manager)</li>
         <li>Install package from git URL: <CopyText text="https://github.com/Furnyr/Dissonity.git?path=/unity#v2" stateFunction={setIsCopiedPackage} stateBool={isCopiedPackage}/></li>
+        <li>Use the pop-up dialog to choose the configuration file you are most comfortable with</li>
         <li>Set the build platform to Web / WebGL</li>
         <li>Player settings &gt; Resolution and Presentation &gt; Set the WebGL template to Dissonity</li>
-        <li>Use the pop-up dialog to choose the configuration file you are most comfortable with</li>
       </ol>
 
       <p>
@@ -89,6 +92,7 @@ function GuidesPage () {
       </ul>
 
       <h2 id="create-an-app">3. Create an App <HashLink link="/guides/v2/getting-started#create-an-app"/></h2>
+      <hr className="separator"/>
 
       <p>
         Now that Dissonity is installed in our Unity project, let's create a Discord app that will hold the activity.
@@ -107,6 +111,7 @@ function GuidesPage () {
       </ol>
 
       <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/guides/v2/getting-started#configure-dissonity"/></h2>
+      <hr className="separator"/>
 
       <p>
         Unlike your bot token or client secret, the application ID is not sensitive data, which means that it can be publicly exposed without problem.
@@ -156,15 +161,17 @@ public class MyScript : MonoBehaviour
       </p>
 
       <h2 id="api-mock-mode">5. API Mock Mode <HashLink link="/guides/v2/getting-started#api-mock-mode"/></h2>
+      <hr className="separator"/>
 
       <p>
         Dissonity simulates the Discord client inside Unity so you don't need to build the game each time you want to test it. This is called <b>mocking</b>.
       </p>
       <p>
-        By right clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it was a Discord server.
+        By right clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it were a Discord server.
       </p>
 
       <h2 id="build-the-game">6. Build the game <HashLink link="/guides/v2/getting-started#build-the-game"/></h2>
+      <hr className="separator"/>
 
       <p>
         Add some changes to the game as you want, then open the build settings and check <b>Development build</b>. This will make building the game much faster, but the final product will be heavier, so make sure to disable it when making a final build!
@@ -183,6 +190,7 @@ public class MyScript : MonoBehaviour
       </p>
 
       <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/guides/v2/getting-started#preparing-the-server"/></h2>
+      <hr className="separator"/>
 
       <p>
         An example server can be found in <a href={GITHUB_NODE_LINK} target="_blank">{GITHUB_NODE_LINK}</a>.
@@ -202,6 +210,7 @@ public class MyScript : MonoBehaviour
       </p>
 
       <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/guides/v2/getting-started#opening-an-http-tunnel"/></h2>
+      <hr className="separator"/>
 
       <p>
         As mentioned earlier, to keep your activity available at all times you need to use a hosting service to keep your backend running.
@@ -225,6 +234,7 @@ public class MyScript : MonoBehaviour
       </p>
 
       <h2 id="next-steps">9. Done! What's next? <HashLink link="/guides/v2/getting-started#next-steps"/></h2>
+      <hr className="separator"/>
 
       <p>
         Congratulations on building a Discord activity using Unity! 🎉

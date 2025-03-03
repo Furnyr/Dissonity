@@ -26,7 +26,7 @@ function DocsPage () {
         <h2 id="server-requirements">Server requirements <HashLink link="/docs/v2/development/authentication#server-requirements" /></h2>
 
         <p>
-          Dissonity will send an HTTPS request with a JSON payload to the server using the specified request path. It expects a JSON response containing an access token:
+          Dissonity will send an HTTPS POST request with a JSON payload to the server using the specified request path. It expects a JSON response containing an access token:
         </p>
 
         <br />

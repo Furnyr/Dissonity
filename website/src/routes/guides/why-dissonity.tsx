@@ -33,7 +33,7 @@ function GuidesPage () {
       <h2 id="what-is-it">What is exactly Dissonity? <HashLink link="/guides/v2/why-dissonity#what-is-it"/></h2>
 
       <p>
-        Dissonity is a Unity <b>SDK</b> that modifies the game build through a WebGL Template. Its components mirror the official <a target="_blank" href="https://www.npmjs.com/package/@discord/embedded-app-sdk">Embedded App SDK</a>.
+        Dissonity is a Unity <b>SDK</b> that modifies the game build through a WebGL Template. Its modules mirror the official <a target="_blank" href="https://www.npmjs.com/package/@discord/embedded-app-sdk">Embedded App SDK</a>.
       </p>
 
       <Footer />

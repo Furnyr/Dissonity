@@ -1397,7 +1397,7 @@ namespace Dissonity
 
             //todo Also not documented yet
             /// <summary>
-            /// Received when an entitlement is created for a SKU <br/> <br/>
+            /// Received when an entitlement is created for a SKU. <br/> <br/>
             /// No scopes required
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -1802,6 +1802,7 @@ namespace Dissonity
             /// <summary>
             /// Add persistent data to the local storage.
             /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
             public static void SetItem(string key, string value)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
@@ -1816,6 +1817,10 @@ namespace Dissonity
                 LocalStorageSetItem(JsonConvert.SerializeObject(message));
             }
 
+            /// <summary>
+            /// Get data from the local storage.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
             public async static Task<string?> GetItem(string key)
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
@@ -1825,6 +1830,10 @@ namespace Dissonity
                 return await bridge!.ExeLocalStorageGetItem(key);
             }
 
+            /// <summary>
+            /// Clear local storage.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
             public static void Clear()
             {
                 if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
@@ -1939,7 +1948,7 @@ namespace Dissonity
 
 
         /// <summary>
-        /// Use this method to easily access external resources.
+        /// Use this method to easily access external resources. <br/> <br/>
         /// If you need to use it before initialization, consider using <c> Mappings </c> and <c> PatchUrlMappingsConfig </c> from the <c> DissonityConfig </c> instead. <br/> <br/>
         /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
         /// </summary>
