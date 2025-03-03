@@ -60,16 +60,6 @@ hljs.registerLanguage("csharp", csharpHl);
     : await import("highlight.js/styles/atom-one-dark.css");
 })();
 
-//todo routes
-/*
-  /docs/*
-  /team
-  /about
-  /support
-  /contact
-  /community?
-  /docs/backend
-*/
 const wrapElement = (element: ReactNode) => {
   return (
     <AutoScrollOnLoad>
