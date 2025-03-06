@@ -158,6 +158,13 @@ async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | nul
             break;
         }
 
+        case "GET_APPLICATION_ID": {
+
+            const { clientId } = discordSdk!;
+            getChildIframe().contentWindow?.postMessage({ nonce, command, data: clientId, args }, "*");
+            break;
+        }
+
         case "GET_INSTANCE_ID": {
 
             const { instanceId } = discordSdk!;

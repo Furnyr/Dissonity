@@ -23,6 +23,7 @@ You can set override values through the API class to test them without needing t
 All the current override values:
 
 ```
+OverrideApplicationId
 OverrideInstanceId
 OverrideUserId
 OverrideUserGlobal
@@ -98,6 +99,18 @@ UnsubCurrentUserUpdate
 UnsubThermalStateUpdate
 UnsubActivityInstanceParticipantsUpdate
 ```
+
+##
+
+## `GetApplicationId`
+
+Used to obtain the application id (also known as client id).
+
+(No arguments)
+
+(No required scopes)
+
+- Returns: Task\<string\>
 
 ##
 

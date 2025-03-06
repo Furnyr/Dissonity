@@ -20,6 +20,7 @@ namespace Dissonity
         public static bool bridgeInitialized = false;
         public static bool npmLoaded = false;
         #nullable enable
+            public static string? cachedApplicationId = null;
             public static string? cachedInstanceId = null;
             public static string? cachedChannelId = null;
             public static string? cachedGuildId = null;
@@ -29,6 +30,7 @@ namespace Dissonity
 
         //# DEBUG - - - - -
         #nullable enable
+            public static string? OverrideApplicationId = null;
             public static string? OverrideInstanceId = null;
             public static string? OverrideUserId = null;
             public static string? OverrideUserGlobalName = null;
@@ -98,6 +100,7 @@ namespace Dissonity
 
         // Non-subscriptions
         internal static Action _LoadEvent;
+        internal static GetStringDelegate _GetApplicationIdEvent;
         internal static GetStringDelegate _GetInstanceIdEvent;
         internal static GetStringDelegate _GetChannelIdEvent;
         internal static GetStringDelegate _GetGuildIdEvent;
@@ -129,6 +132,9 @@ namespace Dissonity
 
             [DllImport("__Internal")]
             private static extern string RequestSetActivity(string stringifiedActivity);
+
+            [DllImport("__Internal")]
+            private static extern string RequestApplicationId();
 
             [DllImport("__Internal")]
             private static extern string RequestInstanceId();
@@ -405,6 +411,29 @@ namespace Dissonity
 
 
         //# NON-SUBSCRIBE METHODS - - - - -
+        public static Task<string> GetApplicationId () {
+
+            var tcs = new TaskCompletionSource<string>();
+
+            //? Cached
+            if (cachedApplicationId != null) {
+
+                tcs.TrySetResult(cachedApplicationId);
+                return tcs.Task;
+            }
+
+            _GetApplicationId((id) => {
+
+                tcs.TrySetResult(id);
+            });
+
+            #if UNITY_EDITOR
+
+                tcs.TrySetResult(OverrideApplicationId ?? "ph_application_id");
+            #endif
+
+            return tcs.Task;
+        }
         public static Task<string> GetSDKInstanceId () {
 
             var tcs = new TaskCompletionSource<string>();
@@ -721,6 +750,24 @@ namespace Dissonity
 
 
         // Private wrap methods
+        private static void _GetApplicationId (GetStringDelegate del) {
+
+            //? Not yet cached
+            if (cachedApplicationId == null) {
+
+                _GetApplicationIdEvent += del;
+
+                #if UNITY_WEBGL && !UNITY_EDITOR
+                    RequestApplicationId();
+                #endif
+            }
+
+            //? Cached
+            else {
+                del(cachedApplicationId);
+            }
+        }
+
         private static void _GetSDKInstanceId (GetStringDelegate del) {
 
             //? Not yet cached

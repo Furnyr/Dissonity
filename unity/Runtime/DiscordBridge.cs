@@ -134,6 +134,34 @@ namespace Dissonity
         }
 
         //# BRIDGE NON-SUBSCRIBE METHODS - - - - -
+        public void ReceiveApplicationId (string id) {
+            
+            //? Already cached
+            if (cachedApplicationId != null) {
+
+                // Send data to subscriptions
+                if (_GetApplicationIdEvent != null) {
+                    _GetApplicationIdEvent(cachedApplicationId);
+                }
+
+                //¡ Clear delegates
+                _GetApplicationIdEvent = null;
+
+                return;
+            }
+            
+            // Set cache
+            cachedApplicationId = id;
+
+            // Send data to subscriptions
+            if (_GetApplicationIdEvent != null) {
+                _GetApplicationIdEvent(data);
+            }
+
+            //¡ Clear delegates
+            _GetApplicationIdEvent = null;
+        }
+
         public void ReceiveSDKInstanceId (string id) {
             
             //? Already cached
