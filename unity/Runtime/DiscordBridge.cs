@@ -155,7 +155,7 @@ namespace Dissonity
 
             // Send data to subscriptions
             if (_GetApplicationIdEvent != null) {
-                _GetApplicationIdEvent(data);
+                _GetApplicationIdEvent(id);
             }
 
             //¡ Clear delegates
