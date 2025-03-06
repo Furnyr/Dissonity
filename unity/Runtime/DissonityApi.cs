@@ -434,6 +434,7 @@ namespace Dissonity
 
             return tcs.Task;
         }
+        
         public static Task<string> GetSDKInstanceId () {
 
             var tcs = new TaskCompletionSource<string>();
