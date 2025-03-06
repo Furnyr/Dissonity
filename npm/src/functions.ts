@@ -4,9 +4,8 @@ import fetch from "cross-fetch";
 
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents, DataPromise } from "./types";
 
-// The package version is 1.3.x, but these changes
-// only affects the NPM side and it's completely compatible with Dissonity Unity 1.1.x
-const PACKAGE_VERSION = "1.1.8";
+// Unity compatible version
+const PACKAGE_VERSION = "1.2.0";
 
 let initialized = false;
 
