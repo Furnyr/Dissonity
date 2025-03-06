@@ -1,5 +1,7 @@
 > [!IMPORTANT]
-> **Version 2** is now in testing/alpha phase! I'm looking for volunteer testers (Furnyr/Dissonity#11)
+> **Version 2** is now in beta! Read the release plan [here](https://github.com/Furnyr/Dissonity/blob/dev/ROADMAP.md).
+>
+> TL;DR: If you installed v1 before January 2025, please reinstall the package from `https://github.com/Furnyr/Dissonity.git?path=/unity#v1`
 
 ---
 
