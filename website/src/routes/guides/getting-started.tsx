@@ -10,6 +10,7 @@ import Footer from "../../components/Footer";
 import { GITHUB_NODE_LINK } from "../../constants";
 import { Link } from "react-router-dom";
 import { PageContext } from "../../types";
+import PageTitle from "../../components/PageTitle";
 
 function GuidesPage () {
 
@@ -24,6 +25,8 @@ function GuidesPage () {
 
   return (
     <div className="doc-page">
+      <PageTitle title="Getting Started | Dissonity Guides"/>
+
       <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
       
       <BoxWarn title="Warning!">
@@ -35,7 +38,7 @@ function GuidesPage () {
         </p>
       </BoxWarn>
 
-      <h1 id="start">Getting Started <HashLink link="/guides/v2/getting-started#start"/></h1>
+      <h1>Getting Started <HashLink link="/?/guides/v2/getting-started"/></h1>
 
       <p>
         In this section you will learn how to create your first Discord activity using Unity. You should have installed:
@@ -52,7 +55,7 @@ function GuidesPage () {
         This article is equivalent to the official <a href="https://discord.com/developers/docs/activities/building-an-activity" target="_blank">Quickstart guide</a>.
       </p>
 
-      <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/guides/v2/getting-started#enable-developer-mode"/></h2>
+      <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/?/guides/v2/getting-started#enable-developer-mode"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -64,14 +67,14 @@ function GuidesPage () {
         <li>Click on <b>Advanced</b> tab from the left-hand sidebar and toggle on <b>Developer Mode</b></li>
       </ol>
 
-      <h2 id="create-a-unity-project">1. Create a Unity project <HashLink link="/guides/v2/getting-started#create-a-unity-project"/></h2>
+      <h2 id="create-a-unity-project">1. Create a Unity project <HashLink link="/?/guides/v2/getting-started#create-a-unity-project"/></h2>
       <hr className="separator"/>
 
       <p>
         Open Unity Hub and create a new project using v2021.3 or later. If you want to support mobile devices, you must use v6000 or later.
       </p>
 
-      <h2 id="install-dissonity">2. Install Dissonity <HashLink link="/guides/v2/getting-started#install-dissonity"/></h2>
+      <h2 id="install-dissonity">2. Install Dissonity <HashLink link="/?/guides/v2/getting-started#install-dissonity"/></h2>
       <hr className="separator"/>
 
       <ol>
@@ -91,7 +94,7 @@ function GuidesPage () {
         <li>A configuration file was added (Assets/Dissonity/DissonityConfiguration.cs)</li>
       </ul>
 
-      <h2 id="create-an-app">3. Create an App <HashLink link="/guides/v2/getting-started#create-an-app"/></h2>
+      <h2 id="create-an-app">3. Create an App <HashLink link="/?/guides/v2/getting-started#create-an-app"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -110,7 +113,7 @@ function GuidesPage () {
         </li>
       </ol>
 
-      <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/guides/v2/getting-started#configure-dissonity"/></h2>
+      <h2 id="configure-dissonity">4. Configure Dissonity <HashLink link="/?/guides/v2/getting-started#configure-dissonity"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -160,7 +163,7 @@ public class MyScript : MonoBehaviour
         Congratulations, you are using <b>API Mock Mode</b>!
       </p>
 
-      <h2 id="api-mock-mode">5. API Mock Mode <HashLink link="/guides/v2/getting-started#api-mock-mode"/></h2>
+      <h2 id="api-mock-mode">5. API Mock Mode <HashLink link="/?/guides/v2/getting-started#api-mock-mode"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -170,7 +173,7 @@ public class MyScript : MonoBehaviour
         By right clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it were a Discord server.
       </p>
 
-      <h2 id="build-the-game">6. Build the game <HashLink link="/guides/v2/getting-started#build-the-game"/></h2>
+      <h2 id="build-the-game">6. Build the game <HashLink link="/?/guides/v2/getting-started#build-the-game"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -189,7 +192,7 @@ public class MyScript : MonoBehaviour
         For the simplicity of this guide, we will use an already configured Node.js server, but you can use anything that can handle <Link to="/docs/v2/development/authentication">authentication</Link>.
       </p>
 
-      <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/guides/v2/getting-started#preparing-the-server"/></h2>
+      <h2 id="preparing-the-server">7. Preparing the server <HashLink link="/?/guides/v2/getting-started#preparing-the-server"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -209,7 +212,7 @@ public class MyScript : MonoBehaviour
         The server code should be ready! There's one last obstacle between your activity and Discord: the Internet can't access your localhost.
       </p>
 
-      <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/guides/v2/getting-started#opening-an-http-tunnel"/></h2>
+      <h2 id="opening-an-http-tunnel">8. Opening an HTTP tunnel for development <HashLink link="/?/guides/v2/getting-started#opening-an-http-tunnel"/></h2>
       <hr className="separator"/>
 
       <p>
@@ -233,7 +236,7 @@ public class MyScript : MonoBehaviour
         Now you should be able to launch your activity from Discord.
       </p>
 
-      <h2 id="next-steps">9. Done! What's next? <HashLink link="/guides/v2/getting-started#next-steps"/></h2>
+      <h2 id="next-steps">9. Done! What's next? <HashLink link="/?/guides/v2/getting-started#next-steps"/></h2>
       <hr className="separator"/>
 
       <p>

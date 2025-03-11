@@ -11,6 +11,7 @@ import ClientServerDark from "../../../assets/diagrams/client_server_dark.png";
 import BoxInfo from "../../../components/BoxInfo";
 import BoxTip from "../../../components/BoxTip";
 import CodeBlock from "../../../components/CodeBlock";
+import PageTitle from "../../../components/PageTitle";
 
 function DocsPage () {
 
@@ -28,9 +29,11 @@ function DocsPage () {
 
   return (
     <div className="doc-page">
+        <PageTitle title="Multiplayer | Dissonity"/>
+
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Multiplayer <HashLink link="/docs/v2/development/multiplayer#start"/></h1> 
+        <h1>Multiplayer <HashLink link="/?/docs/v2/development/multiplayer"/></h1> 
 
         <p>
           To make a multiplayer activity you need a way to connect different clients. In a normal activity, this can only be done through the <b>Discord Proxy</b> (<code>https://your-app-id.discordsays.com/.proxy</code>).
@@ -41,19 +44,19 @@ function DocsPage () {
           This can be achieved by establishing two-way communication with your server, commonly via WebSocket, and synchronizing the other clients from there.
         </p>
 
-        <h2 id="incorrect-connection-diagram">Incorrect connection diagram <HashLink link="/docs/v2/development/multiplayer#incorrect-connection-diagram" /></h2>
+        <h2 id="incorrect-connection-diagram">Incorrect connection diagram <HashLink link="/?/docs/v2/development/multiplayer#incorrect-connection-diagram" /></h2>
 
         <div className="overflow-div">
           <img src={diagram1} width={490} alt="Diagram of an incorrect connection structure"/>
         </div>
 
-        <h2 id="correct-connection-diagram">Correct connection diagram <HashLink link="/docs/v2/development/multiplayer#correct-connection-diagram" /></h2>
+        <h2 id="correct-connection-diagram">Correct connection diagram <HashLink link="/?/docs/v2/development/multiplayer#correct-connection-diagram" /></h2>
 
         <div className="overflow-div">
           <img src={diagram2} width={800} alt="Diagram of a correct connection structure"/>
         </div>
 
-        <h2 id="activity-instance-management">Activity Instance Management <HashLink link="/docs/v2/development/multiplayer#activity-instance-management" /></h2>
+        <h2 id="activity-instance-management">Activity Instance Management <HashLink link="/?/docs/v2/development/multiplayer#activity-instance-management" /></h2>
 
         <p>
           When a user joins an activity that another user started, it's said that they are in the same <b>application instance</b>. You can access the instance ID through <code>Api.InstanceId</code>. You should use this ID as a key to save shared game data, ensuring that two users who are in the same application instance hava access to the same data.
@@ -65,7 +68,7 @@ function DocsPage () {
           </p>
         </BoxInfo>
 
-        <h2 id="making-a-connection-inside-unity">Making a connection inside Unity <HashLink link="/docs/v2/development/multiplayer#making-a-connection-inside-unity" /></h2>
+        <h2 id="making-a-connection-inside-unity">Making a connection inside Unity <HashLink link="/?/docs/v2/development/multiplayer#making-a-connection-inside-unity" /></h2>
 
         <p>
           There are many ways in which you can handle the connection process, but here's an idea:
@@ -92,7 +95,7 @@ function DocsPage () {
           </p>
         </BoxTip>
 
-        <h2 id="activity-participants">Activity participants <HashLink link="/docs/v2/development/multiplayer#activity-participants" /></h2>
+        <h2 id="activity-participants">Activity participants <HashLink link="/?/docs/v2/development/multiplayer#activity-participants" /></h2>
 
         <p>
           You can access the participants of an activity through a command or a subscription.

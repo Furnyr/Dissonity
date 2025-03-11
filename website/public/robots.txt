@@ -1,1 +1,6 @@
+User-agent: *
+Disallow: /doxygen/
+Disallow: /?/doxygen/
+Allow: /doxygen/api
+Allow: /?/doxygen/api
 Sitemap: https://dissonity.dev/sitemap.txt

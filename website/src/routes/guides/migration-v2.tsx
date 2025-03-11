@@ -4,6 +4,7 @@ import HashLink from "../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../types";
 import BoxWarn from "../../components/BoxWarn";
+import PageTitle from "../../components/PageTitle";
 
 function GuidesPage () {
 
@@ -11,9 +12,11 @@ function GuidesPage () {
 
   return (
     <div className="doc-page">
+      <PageTitle title="Migrating to v2 | Dissonity Guides"/>
+
       <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-      <h1 id="start">Migrating to v2 <HashLink link="/guides/v2/migration-v2#start"/></h1>
+      <h1>Migrating to v2 <HashLink link="/?/guides/v2/migration-v2"/></h1>
 
         <BoxWarn title="WIP">
             <p>

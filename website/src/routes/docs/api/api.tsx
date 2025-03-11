@@ -8,6 +8,7 @@ import "../../../styles/api.css";
 import CodeBlock from "../../../components/CodeBlock";
 import BoxInfo from "../../../components/BoxInfo";
 import { Link } from "react-router-dom";
+import PageTitle from "../../../components/PageTitle";
 
 function DocsPage () {
 
@@ -15,6 +16,8 @@ function DocsPage () {
 
   return (
     <div className="doc-page">
+        <PageTitle title="API | Dissonity"/>
+
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
         <BoxWarn title="Warning!">
@@ -26,7 +29,7 @@ function DocsPage () {
           </p>
         </BoxWarn>
 
-        <h1 id="start">API Class <HashLink link="/docs/v2/api#start"/></h1>
+        <h1>API Class <HashLink link="/?/docs/v2/api"/></h1>
 
         <p>
           The static class <code>Dissonity.Api</code> provides most of the package's functionality. You need to call and await <a href="#initialize"><code>Dissonity.Api.Initialize</code></a> once per runtime before using the majority of its methods and properties.
@@ -56,11 +59,11 @@ function DocsPage () {
         </BoxInfo>
 
 
-        <h2 id="properties"> Properties <HashLink link="/docs/v2/api#properties" /></h2>
+        <h2 id="properties"> Properties <HashLink link="/?/docs/v2/api#properties" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="proxy-domain"><span className="property">property</span> ProxyDomain <HashLink link="/docs/v2/api#proxy-domain" /></h3>
+        <h3 id="proxy-domain"><span className="property">property</span> ProxyDomain <HashLink link="/?/docs/v2/api#proxy-domain" /></h3>
 
         <CodeBlock language="csharp">
           {`public const string ProxyDomain = "discordsays.com";`}
@@ -69,7 +72,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="client-id"><span className="property">property</span> ClientId <HashLink link="/docs/v2/api#client-id" /></h3>
+        <h3 id="client-id"><span className="property">property</span> ClientId <HashLink link="/?/docs/v2/api#client-id" /></h3>
 
         <p>
           <code>❄️</code> Your app's client id.
@@ -82,7 +85,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="instance-id"><span className="property">property</span> InstanceId <HashLink link="/docs/v2/api#instance-id" /></h3>
+        <h3 id="instance-id"><span className="property">property</span> InstanceId <HashLink link="/?/docs/v2/api#instance-id" /></h3>
 
         <p>
           Unique string id for each activity instance.
@@ -95,7 +98,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="platform"><span className="property">property</span> Platform <HashLink link="/docs/v2/api#platform" /></h3>
+        <h3 id="platform"><span className="property">property</span> Platform <HashLink link="/?/docs/v2/api#platform" /></h3>
 
         <p>
           The platform on which the activity is running. It's a value of <code>Models.Platform</code>.
@@ -108,7 +111,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="guild-id"><span className="property">property</span> GuildId <HashLink link="/docs/v2/api#guild-id" /></h3>
+        <h3 id="guild-id"><span className="property">property</span> GuildId <HashLink link="/?/docs/v2/api#guild-id" /></h3>
 
         <p>
           <code>❄️</code> The id of the guild on which the activity is running.
@@ -121,7 +124,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="channel-id"><span className="property">property</span> ChannelId <HashLink link="/docs/v2/api#channel-id" /></h3>
+        <h3 id="channel-id"><span className="property">property</span> ChannelId <HashLink link="/?/docs/v2/api#channel-id" /></h3>
 
         <p>
           <code>❄️</code> The id of the channel on which the activity is running.
@@ -134,7 +137,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="frame-id"><span className="property">property</span> FrameId <HashLink link="/docs/v2/api#frame-id" /></h3>
+        <h3 id="frame-id"><span className="property">property</span> FrameId <HashLink link="/?/docs/v2/api#frame-id" /></h3>
 
         <p>
           The activity frame id.
@@ -147,7 +150,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="mobile-app-version"><span className="property">property</span> MobileAppVersion <HashLink link="/docs/v2/api#mobile-app-version" /></h3>
+        <h3 id="mobile-app-version"><span className="property">property</span> MobileAppVersion <HashLink link="/?/docs/v2/api#mobile-app-version" /></h3>
 
         <p>
           The mobile client version. Returns null in desktop.
@@ -160,7 +163,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="custom-id"><span className="property">property</span> CustomId <HashLink link="/docs/v2/api#custom-id" /></h3>
+        <h3 id="custom-id"><span className="property">property</span> CustomId <HashLink link="/?/docs/v2/api#custom-id" /></h3>
 
         <p>
           Query custom id. Used when a user joins the activity via a shared link.
@@ -173,7 +176,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="referrer-id"><span className="property">property</span> ReferrerId <HashLink link="/docs/v2/api#referrer-id" /></h3>
+        <h3 id="referrer-id"><span className="property">property</span> ReferrerId <HashLink link="/?/docs/v2/api#referrer-id" /></h3>
 
         <p>
           Query referrer id. Used when a user joins the activity via a shared link.
@@ -186,7 +189,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="location-id"><span className="property">property</span> LocationId <HashLink link="/docs/v2/api#location-id" /></h3>
+        <h3 id="location-id"><span className="property">property</span> LocationId <HashLink link="/?/docs/v2/api#location-id" /></h3>
 
         <p>
           Query location id.
@@ -199,7 +202,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="user-id"><span className="property">property</span> UserId <HashLink link="/docs/v2/api#user-id" /></h3>
+        <h3 id="user-id"><span className="property">property</span> UserId <HashLink link="/?/docs/v2/api#user-id" /></h3>
 
         <p>
           <code>❄️</code> The current user id.
@@ -212,7 +215,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="access-token"><span className="property">property</span> AccessToken <HashLink link="/docs/v2/api#access-token" /></h3>
+        <h3 id="access-token"><span className="property">property</span> AccessToken <HashLink link="/?/docs/v2/api#access-token" /></h3>
 
         <p>
           Your client access token.
@@ -225,7 +228,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="initialized"><span className="property">property</span> Initialized <HashLink link="/docs/v2/api#initialized" /></h3>
+        <h3 id="initialized"><span className="property">property</span> Initialized <HashLink link="/?/docs/v2/api#initialized" /></h3>
 
         <p>
           True after the first <code> Api.Initialize </code> call, regardless of success.
@@ -238,7 +241,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="ready"><span className="property">property</span> Ready <HashLink link="/docs/v2/api#ready" /></h3>
+        <h3 id="ready"><span className="property">property</span> Ready <HashLink link="/?/docs/v2/api#ready" /></h3>
 
         <p>
           True if the <code> Api.Initialize </code> call was successful.
@@ -251,7 +254,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="synced-user"><span className="property">property</span> SyncedUser <HashLink link="/docs/v2/api#synced-user" /></h3>
+        <h3 id="synced-user"><span className="property">property</span> SyncedUser <HashLink link="/?/docs/v2/api#synced-user" /></h3>
 
         <p>
           If <code> SynchronizeUser </code> is enabled in the config, returns the current user object.
@@ -264,7 +267,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="synced-guild-member-rpc"><span className="property">property</span> SyncedGuildMemberRpc <HashLink link="/docs/v2/api#synced-guild-member-rpc" /></h3>
+        <h3 id="synced-guild-member-rpc"><span className="property">property</span> SyncedGuildMemberRpc <HashLink link="/?/docs/v2/api#synced-guild-member-rpc" /></h3>
 
         <p>
           If <code> SynchronizeGuildMemberRpc </code> is enabled in the config, returns the current guild member RPC object.
@@ -277,7 +280,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="configuration"><span className="property">property</span> Configuration <HashLink link="/docs/v2/api#configuration" /></h3>
+        <h3 id="configuration"><span className="property">property</span> Configuration <HashLink link="/?/docs/v2/api#configuration" /></h3>
 
         <CodeBlock language="csharp">
           {`public static ISdkConfiguration Configuration { get {...} }`}
@@ -286,18 +289,18 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="is-mock"><span className="property">property</span> IsMock <HashLink link="/docs/v2/api#is-mock" /></h3>
+        <h3 id="is-mock"><span className="property">property</span> IsMock <HashLink link="/?/docs/v2/api#is-mock" /></h3>
 
         <CodeBlock language="csharp">
           {`public static bool IsMock => _mock;`}
         </CodeBlock>
 
 
-        <h2 id="commands"><span className="class">class</span> Commands <HashLink link="/docs/v2/api#commands" /></h2>
+        <h2 id="commands"><span className="class">class</span> Commands <HashLink link="/?/docs/v2/api#commands" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="capture-log"><span className="method">method</span> CaptureLog <HashLink link="/docs/v2/api#capture-log" /></h3>
+        <h3 id="capture-log"><span className="method">method</span> CaptureLog <HashLink link="/?/docs/v2/api#capture-log" /></h3>
 
         <p>
           Forward logs to your own logger.
@@ -314,7 +317,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="encourage-hardware-acceleration"><span className="method">method</span> EncourageHardwareAcceleration <HashLink link="/docs/v2/api#encourage-hardware-acceleration" /></h3>
+        <h3 id="encourage-hardware-acceleration"><span className="method">method</span> EncourageHardwareAcceleration <HashLink link="/?/docs/v2/api#encourage-hardware-acceleration" /></h3>
 
         <p>
           Presents a modal dialog to allow enabling of hardware acceleration.
@@ -331,7 +334,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-channel"><span className="method">method</span> GetChannel <HashLink link="/docs/v2/api#get-channel" /></h3>
+        <h3 id="get-channel"><span className="method">method</span> GetChannel <HashLink link="/?/docs/v2/api#get-channel" /></h3>
 
         <p>
           Returns information about the channel for a provided channel ID.
@@ -348,7 +351,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-channel-permissions"><span className="method">method</span> GetChannelPermissions <HashLink link="/docs/v2/api#get-channel-permissions" /></h3>
+        <h3 id="get-channel-permissions"><span className="method">method</span> GetChannelPermissions <HashLink link="/?/docs/v2/api#get-channel-permissions" /></h3>
 
         <p>
           Returns permissions for the current user in the currently connected channel.
@@ -365,7 +368,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-entitlements"><span className="method">method</span> GetEntitlements <HashLink link="/docs/v2/api#get-entitlements" /></h3>
+        <h3 id="get-entitlements"><span className="method">method</span> GetEntitlements <HashLink link="/?/docs/v2/api#get-entitlements" /></h3>
 
         <p>
           Returns a list of entitlements for the current user.
@@ -382,7 +385,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-skus"><span className="method">method</span> GetSkus <HashLink link="/docs/v2/api#get-skus" /></h3>
+        <h3 id="get-skus"><span className="method">method</span> GetSkus <HashLink link="/?/docs/v2/api#get-skus" /></h3>
 
         <p>
           Returns a list of SKU objects. SKUs without prices are automatically filtered out.
@@ -399,7 +402,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="start-purchase"><span className="method">method</span> StartPurchase <HashLink link="/docs/v2/api#start-purchase" /></h3>
+        <h3 id="start-purchase"><span className="method">method</span> StartPurchase <HashLink link="/?/docs/v2/api-purchase" /></h3>
 
         <p>
           Launches the purchase flow for a specific SKU ID.
@@ -416,7 +419,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-platform-behaviors"><span className="method">method</span> GetPlatformBehaviors <HashLink link="/docs/v2/api#get-platform-behaviors" /></h3>
+        <h3 id="get-platform-behaviors"><span className="method">method</span> GetPlatformBehaviors <HashLink link="/?/docs/v2/api#get-platform-behaviors" /></h3>
 
         <p>
           Returns information about supported platform behaviors.
@@ -433,7 +436,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="open-external-link"><span className="method">method</span> OpenExternalLink <HashLink link="/docs/v2/api#open-external-link" /></h3>
+        <h3 id="open-external-link"><span className="method">method</span> OpenExternalLink <HashLink link="/?/docs/v2/api#open-external-link" /></h3>
 
         <p>
           Allows for opening an external link from within the Discord client.
@@ -450,7 +453,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="open-invite-dialog"><span className="method">method</span> OpenInviteDialog <HashLink link="/docs/v2/api#open-invite-dialog" /></h3>
+        <h3 id="open-invite-dialog"><span className="method">method</span> OpenInviteDialog <HashLink link="/?/docs/v2/api#open-invite-dialog" /></h3>
 
         <p>
           Presents a modal dialog with Channel Invite UI.
@@ -467,7 +470,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="open-share-moment-dialog"><span className="method">method</span> OpenShareMomentDialog <HashLink link="/docs/v2/api#open-share-moment-dialog" /></h3>
+        <h3 id="open-share-moment-dialog"><span className="method">method</span> OpenShareMomentDialog <HashLink link="/?/docs/v2/api#open-share-moment-dialog" /></h3>
 
         <p>
           Presents a modal dialog to share media to a channel or direct message.
@@ -484,7 +487,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="set-activity"><span className="method">method</span> SetActivity <HashLink link="/docs/v2/api#set-activity" /></h3>
+        <h3 id="set-activity"><span className="method">method</span> SetActivity <HashLink link="/?/docs/v2/api#set-activity" /></h3>
 
         <p>
           Modifies how your activity's rich presence is displayed in the Discord client.
@@ -501,7 +504,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="set-config"><span className="method">method</span> SetConfig <HashLink link="/docs/v2/api#set-config" /></h3>
+        <h3 id="set-config"><span className="method">method</span> SetConfig <HashLink link="/?/docs/v2/api#set-config" /></h3>
 
         <p>
           Set whether or not the PIP (picture-in-picture) is interactive.
@@ -518,7 +521,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="set-orientation-lock-state"><span className="method">method</span> SetOrientationLockState <HashLink link="/docs/v2/api#set-orientation-lock-state" /></h3>
+        <h3 id="set-orientation-lock-state"><span className="method">method</span> SetOrientationLockState <HashLink link="/?/docs/v2/api#set-orientation-lock-state" /></h3>
 
         <p>
           Locks the application to specific orientations in each of the supported layout modes.
@@ -535,7 +538,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="user-settings-get-locale"><span className="method">method</span> UserSettingsGetLocale <HashLink link="/docs/v2/api#user-settings-get-locale" /></h3>
+        <h3 id="user-settings-get-locale"><span className="method">method</span> UserSettingsGetLocale <HashLink link="/?/docs/v2/api#user-settings-get-locale" /></h3>
 
         <p>
           Returns the current user's locale.
@@ -552,7 +555,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="initiate-image-upload"><span className="method">method</span> InitiateImageUpload <HashLink link="/docs/v2/api#initiate-image-upload" /></h3>
+        <h3 id="initiate-image-upload"><span className="method">method</span> InitiateImageUpload <HashLink link="/?/docs/v2/api#initiate-image-upload" /></h3>
 
         <p>
           Presents the file upload flow in the Discord client.
@@ -569,7 +572,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-instance-connected-participants"><span className="method">method</span> GetInstanceConnectedParticipants <HashLink link="/docs/v2/api#get-instance-connected-participants" /></h3>
+        <h3 id="get-instance-connected-participants"><span className="method">method</span> GetInstanceConnectedParticipants <HashLink link="/?/docs/v2/api#get-instance-connected-participants" /></h3>
 
         <p>
           Returns all participants connected to the instance.
@@ -586,7 +589,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="share-link"><span className="method">method</span> ShareLink <HashLink link="/docs/v2/api#share-link" /></h3>
+        <h3 id="share-link"><span className="method">method</span> ShareLink <HashLink link="/?/docs/v2/api#share-link" /></h3>
 
         <p>
           Presents a modal for the user to share a link to your activity with custom query params.
@@ -601,11 +604,11 @@ function DocsPage () {
         </CodeBlock>
 
 
-        <h2 id="proxy"><span className="class">class</span> Proxy <HashLink link="/docs/v2/api#proxy" /></h2>
+        <h2 id="proxy"><span className="class">class</span> Proxy <HashLink link="/?/docs/v2/api#proxy" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="https-post-request"><span className="method">method</span> HttpsPostRequest <HashLink link="/docs/v2/api#https-post-request" /></h3>
+        <h3 id="https-post-request"><span className="method">method</span> HttpsPostRequest <HashLink link="/?/docs/v2/api#https-post-request" /></h3>
 
         <p>
           Sends an HTTPS post request with a JSON payload to the Discord proxy.
@@ -622,7 +625,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="https-get-request"><span className="method">method</span> HttpsGetRequest <HashLink link="/docs/v2/api#https-get-request" /></h3>
+        <h3 id="https-get-request"><span className="method">method</span> HttpsGetRequest <HashLink link="/?/docs/v2/api#https-get-request" /></h3>
 
         <p>
           Sends an HTTPS get request to the Discord proxy.
@@ -639,7 +642,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="https-patch-request"><span className="method">method</span> HttpsPatchRequest <HashLink link="/docs/v2/api#https-patch-request" /></h3>
+        <h3 id="https-patch-request"><span className="method">method</span> HttpsPatchRequest <HashLink link="/?/docs/v2/api#https-patch-request" /></h3>
 
         <p>
           Sends an HTTPS patch request with a JSON payload to the Discord proxy.
@@ -656,7 +659,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="https-put-request"><span className="method">method</span> HttpsPutRequest <HashLink link="/docs/v2/api#https-put-request" /></h3>
+        <h3 id="https-put-request"><span className="method">method</span> HttpsPutRequest <HashLink link="/?/docs/v2/api#https-put-request" /></h3>
 
         <p>
           Sends an HTTPS put request with a JSON payload to the Discord proxy.
@@ -673,7 +676,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="https-delete-request"><span className="method">method</span> HttpsDeleteRequest <HashLink link="/docs/v2/api#https-delete-request" /></h3>
+        <h3 id="https-delete-request"><span className="method">method</span> HttpsDeleteRequest <HashLink link="/?/docs/v2/api#https-delete-request" /></h3>
 
         <p>
           Sends an HTTPS delete request to the Discord proxy.
@@ -688,11 +691,11 @@ function DocsPage () {
         </CodeBlock>
 
 
-        <h2 id="subscribe"><span className="class">class</span> Subscribe <HashLink link="/docs/v2/api#subscribe" /></h2>
+        <h2 id="subscribe"><span className="class">class</span> Subscribe <HashLink link="/?/docs/v2/api#subscribe" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="activity-instance-participants-update"><span className="method">method</span> ActivityInstanceParticipantsUpdate <HashLink link="/docs/v2/api#activity-instance-participants-update" /></h3>
+        <h3 id="activity-instance-participants-update"><span className="method">method</span> ActivityInstanceParticipantsUpdate <HashLink link="/?/docs/v2/api#activity-instance-participants-update" /></h3>
 
         <p>
           Received when the number of instance participants changes.
@@ -709,7 +712,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="activity-layout-mode-update"><span className="method">method</span> ActivityLayoutModeUpdate <HashLink link="/docs/v2/api#activity-layout-mode-update" /></h3>
+        <h3 id="activity-layout-mode-update"><span className="method">method</span> ActivityLayoutModeUpdate <HashLink link="/?/docs/v2/api#activity-layout-mode-update" /></h3>
 
         <p>
           Received when a user changes the layout mode in the Discord client.
@@ -726,7 +729,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="current-user-update"><span className="method">method</span> CurrentUserUpdate <HashLink link="/docs/v2/api#current-user-update" /></h3>
+        <h3 id="current-user-update"><span className="method">method</span> CurrentUserUpdate <HashLink link="/?/docs/v2/api#current-user-update" /></h3>
 
         <p>
           Received when the current user object changes.
@@ -743,7 +746,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="current-guild-member-update"><span className="method">method</span> CurrentGuildMemberUpdate <HashLink link="/docs/v2/api#current-guild-member-update" /></h3>
+        <h3 id="current-guild-member-update"><span className="method">method</span> CurrentGuildMemberUpdate <HashLink link="/?/docs/v2/api#current-guild-member-update" /></h3>
 
         <p>
           Received when the current guild member object changes.
@@ -760,7 +763,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="entitlement-create"><span className="method">method</span> EntitlementCreate <HashLink link="/docs/v2/api#entitlement-create" /></h3>
+        <h3 id="entitlement-create"><span className="method">method</span> EntitlementCreate <HashLink link="/?/docs/v2/api#entitlement-create" /></h3>
 
         <p>
           Received when an entitlement is created for a SKU.
@@ -777,7 +780,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="error"><span className="method">method</span> Error <HashLink link="/docs/v2/api#error" /></h3>
+        <h3 id="error"><span className="method">method</span> Error <HashLink link="/?/docs/v2/api#error" /></h3>
 
         <p>
           Non-subscription event sent when there is an error, including command responses.
@@ -794,7 +797,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="orientation-update"><span className="method">method</span> OrientationUpdate <HashLink link="/docs/v2/api#orientation-update" /></h3>
+        <h3 id="orientation-update"><span className="method">method</span> OrientationUpdate <HashLink link="/?/docs/v2/api#orientation-update" /></h3>
 
         <p>
           Received when screen orientation changes
@@ -811,7 +814,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="speaking-start"><span className="method">method</span> SpeakingStart <HashLink link="/docs/v2/api#speaking-start" /></h3>
+        <h3 id="speaking-start"><span className="method">method</span> SpeakingStart <HashLink link="/?/docs/v2/api#speaking-start" /></h3>
 
         <p>
           Received when a user in a subscribed voice channel speaks.
@@ -828,7 +831,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="speaking-stop"><span className="method">method</span> SpeakingStop <HashLink link="/docs/v2/api#speaking-stop" /></h3>
+        <h3 id="speaking-stop"><span className="method">method</span> SpeakingStop <HashLink link="/?/docs/v2/api#speaking-stop" /></h3>
 
         <p>
           Received when a user in a subscribed voice channel stops speaking.
@@ -845,7 +848,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="thermal-state-update"><span className="method">method</span> ThermalStateUpdate <HashLink link="/docs/v2/api#thermal-state-update" /></h3>
+        <h3 id="thermal-state-update"><span className="method">method</span> ThermalStateUpdate <HashLink link="/?/docs/v2/api#thermal-state-update" /></h3>
 
         <p>
           Received when Android or iOS thermal states are surfaced to the Discord mobile app.
@@ -862,7 +865,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="voice-state-update"><span className="method">method</span> VoiceStateUpdate <HashLink link="/docs/v2/api#voice-state-update" /></h3>
+        <h3 id="voice-state-update"><span className="method">method</span> VoiceStateUpdate <HashLink link="/?/docs/v2/api#voice-state-update" /></h3>
 
         <p>
           Received when a user's voice state changes in a subscribed voice channel (mute, volume, etc).
@@ -877,11 +880,11 @@ function DocsPage () {
         </CodeBlock>
 
 
-        <h2 id="hirpc"><span className="class">class</span> HiRpc <HashLink link="/docs/v2/api#hirpc" /></h2>
+        <h2 id="hirpc"><span className="class">class</span> HiRpc <HashLink link="/?/docs/v2/api#hirpc" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="hirpc-send"><span className="method">method</span> Send <HashLink link="/docs/v2/api#hirpc-send" /></h3>
+        <h3 id="hirpc-send"><span className="method">method</span> Send <HashLink link="/?/docs/v2/api#hirpc-send" /></h3>
 
         <p>
           Send a message to JavaScript through this hiRPC channel.
@@ -898,7 +901,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="hirpc-subscribe"><span className="method">method</span> Subscribe <HashLink link="/docs/v2/api#hirpc-subscribe" /></h3>
+        <h3 id="hirpc-subscribe"><span className="method">method</span> Subscribe <HashLink link="/?/docs/v2/api#hirpc-subscribe" /></h3>
 
         <p>
           Receive messages sent through this hiRPC channel from JavaScript.
@@ -915,7 +918,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="hirpc-unsubscribe-1"><span className="method">method</span> Unsubscribe (1/2) <HashLink link="/docs/v2/api#hirpc-unsubscribe-1" /></h3>
+        <h3 id="hirpc-unsubscribe-1"><span className="method">method</span> Unsubscribe (1/2) <HashLink link="/?/docs/v2/api#hirpc-unsubscribe-1" /></h3>
 
         <p>
           Remove a hiRPC subscription via a HiRpcSubscription instance (returned by HiRpc.Subscribe).
@@ -929,7 +932,7 @@ function DocsPage () {
           {`public static void Unsubscribe(HiRpcSubscription reference)`}
         </CodeBlock>
 
-        <h3 id="hirpc-unsubscribe-2"><span className="method">method</span> Unsubscribe (2/2) <HashLink link="/docs/v2/api#hirpc-unsubscribe-2" /></h3>
+        <h3 id="hirpc-unsubscribe-2"><span className="method">method</span> Unsubscribe (2/2) <HashLink link="/?/docs/v2/api#hirpc-unsubscribe-2" /></h3>
 
         <p>
           Remove a hiRPC subscription via a method and a channel.
@@ -946,7 +949,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="hirpc-unsubscribe-from-channel"><span className="method">method</span> UnsubscribeFromChannel <HashLink link="/docs/v2/api#hirpc-unsubscribe-from-channel" /></h3>
+        <h3 id="hirpc-unsubscribe-from-channel"><span className="method">method</span> UnsubscribeFromChannel <HashLink link="/?/docs/v2/api#hirpc-unsubscribe-from-channel" /></h3>
 
         <p>
           Remove all subscriptions related to a single hiRPC channel.
@@ -963,7 +966,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="hirpc-clear-all-subscriptions"><span className="method">method</span> ClearAllSubscriptions <HashLink link="/docs/v2/api#hirpc-clear-all-subscriptions" /></h3>
+        <h3 id="hirpc-clear-all-subscriptions"><span className="method">method</span> ClearAllSubscriptions <HashLink link="/?/docs/v2/api#hirpc-clear-all-subscriptions" /></h3>
 
         <p>
           Remove all subscriptions from every hiRPC channel.
@@ -978,11 +981,11 @@ function DocsPage () {
         </CodeBlock>
 
 
-        <h2 id="local-storage"><span className="class">class</span> LocalStorage <HashLink link="/docs/v2/api#local-storage" /></h2>
+        <h2 id="local-storage"><span className="class">class</span> LocalStorage <HashLink link="/?/docs/v2/api#local-storage" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="set-item"><span className="method">method</span> SetItem <HashLink link="/docs/v2/api#set-item" /></h3>
+        <h3 id="set-item"><span className="method">method</span> SetItem <HashLink link="/?/docs/v2/api#set-item" /></h3>
 
         <p>
           Add persistent data to the local storage.
@@ -999,7 +1002,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="get-item"><span className="method">method</span> GetItem <HashLink link="/docs/v2/api#get-item" /></h3>
+        <h3 id="get-item"><span className="method">method</span> GetItem <HashLink link="/?/docs/v2/api#get-item" /></h3>
 
         <p>
           Get data from the local storage.
@@ -1016,7 +1019,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="clear-item"><span className="method">method</span> Clear <HashLink link="/docs/v2/api#clear-item" /></h3>
+        <h3 id="clear-item"><span className="method">method</span> Clear <HashLink link="/?/docs/v2/api#clear-item" /></h3>
 
         <p>
           Clear local storage.
@@ -1031,11 +1034,11 @@ function DocsPage () {
         </CodeBlock>
 
 
-        <h2 id="methods"> Methods <HashLink link="/docs/v2/api#methods" /></h2>
+        <h2 id="methods"> Methods <HashLink link="/?/docs/v2/api#methods" /></h2>
 
         <hr className="separator"/>
 
-        <h3 id="initialize"><span className="method">method</span> Initialize <HashLink link="/docs/v2/api#initialize" /></h3>
+        <h3 id="initialize"><span className="method">method</span> Initialize <HashLink link="/?/docs/v2/api#initialize" /></h3>
 
         <p>
           Initializes Dissonity. You must call and await this method once before doing anything else.
@@ -1052,7 +1055,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="on-ready"><span className="method">method</span> OnReady <HashLink link="/docs/v2/api#on-ready" /></h3>
+        <h3 id="on-ready"><span className="method">method</span> OnReady <HashLink link="/?/docs/v2/api#on-ready" /></h3>
 
         <p>
           Use this method to wait for initialization to complete. <br/>
@@ -1070,7 +1073,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="patch-url-mappings"><span className="method">method</span> PatchUrlMappings <HashLink link="/docs/v2/api#patch-url-mappings" /></h3>
+        <h3 id="patch-url-mappings"><span className="method">method</span> PatchUrlMappings <HashLink link="/?/docs/v2/api#patch-url-mappings" /></h3>
 
         <p>
           Use this method to easily access external resources. <br/>
@@ -1088,7 +1091,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="format-price"><span className="method">method</span> FormatPrice <HashLink link="/docs/v2/api#format-price" /></h3>
+        <h3 id="format-price"><span className="method">method</span> FormatPrice <HashLink link="/?/docs/v2/api#format-price" /></h3>
 
         <p>
           Use this method to easily render SKU prices. When called in the Unity Editor, uses a generic currency symbol <code>¤</code>.
@@ -1105,7 +1108,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="unsubscribe-1"><span className="method">method</span> Unsubscribe (1/2) <HashLink link="/docs/v2/api#unsubscribe-1" /></h3>
+        <h3 id="unsubscribe-1"><span className="method">method</span> Unsubscribe (1/2) <HashLink link="/?/docs/v2/api#unsubscribe-1" /></h3>
 
         <p>
           Remove a subscription via a DiscordSubscription instance (returned by subscription methods).
@@ -1119,7 +1122,7 @@ function DocsPage () {
           {`public static void Unsubscribe(DiscordSubscription reference)`}
         </CodeBlock>
 
-        <h3 id="unsubscribe-2"><span className="method">method</span> Unsubscribe (2/2) <HashLink link="/docs/v2/api#unsubscribe-2" /></h3>
+        <h3 id="unsubscribe-2"><span className="method">method</span> Unsubscribe (2/2) <HashLink link="/?/docs/v2/api#unsubscribe-2" /></h3>
 
         <p>
           Remove a subscription via the event return data type and a method.
@@ -1136,7 +1139,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="unsubscribe-from-event"><span className="method">method</span> UnsubscribeFromEvent <HashLink link="/docs/v2/api#unsubscribe-from-event" /></h3>
+        <h3 id="unsubscribe-from-event"><span className="method">method</span> UnsubscribeFromEvent <HashLink link="/?/docs/v2/api#unsubscribe-from-event" /></h3>
 
         <p>
           Remove all subscriptions related to a single event.
@@ -1153,7 +1156,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="clear-all-subscriptions"><span className="method">method</span> ClearAllSubscriptions <HashLink link="/docs/v2/api#clear-all-subscriptions" /></h3>
+        <h3 id="clear-all-subscriptions"><span className="method">method</span> ClearAllSubscriptions <HashLink link="/?/docs/v2/api#clear-all-subscriptions" /></h3>
 
         <p>
           Remove all subscriptions from every event.
@@ -1170,7 +1173,7 @@ function DocsPage () {
 
         <hr className="separator"/>
 
-        <h3 id="close"><span className="method">method</span> Close <HashLink link="/docs/v2/api#close" /></h3>
+        <h3 id="close"><span className="method">method</span> Close <HashLink link="/?/docs/v2/api#close" /></h3>
 
         <p>
           Close the app with a specified code and reason.

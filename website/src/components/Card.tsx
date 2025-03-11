@@ -7,7 +7,7 @@ function Card(props: {
     link?: string,
     subtitle?: string,
     background?: string,
-    children?: (JSX.Element | string)[] | JSX.Element | string 
+    children?: (JSX.Element | string)[] | JSX.Element | string
 }) {
     //585858
 

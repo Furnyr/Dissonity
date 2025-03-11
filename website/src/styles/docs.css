@@ -2,6 +2,7 @@
 .doc-page {
     margin: 22px;
     padding-bottom: 40px;
+    max-width: 88%;
 }
 
 .separator {
@@ -10,6 +11,14 @@
     background-color:#4b4b4b;
     border: none;
     height: 3px;
+}
+
+.h3-margin {
+    margin-top: 30px;
+}
+
+.red {
+    color: #ff5b5b;
 }
 
 @media only screen and (max-width: 700px) {

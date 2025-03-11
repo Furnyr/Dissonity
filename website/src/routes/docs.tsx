@@ -153,7 +153,7 @@ export default function Docs() {
         <MenuItem
           component={<Link to="/docs/v2/api/config" />}
           active={location.pathname === "/docs/v2/api/config"}
-          icon={"🔧"}
+          icon={"⚙️"}
           onClick={closeSidebarMobile}>
             Configuration
         </MenuItem>
@@ -264,7 +264,7 @@ export default function Docs() {
           active={location.pathname === "/docs/v2/internals/build-variables"}
           icon={"🔗"}
           onClick={closeSidebarMobile}>
-            Build variables
+            Build Variables
         </MenuItem>
 
         <MenuItem
