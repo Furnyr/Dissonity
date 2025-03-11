@@ -253,7 +253,8 @@ namespace Dissonity
         }
 
         /// <summary>
-        /// Your client access token.
+        /// Your client access token. <br/> <br/>
+        /// <c> ⚠️ </c> This is <b>highly-sensitive</b> data. Handle this token securely and don't expose it. Use encryption if you need it outside of Unity.
         /// </summary>
         public static string AccessToken
         {
