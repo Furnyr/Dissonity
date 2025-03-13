@@ -949,8 +949,8 @@ namespace Dissonity
             /// No scopes required. <br/>
             /// ---------------------- <br/>
             /// ✅ | Web <br/>
-            /// ⛔️ | iOS <br/>
-            /// ⛔️ | Android <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
             /// ---------------------- <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
