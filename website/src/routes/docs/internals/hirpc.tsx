@@ -285,7 +285,27 @@ end`}/>
         </p>
 
         <p>
-          Before accessing hiRPC, you need to check whether the module has been created. If not, you need to <b>mount</b> and <b>load</b> it.
+          But before accessing hiRPC, you must indicate where the files are using an import map in your top index.html:
+        </p>
+
+        <CodeBlock language="xml">{`<html>
+  <head>
+    <script type="importmap">
+      {
+        "imports": {
+          "dso_bridge/": "./Unity/Bridge/",
+          "dso_proxy_bridge/": "./.proxy/Unity/Bridge/"
+        }
+      }
+    </script>
+    <script src="index.js"></script>
+  </head>
+</html>`}</CodeBlock>
+
+        <i>Example import map, where Unity/Bridge contains dissonity_hirpc.js and other hiRPC files.</i>
+
+        <p>
+          Then, you need to check whether the module has been created. If not, you need to <b>mount</b> and <b>load</b> it.
         </p>
 
         <ul>

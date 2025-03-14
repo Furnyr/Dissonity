@@ -10,6 +10,7 @@ import "./index.css";
 import hljs from "highlight.js/lib/core";
 import javascriptHl from "highlight.js/lib/languages/javascript";
 import typescriptHl from "highlight.js/lib/languages/typescript";
+import xmlHl from "highlight.js/lib/languages/xml";
 import rustHl from "highlight.js/lib/languages/rust";
 import csharpHl from "highlight.js/lib/languages/csharp";
 
@@ -51,6 +52,7 @@ hljs.registerLanguage("javascript", javascriptHl);
 hljs.registerLanguage("typescript", typescriptHl);
 hljs.registerLanguage("rust", rustHl);
 hljs.registerLanguage("csharp", csharpHl);
+hljs.registerLanguage("xml", xmlHl);
 
 (async () => {
   const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
