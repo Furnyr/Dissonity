@@ -54,7 +54,7 @@ hljs.registerLanguage("csharp", csharpHl);
 
 (async () => {
   const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  
+
   lightMode
     ? await import("highlight.js/styles/atom-one-light.css")
     : await import("highlight.js/styles/atom-one-dark.css");

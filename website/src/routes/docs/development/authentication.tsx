@@ -23,7 +23,11 @@ function DocsPage () {
         </p>
 
         <p>
-          Authentication is necessary before using any command, so <code>Api.Initialize</code> won't resolve until it is completed.
+          All initialization data sent by Discord or the activity server is safely stored and sent to the app in a single payload, known as <b>MultiEvent</b>, which is returned by the first call to <code>Api.Initialize</code>.
+        </p>
+
+        <p>
+          Authentication is necessary before using any command, so <code>Api.Initialize</code> won't resolve until it is completed. Hence the need to <code>await</code> it.
         </p>
 
         <h2 id="server-requirements">Server requirements <HashLink link="/?/docs/v2/development/authentication#server-requirements" /></h2>

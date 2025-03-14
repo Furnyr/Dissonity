@@ -35,7 +35,7 @@ function DocsPage () {
           The static class <code>Dissonity.Api</code> provides most of the package's functionality. You need to call and await <a href="#initialize"><code>Dissonity.Api.Initialize</code></a> once per runtime before using the majority of its methods and properties.
         </p>
 
-        <h2>Table of contents</h2>
+        <h2>Table of Contents</h2>
 
         <nav>
           <ul>
