@@ -1,5 +1,5 @@
 /*
-    - Move build files to the Unity resources
+    - Move build files to the Unity WebGL Template
 */
 
 const fs = require("fs");

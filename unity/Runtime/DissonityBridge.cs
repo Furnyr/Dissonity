@@ -29,36 +29,34 @@ namespace Dissonity
         private const string MultiId = "MULTI";
         private const string DissonityChannel = "dissonity";
 
-        internal string? appHash = null;
-
         //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void EmptyRequest(string stringifiedMessage);
+        private static extern void DsoEmptyRequest(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void GetQueryObject(string stringifiedMessage);
+        private static extern void DsoGetQueryObject(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void PatchUrlMappings(string stringifiedMessage);
+        private static extern void DsoPatchUrlMappings(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void FormatPrice(string stringifiedMessage);
+        private static extern void DsoFormatPrice(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void SendToJs(string stringifiedMessage);
+        private static extern void DsoSendToJs(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void LocalStorageGetItem(string stringifiedMessage);
+        private static extern void DsoLocalStorageGetItem(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
-        private static void EmptyRequest(string _) {}
-        private static void GetQueryObject(string _) {}
-        private static void PatchUrlMappings(string _) {}
-        private static void FormatPrice(string _) {}
-        private static void SendToJs(string _) {}
-        private static void LocalStorageGetItem(string _) {}
+        private static void DsoEmptyRequest(string _) {}
+        private static void DsoGetQueryObject(string _) {}
+        private static void DsoPatchUrlMappings(string _) {}
+        private static void DsoFormatPrice(string _) {}
+        private static void DsoSendToJs(string _) {}
+        private static void DsoLocalStorageGetItem(string _) {}
 #endif
 
 
@@ -75,10 +73,10 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                AppHash = appHash
+                AppHash = Api._appHash!
             };
 
-            EmptyRequest(JsonConvert.SerializeObject(data));
+            DsoEmptyRequest(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -92,10 +90,10 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                AppHash = appHash
+                AppHash = Api._appHash!
             };
 
-            GetQueryObject(JsonConvert.SerializeObject(data));
+            DsoGetQueryObject(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -109,11 +107,11 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                AppHash = appHash,
+                AppHash = Api._appHash!,
                 Data = key
             };
 
-            LocalStorageGetItem(JsonConvert.SerializeObject(data));
+            DsoLocalStorageGetItem(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -127,11 +125,11 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                AppHash = appHash,
+                AppHash = Api._appHash!,
                 Data = payload
             };
 
-            PatchUrlMappings(JsonConvert.SerializeObject(data));
+            DsoPatchUrlMappings(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -145,11 +143,11 @@ namespace Dissonity
             BridgeMessage data = new()
             {
                 Nonce = nonce,
-                AppHash = appHash,
+                AppHash = Api._appHash!,
                 Data = payload
             };
 
-            FormatPrice(JsonConvert.SerializeObject(data));
+            DsoFormatPrice(JsonConvert.SerializeObject(data));
 
             return tcs.Task;
         }
@@ -226,7 +224,7 @@ namespace Dissonity
             pendingTasks.Remove(nonce);
         }
 
-        // LocalStorageGetItem
+        // DsoLocalStorageGetItem
         private void HandleNullableString(string nonce, string? stringData)
         {
             //? No task
@@ -241,7 +239,7 @@ namespace Dissonity
         // App hash
         private void HandleHash(string hash)
         {
-            appHash = hash;
+            Api._appHash = hash;
         }
 
 
@@ -507,7 +505,7 @@ namespace Dissonity
     
 
         //# MOCK - - - - -
-        internal void MockDispatch(string eventString, object eventData)
+        internal void MockDiscordDispatch(string eventString, object eventData)
         {
             //? Not mock mode
             if (!Api.IsMock) return;
@@ -521,6 +519,20 @@ namespace Dissonity
             typedEventInstance.Event = eventString;
 
             Api.discordMessageBus.DispatchEvent(typedEventInstance);
+        }
+
+        internal void MockHiRpcDispatch(string channel, object data)
+        {
+            //? Not mock mode
+            if (!Api.IsMock) return;
+            
+            HiRpcMessage message = new()
+            {
+                Channel = channel,
+                Data = data
+            };
+
+            Api.hiRpcMessageBus.DispatchEvent(message);
         }
     }
 }

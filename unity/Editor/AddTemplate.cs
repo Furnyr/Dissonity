@@ -112,8 +112,7 @@ namespace Dissonity.Editor
                 {
                     UpdateDialog.ShowDialog();
 
-                    FileUtil.DeleteFileOrDirectory(targetPath);
-                    FileUtil.DeleteFileOrDirectory(metaTargetPath);
+                    DeleteWebGLTemplate();
 
                     ExecuteProcess(_importedAssets, _deletedAssets, _movedAssets, _movedFromAssetPaths, _didDomainReload, true);
                 }
@@ -225,6 +224,15 @@ namespace Dissonity.Editor
             {
                 Directory.CreateDirectory(directoryPath);
             }
+        }
+    
+        internal static void DeleteWebGLTemplate()
+        {
+            string targetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity");
+            string metaTargetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity.meta");
+
+            FileUtil.DeleteFileOrDirectory(targetPath);
+            FileUtil.DeleteFileOrDirectory(metaTargetPath);
         }
     }
 }

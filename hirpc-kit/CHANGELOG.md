@@ -1,10 +1,14 @@
-This file will document and track changes.
+# Changelog
 
-Format: yyyy-mm-dd - vx.y.z
+All notable changes to this package will be documented in this file.
 
----
+## [0.1.2] - 2025-03-22 
 
-# 2025-3-2 - v0.1.1
+### Added
+
+- Support for the new object freezing process (hiRPC v0.5.1).
+
+## [0.1.1] - 2025-03-02
 
 ### Added
 

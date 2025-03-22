@@ -52,13 +52,13 @@ type RpcInputPayload = {
 type BuildVariables = InstanceType<typeof BuildVariables$1>;
 
 /**
- * Main hiRPC class. An instance should be located in window.dso_hirpc.
+ * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  *
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-declare class HiRpc0_5 {
+declare class HiRpc {
     #private;
     constructor();
     /**
@@ -129,7 +129,7 @@ declare class HiRpc0_5 {
 }
 
 type StartWith<V extends string> = `${V}${string}`;
-type HiRpc<V extends string> = V extends StartWith<"0.5"> ? HiRpc0_5 : UnknownHiRpc;
+type HiRpcShape<V extends string> = V extends StartWith<"0.5"> ? HiRpc : UnknownHiRpc;
 
 declare enum RpcOpcode {
     Handshake = 0,
@@ -142,7 +142,7 @@ declare enum RpcOpcode {
  *
  * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
  */
-declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpc<V>>;
+declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpcShape<V>>;
 /**
  * Load an HTML file as the activity iframe.
  */

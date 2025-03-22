@@ -1,4 +1,4 @@
-import { HiRpc } from "./types";
+import { HiRpcShape } from "./types";
 
 // import type { Opcode } from "../types/enums";
 export enum RpcOpcode {
@@ -13,7 +13,7 @@ export enum RpcOpcode {
  * 
  * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
  */
-export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpc<V>> {
+export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpcShape<V>> {
 
     //? Web environment
     if (typeof window == "undefined") {
@@ -25,7 +25,7 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
 
         //? Instance already deployed
         if (typeof window.dso_hirpc == "object") {
-            resolve(window.dso_hirpc as HiRpc<V>);
+            resolve(window.dso_hirpc as HiRpcShape<V>);
             return;   
         }
 
@@ -39,11 +39,16 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
                 sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
                 sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
 
-                window.dso_hirpc = new window.Dissonity.HiRpc.default();
+                // Note: The instance is automatically defined in the window in newer hiRPC versions
+                const instance = new window.Dissonity.HiRpc.default();
+
+                if (window.dso_hirpc != instance) {
+                    window.dso_hirpc = instance;
+                }
 
                 clearRpcSessionStorage();
             
-                resolve(window.dso_hirpc as HiRpc<V>);
+                resolve(window.dso_hirpc as HiRpcShape<V>);
             })
             .catch(err => {
                 reject(err);
@@ -61,11 +66,16 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
                     sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
                     sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
                     
-                    window.dso_hirpc = new window.Dissonity.HiRpc.default();
+                    // Note: The instance is automatically defined in the window in newer hiRPC versions
+                    const instance = new window.Dissonity.HiRpc.default();
+
+                    if (window.dso_hirpc != instance) {
+                        window.dso_hirpc = instance;
+                    }
 
                     clearRpcSessionStorage();
                 
-                    resolve(window.dso_hirpc as HiRpc<V>);
+                    resolve(window.dso_hirpc as HiRpcShape<V>);
                 })
                 .catch(err => {
                     reject(err);
@@ -78,7 +88,7 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
     
         function clearRpcSessionStorage() {
 
-            const hiRpc = window.dso_hirpc as HiRpc<V>;
+            const hiRpc = window.dso_hirpc as HiRpcShape<V>;
             const query = hiRpc.getQueryObject();
 
             // Meaningless casts to provoke an error if the SessionStorage property changes.

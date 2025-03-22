@@ -29,7 +29,7 @@ let outsideDiscord = false;
 let proxyPrefixAdded = false;
 let needsProxyPrefix = false;
 
-let loaderPath = "Build/{{{ FRAMEWORK_FILENAME }}}".replace("framework", "loader"); 
+let loaderPath = "Build/{{{ LOADER_FILENAME }}}"; 
 const versionCheckPath = baseUrl + ".proxy/version.json";
 
 const proxyBridgeImport = "dso_proxy_bridge/";
@@ -90,10 +90,17 @@ async function handleHiRpc() {
 
     // Nested
     const isNested = window.parent != window.parent.parent;
-    if (isNested && typeof window.parent.dso_hirpc == "object") {
+    if (isNested || typeof window.parent?.dso_hirpc == "object") {
 
         //\ Add shallow references to this window to use later
-        window.dso_hirpc = window.parent.dso_hirpc;
+        Object.defineProperty(window, "dso_hirpc", {
+            value: window.parent.dso_hirpc,
+            writable: false,
+            configurable: false
+        });
+
+        Object.freeze(window.dso_hirpc);
+
         window.dso_build_variables = window.parent.dso_build_variables;
         window.Dissonity = window.parent.Dissonity;
 
@@ -109,7 +116,8 @@ async function handleHiRpc() {
     }
 
     //\ Create module
-    window.dso_hirpc = await new Promise(async (resolve, _) => {
+    // The instance will be available in window.dso_hirpc after this promise resolution
+    await new Promise(async (resolve, _) => {
 
         if (needsProxyPrefix) {
             await import(`${proxyBridgeImport}${hirpcFileName}`);
@@ -127,6 +135,7 @@ async function handleHiRpc() {
 
         async function load() {
 
+            // window.dso_hirpc is defined after this line
             const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
 
             await initialize(hiRpc, false);

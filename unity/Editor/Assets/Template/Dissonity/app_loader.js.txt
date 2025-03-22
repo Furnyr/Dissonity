@@ -19,7 +19,7 @@ if (!baseUrl.endsWith("/"))
 let outsideDiscord = false;
 let proxyPrefixAdded = false;
 let needsProxyPrefix = false;
-let loaderPath = "Build/{{{ FRAMEWORK_FILENAME }}}".replace("framework", "loader");
+let loaderPath = "Build/{{{ LOADER_FILENAME }}}";
 const versionCheckPath = baseUrl + ".proxy/version.json";
 const proxyBridgeImport = "dso_proxy_bridge/";
 const normalBridgeImport = "dso_bridge/";
@@ -56,8 +56,13 @@ async function initialize() {
 }
 async function handleHiRpc() {
     const isNested = window.parent != window.parent.parent;
-    if (isNested && typeof window.parent.dso_hirpc == "object") {
-        window.dso_hirpc = window.parent.dso_hirpc;
+    if (isNested || typeof window.parent?.dso_hirpc == "object") {
+        Object.defineProperty(window, "dso_hirpc", {
+            value: window.parent.dso_hirpc,
+            writable: false,
+            configurable: false
+        });
+        Object.freeze(window.dso_hirpc);
         window.dso_build_variables = window.parent.dso_build_variables;
         window.Dissonity = window.parent.Dissonity;
         initialize(window.parent.dso_hirpc, true);
@@ -67,7 +72,7 @@ async function handleHiRpc() {
         initialize(window.dso_hirpc, true);
         return;
     }
-    window.dso_hirpc = await new Promise(async (resolve, _) => {
+    await new Promise(async (resolve, _) => {
         if (needsProxyPrefix) {
             await import(`${proxyBridgeImport}${hirpcFileName}`);
             await import(`${proxyBridgeImport}${buildVariablesFileName}`);

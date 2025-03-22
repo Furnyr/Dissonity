@@ -139,7 +139,7 @@ namespace Dissonity
                 Participants = GetParticipants()
             };
 
-            Api.bridge!.MockDispatch(DiscordEventType.ActivityInstanceParticipantsUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.ActivityInstanceParticipantsUpdate, data);
         }
 
 
@@ -153,7 +153,7 @@ namespace Dissonity
                 LayoutMode = _layoutMode
             };
 
-            Api.bridge!.MockDispatch(DiscordEventType.ActivityLayoutModeUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.ActivityLayoutModeUpdate, data);
         }
 
 
@@ -167,7 +167,7 @@ namespace Dissonity
                 ScreenOrientation = _screenOrientation
             };
 
-            Api.bridge!.MockDispatch(DiscordEventType.OrientationUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.OrientationUpdate, data);
         }
 
 
@@ -181,7 +181,7 @@ namespace Dissonity
                 ThermalState = _thermalState
             };
 
-            Api.bridge!.MockDispatch(DiscordEventType.ThermalStateUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.ThermalStateUpdate, data);
         }
 
 
@@ -195,7 +195,7 @@ namespace Dissonity
             data.Nickname = _currentPlayer.Participant.Nickname;
             data.UserId = _currentPlayer.Participant.Id;
 
-            Api.bridge!.MockDispatch(DiscordEventType.CurrentGuildMemberUpdate, data); 
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.CurrentGuildMemberUpdate, data); 
         }
 
 
@@ -206,7 +206,7 @@ namespace Dissonity
         {
             User data = _currentPlayer.Participant.ToUser();
 
-            Api.bridge!.MockDispatch(DiscordEventType.CurrentUserUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.CurrentUserUpdate, data);
         }
 
 
@@ -223,7 +223,7 @@ namespace Dissonity
             if (playerIndex == -1) data = _currentPlayer.UserVoiceState;
             else data = _otherPlayers[playerIndex].UserVoiceState;
 
-            Api.bridge!.MockDispatch(DiscordEventType.VoiceStateUpdate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.VoiceStateUpdate, data);
         }
 
 
@@ -246,7 +246,7 @@ namespace Dissonity
                 UserId = userId
             };
             
-            Api.bridge!.MockDispatch(DiscordEventType.SpeakingStart, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.SpeakingStart, data);
         }
 
 
@@ -269,7 +269,7 @@ namespace Dissonity
                 UserId = userId
             };
             
-            Api.bridge!.MockDispatch(DiscordEventType.SpeakingStop, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.SpeakingStop, data);
         }
     
 
@@ -291,7 +291,7 @@ namespace Dissonity
                 Entitlement = ent
             };
 
-            Api.bridge!.MockDispatch(DiscordEventType.EntitlementCreate, data);
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.EntitlementCreate, data);
         }
     }
 }

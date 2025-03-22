@@ -15,7 +15,7 @@ namespace Dissonity.Editor
     public static class Loady
     {
         public const string PackageName = "com.furnyr.dissonity";
-        public const string LibraryFolder = "Assets/Library/";
+        public const string LibraryFolder = "Assets/LocalDissonity/";
 
         public static T Load<T>(string path) where T : Object
         {

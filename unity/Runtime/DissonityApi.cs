@@ -32,6 +32,7 @@ namespace Dissonity
         internal static long? _channelId;
         internal static long? _userId = null;
         internal static string? _accessToken = null;
+        internal static string? _appHash = null;
         internal static string? _frameId;
         internal static string? _mobileAppVersion = null;
         internal static string? _customId = null;
@@ -270,6 +271,25 @@ namespace Dissonity
                 return _accessToken!;
             }
         }
+
+        /// <summary>
+        /// Your hiRPC application access hash. <br/> <br/>
+        /// <c> ⚠️ </c> This allows access to restricted hiRPC functionality. Handle it securely.
+        /// </summary>
+        public static string ApplicationAccessHash
+        {
+            get
+            {
+                if (!_hiRpcReady) throw new InvalidOperationException("You can't access this property before waiting for Api.Initialize");
+
+                if (_mock) {
+
+                    return GameObject.FindAnyObjectByType<JavascriptMock>()._hiRpcAppHash;
+                }
+
+                return _appHash!;
+            }
+        }
         
         /// <summary>
         /// True after the first <c> Api.Initialize </c> call, regardless of success.
@@ -372,35 +392,35 @@ namespace Dissonity
         //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void OpenDownwardFlow();
+        private static extern void DsoOpenDownwardFlow();
 
         [DllImport("__Internal")]
-        private static extern void CloseDownwardFlow(string stringifiedMessage);
+        private static extern void DsoCloseDownwardFlow(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void ExpandCanvas();
+        private static extern void DsoExpandCanvas();
 
         [DllImport("__Internal")]
-        private static extern void SendToRpc(string stringifiedMessage);
+        private static extern void DsoSendToRpc(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void SendToJs(string stringifiedMessage);
+        private static extern void DsoSendToJs(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void LocalStorageSetItem(string stringifiedMessage);
+        private static extern void DsoLocalStorageSetItem(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void LocalStorageClear();
+        private static extern void DsoLocalStorageClear();
 #endif
 
 #if !UNITY_WEBGL
-        private static void OpenDownwardFlow() {}
-        private static void CloseDownwardFlow(string stringifiedMessage) {}
-        private static void ExpandCanvas() {}
-        private static void SendToRpc(string _) {}
-        private static void SendToJs(string _) {}
-        private static void LocalStorageSetItem(string _) {}
-        private static void LocalStorageClear() {}
+        private static void DsoOpenDownwardFlow() {}
+        private static void DsoCloseDownwardFlow(string stringifiedMessage) {}
+        private static void DsoExpandCanvas() {}
+        private static void DsoSendToRpc(string _) {}
+        private static void DsoSendToJs(string _) {}
+        private static void DsoLocalStorageSetItem(string _) {}
+        private static void DsoLocalStorageClear() {}
 #endif
 
 
@@ -982,15 +1002,18 @@ namespace Dissonity
             /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="OutsideDiscordException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPostRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
-
+#if UNITY_EDITOR
+                if (isEditor && !path.ToLower().StartsWith("http"))
+                {
+                    MockUseUrlMappings(ref path);
+                }
+#endif
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
@@ -1008,15 +1031,18 @@ namespace Dissonity
             /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="OutsideDiscordException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsGetRequest<TJsonResponse>(string path, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
-
+#if UNITY_EDITOR
+                if (isEditor && !path.ToLower().StartsWith("http"))
+                {
+                    MockUseUrlMappings(ref path);
+                }
+#endif
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
@@ -1034,15 +1060,18 @@ namespace Dissonity
             /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="OutsideDiscordException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPatchRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
-
+#if UNITY_EDITOR
+                if (isEditor && !path.ToLower().StartsWith("http"))
+                {
+                    MockUseUrlMappings(ref path);
+                }
+#endif
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
@@ -1060,15 +1089,18 @@ namespace Dissonity
             /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="OutsideDiscordException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsPutRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
-
+#if UNITY_EDITOR
+                if (isEditor && !path.ToLower().StartsWith("http"))
+                {
+                    MockUseUrlMappings(ref path);
+                }
+#endif
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
@@ -1086,15 +1118,18 @@ namespace Dissonity
             /// <c> ⚠️ </c> If you use an absolute path, you'll need to patch the url mappings so the request goes through the proxy.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="OutsideDiscordException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
             public static Task<TJsonResponse> HttpsDeleteRequest<TJsonResponse>(string path, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
-                if (isEditor && !path.ToLower().StartsWith("http")) throw new OutsideDiscordException("You can't make relative requests to the Discord proxy while inside Unity");
-
+#if UNITY_EDITOR
+                if (isEditor && !path.ToLower().StartsWith("http"))
+                {
+                    MockUseUrlMappings(ref path);
+                }
+#endif
                 string uri = GetFormattedUri(path);
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
@@ -1288,6 +1323,29 @@ namespace Dissonity
 
                     tcs.TrySetResult(data);
                 }
+            }
+        
+            private static void MockUseUrlMappings(ref string path)
+            {
+                string[] segments = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
+
+                if (segments.Length < 1)
+                {
+                    throw new InvalidOperationException("Cannot make a request to / in the editor");
+                }
+
+                string prefix = "/" + segments[0];
+                MappingBuilder? mapping = _configuration!.Mappings.FirstOrDefault(m => m.Prefix == prefix);
+
+                //? Mapping not found
+                if (mapping == null)
+                {
+                    throw new InvalidOperationException("To mock relative requests while inside Unity, you must define the URL mappings in the configuration file");
+                }
+
+                segments[0] = mapping.Target;
+
+                path = "https://" + string.Join("/", segments);
             }
         }
 
@@ -1678,18 +1736,29 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static void Send(string hiRpcChannel, object payload)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot send messages through hiRPC while inside Unity");
-
                 if (!_hiRpcReady) throw new InvalidOperationException("Tried to send a hiRPC message without being ready");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+
+                    if (!jsMock._hiRpclogJsMessages) return;
+
+                    Utils.DissonityLog($"Message sent to JavaScript through '{hiRpcChannel}': {JsonConvert.SerializeObject(payload)}");
+
+                    return;
+                }
+#endif
                 BridgeMessage message = new()
                 {
-                    AppHash = bridge!.appHash,
+                    AppHash = _appHash!,
                     Data = payload,
                     Channel = hiRpcChannel
                 };
 
-                SendToJs(JsonConvert.SerializeObject(message));
+                DsoSendToJs(JsonConvert.SerializeObject(message));
             }
 
 
@@ -1700,8 +1769,14 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static HiRpcSubscription Subscribe(string hiRpcChannel, Action<object> listener)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot subscribe to a hiRPC channel while inside Unity");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+                }
+#endif
                 var reference = SubscribeCommandFactory(new MessageBusReaderIndefinite<HiRpcMessage>(listener, (hiRpcMessage) =>
                 {
                     listener(hiRpcMessage.Data);
@@ -1720,8 +1795,14 @@ namespace Dissonity
             /// <exception cref="ArgumentException"></exception>
             public static void Unsubscribe(HiRpcSubscription reference)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+                }
+#endif
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(reference.EventString)) throw new ArgumentException($"Tried to unsubscribe from a HiRpcSubscription that no longer exists ({reference.EventString})");
 
                 var readerSet = hiRpcMessageBus.ReaderSetDictionary[reference.EventString];
@@ -1741,8 +1822,14 @@ namespace Dissonity
             /// <exception cref="ArgumentException"></exception>
             public static void Unsubscribe(string hiRpcChannel, Action<object> listener)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+                }
+#endif
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) throw new ArgumentException($"Tried to unsubscribe from a hiRPC channel you're not subscribed to ({hiRpcChannel})");
 
                 var readerSet = hiRpcMessageBus.ReaderSetDictionary[hiRpcChannel];
@@ -1762,8 +1849,14 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static void UnsubscribeFromChannel(string hiRpcChannel)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+                }
+#endif
                 if (!hiRpcMessageBus.ReaderSetDictionary.ContainsKey(hiRpcChannel)) return;
 
                 hiRpcMessageBus.ReaderSetDictionary.Remove(hiRpcChannel);
@@ -1777,8 +1870,14 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static void ClearAllSubscriptions()
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use hiRPC while inside Unity");
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
 
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use hiRPC while inside Unity");
+                }
+#endif
                 hiRpcMessageBus.ReaderSetDictionary.Clear();
             }
 
@@ -1806,16 +1905,29 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static void SetItem(string key, string value)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
-
                 if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
 
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
+
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use Local Storage while inside Unity");
+
+                    jsMock._localStorage.Add(new (){
+                        Key = key,
+                        Value = value
+                    });
+                    
+                    return;
+                }
+#endif
                 BridgeMessage message = new()
                 {
                     Data = new string[] { key, value }
                 };
 
-                LocalStorageSetItem(JsonConvert.SerializeObject(message));
+                DsoLocalStorageSetItem(JsonConvert.SerializeObject(message));
             }
 
             /// <summary>
@@ -1824,10 +1936,22 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public async static Task<string?> GetItem(string key)
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
-
                 if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
 
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
+
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use Local Storage while inside Unity");
+
+                    MockStorageItem? item = jsMock._localStorage.Find(i => i.Key == key);
+
+                    if (item == null) return null;
+                    
+                    return item.Value;
+                }
+#endif
                 return await bridge!.ExeLocalStorageGetItem(key);
             }
 
@@ -1837,11 +1961,21 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             public static void Clear()
             {
-                if (isEditor) throw new InvalidOperationException("Cannot use local storage while inside Unity");
-
                 if (!_hiRpcReady) throw new InvalidOperationException("Tried to use local storage without being ready");
-                
-                LocalStorageClear();
+
+#if UNITY_EDITOR
+                if (isEditor)
+                {
+                    JavascriptMock? jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
+
+                    if (jsMock == null) throw new InvalidOperationException("Create a @JavascriptMock to use Local Storage while inside Unity");
+
+                    jsMock._localStorage.Clear();
+
+                    return;
+                }
+#endif
+                DsoLocalStorageClear();
             }
         }
 
@@ -1872,6 +2006,7 @@ namespace Dissonity
             //\ Prepare initialization task
             var tcs = new TaskCompletionSource<MultiEvent>();
 
+#if UNITY_EDITOR
             //? Not running inside Discord
             if (isEditor)
             {
@@ -1886,16 +2021,30 @@ namespace Dissonity
                     var mockObject = new GameObject("@DiscordMock");
                     mockObject.AddComponent<DiscordMock>();
 
-                    Utils.DissonityLog("Running inside the Unity editor, a Discord Mock has been generated. To manually create one: Right click hierarchy > Dissonity > Discord Mock");
+                    if (!_configuration!.DisableDissonityInfoLogs)
+                    {
+                        Utils.DissonityLog("Running inside the Unity editor, a Discord Mock has been generated. To manually create one: Right click hierarchy > Dissonity > Discord Mock");
+                    }
+                }
+
+                //\ Find JS Mock
+                var jsMock = GameObject.FindAnyObjectByType<JavascriptMock>();
+
+                //? Create JS Mock
+                if (jsMock == null)
+                {
+                    var mockObject = new GameObject("@JavascriptMock");
+                    mockObject.AddComponent<JavascriptMock>();
                 }
 
                 _ready = true;
+                _hiRpcReady = true;
 
                 readyTask.SetResult(true);
 
                 return Task.FromResult(new MockMultiEvent().ToMultiEvent());
             }
-
+#endif
             // Mock is invalid here
             _mock = false;
             disableMock = true;
@@ -1930,7 +2079,7 @@ namespace Dissonity
 
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
             // From then, the JS and C# layer can interact.
-            OpenDownwardFlow();
+            DsoOpenDownwardFlow();
 
             return tcs.Task;
         }
@@ -2152,10 +2301,10 @@ namespace Dissonity
 
                 BridgeMessage bridgeMessage = new()
                 {
-                    AppHash = bridge!.appHash,
+                    AppHash = _appHash!,
                 };
 
-                CloseDownwardFlow(JsonConvert.SerializeObject(bridgeMessage));
+                DsoCloseDownwardFlow(JsonConvert.SerializeObject(bridgeMessage));
             }
 
             discordMessageBus.ReaderSetDictionary.Clear();
@@ -2366,13 +2515,13 @@ namespace Dissonity
             // Indefinite orientation update
             await Subscribe.SubscribeCommandFactory<OrientationUpdate, OrientationUpdateData>(_ =>
             {
-                ExpandCanvas();
+                DsoExpandCanvas();
             }, null, true);
 
             // Indefinite layout update
             await Subscribe.SubscribeCommandFactory<ActivityLayoutModeUpdate, ActivityLayoutModeUpdateData>(_ =>
             {
-                ExpandCanvas();
+                DsoExpandCanvas();
             }, null, true);
         }
 
@@ -2414,17 +2563,16 @@ namespace Dissonity
                 payload = command;
             }
 
-            if (!isEditor)
-            {
+#if !UNITY_EDITOR
                 BridgeMessage message = new()
                 {
                     Data = new object[2] { command.Opcode, payload },
-                    AppHash = bridge!.appHash
+                    AppHash = _appHash!
                 };
 
                 //\ Send data to RPC
-                SendToRpc(JsonConvert.SerializeObject(message));
-            }
+                DsoSendToRpc(JsonConvert.SerializeObject(message));
+#endif
         }
         
         // This method takes longs directly, unlike SendCommand, that takes the stringified long
