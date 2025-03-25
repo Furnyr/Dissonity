@@ -13,6 +13,13 @@
     height: 3px;
 }
 
+.bar-separator {
+    margin-left: 0;
+    background-color:#666666;
+    border: none;
+    height: 1px;
+}
+
 .h3-margin {
     margin-top: 35px;
 }
@@ -24,6 +31,9 @@
 @media only screen and (max-width: 700px) {
     .doc-page {
         max-width: 70%;
+    }
+    button {
+        font-size: 14px;
     }
 }
 

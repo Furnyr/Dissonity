@@ -5,6 +5,9 @@ using Dissonity.Models.Builders;
 
 namespace Dissonity
 {
+    /// <summary>
+    /// Use this attribute on a class that inherits from SdkConfiguration.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class DissonityConfigAttribute : Attribute
     {

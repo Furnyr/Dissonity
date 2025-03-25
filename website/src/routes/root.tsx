@@ -2,7 +2,6 @@ import "../styles/root.css"
 import HeaderImage from "../assets/dissonity_header.png";
 import Button from "../components/Button";
 import Footer from "../components/Footer";
-import { GITHUB_LINK } from "../constants";
 
 function App () {
   return (
@@ -24,9 +23,9 @@ function App () {
 
         {/* Buttons */}
         <div className="button-container">
-          <Button text="Documentation" goto={"docs"}/>
           <Button text="Guides" goto={"guides"}/>
-          <Button text="GitHub" link={GITHUB_LINK}/>
+          <Button text="Docs" goto={"docs"}/>
+          <Button text="Reference" link={"/ref/index.html"}/>
         </div>
 
         <Footer />

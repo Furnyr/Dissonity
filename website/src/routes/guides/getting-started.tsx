@@ -5,7 +5,6 @@ import { useState } from "react";
 import CopyText from "../../components/CopyText";
 import CodeBlock from "../../components/CodeBlock";
 import BoxInfo from "../../components/BoxInfo";
-import BoxWarn from "../../components/BoxWarn";
 import Footer from "../../components/Footer";
 import { GITHUB_NODE_LINK } from "../../constants";
 import { Link } from "react-router-dom";
@@ -28,15 +27,6 @@ function GuidesPage () {
       <PageTitle title="Getting Started | Dissonity Guides"/>
 
       <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
-      
-      <BoxWarn title="Warning!">
-        <p>
-          This documentation is for Dissonity Version 2, which is still in beta. Keep in mind there might be breaking changes between updates!
-        </p>
-        <p>
-          If you need stability, you should wait for the full release. <a href="https://github.com/Furnyr/Dissonity/releases" target="_blank">(Releases)</a>
-        </p>
-      </BoxWarn>
 
       <h1>Getting Started <HashLink link="/?/guides/v2/getting-started"/></h1>
 
