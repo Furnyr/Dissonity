@@ -19,7 +19,7 @@ function main() {
         sigint: true
     });
 
-    const proceed = rl("[ " + chalk.red("unity (repo)") + " <- " + chalk.green("LocalDissonity") + " ] Do you want to overwrite the repository with your local files? (y/n): ");
+    const proceed = rl("[ " + chalk.red("unity (repo)") + " <- " + chalk.green("LocalDissonity") + " ] Do you want to overwrite the repository with your local files? (Y/n): ");
 
     if (proceed.toLowerCase() != "y") {
         console.log("\nOperation canceled.");
@@ -40,6 +40,9 @@ function main() {
     fs.cpSync(pathToLocal, repoFolder, {
       recursive: true
     });
+
+    //\ Update README.md
+    fs.copyFileSync("../README.md", `${repoFolder}/README.md`);
 
     console.log(chalk.green(`\nLocal files in your Unity project moved to ${repoFolder} successfully!`));
 }

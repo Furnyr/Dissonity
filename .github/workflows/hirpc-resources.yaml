@@ -1,0 +1,44 @@
+name: hiRPC Resources
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  hirpc_build:
+    if: contains(github.event.label.name, 'ci:ready')
+    name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: "./local-automation"
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Bundle hiRPC
+      run: pnpm build_all
+
+    - name: Configure git
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Commit and push changes
+      run: |
+        git add .
+        git commit -m "chore: bundle hirpc in unity"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: "/"

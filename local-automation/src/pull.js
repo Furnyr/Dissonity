@@ -19,7 +19,7 @@ function main() {
         sigint: true
     });
     
-    const proceed = rl("[ " + chalk.red("LocalDissonity") + " <- " + chalk.green("unity (repo)") + " ] Do you want to overwrite your local project with the repository contents? (y/n): ");
+    const proceed = rl("[ " + chalk.red("LocalDissonity") + " <- " + chalk.green("unity (repo)") + " ] Do you want to overwrite your local project with the repository contents? (Y/n): ");
 
     if (proceed.toLowerCase() != "y") {
         console.log("\nOperation canceled.");

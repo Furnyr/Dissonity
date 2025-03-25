@@ -2,7 +2,8 @@
   "name": "@dissonity/local-automation",
   "description": "Utilities for local development",
   "scripts": {
-    "build_all_and_pull": "node src/build_all_and_pull.js && cd ../hirpc && pnpm build && pnpm move && cd ../hirpc-interface && pnpm build && pnpm move && cd ../hirpc-kit && pnpm build && cd ../local-automation && node src/pull.js",
+    "build_all": "cd ../hirpc && pnpm i && pnpm build && pnpm move && cd ../hirpc-interface && pnpm i && pnpm build && pnpm move && cd ../hirpc-kit && pnpm i && pnpm build",
+    "build_all_and_pull": "node src/build_all_and_pull.js && pnpm build_all && node src/pull.js",
     "pull": "node src/pull.js",
     "sync": "node src/sync.js"
   },

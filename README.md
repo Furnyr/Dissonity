@@ -13,7 +13,7 @@
 
 ## About
 
-[Dissonity](https://dissonity.dev) is a Unity SDK that allows you to easily make Discord activities!
+[Dissonity](https://github.com/Furnyr/Dissonity/) is a Unity SDK that allows you to easily make Discord activities!
 
 It is a C# implementation of the [Embedded App SDK](https://discord.com/developers/docs/developer-tools/embedded-app-sdk).
 

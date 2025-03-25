@@ -244,9 +244,6 @@ namespace Dissonity
 
 
         //# HANDLE - - - - -
-        /// <summary>
-        /// This method is used for communication outside Unity. You don't have to call it.
-        /// </summary>
         public void _HiRpcInput(string stringifiedData)
         {
             InteropMessage? message = JsonConvert.DeserializeObject<InteropMessage>(stringifiedData);

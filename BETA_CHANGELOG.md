@@ -2,7 +2,7 @@ This file will document changes made during the beta phase.
 
 ---
 
-# 2025-03-23 - beta progress 2
+# 2025-03-26 - beta progress 2
 
 This version includes bug fixes, mock improvements and utilities for local Dissonity development.
 
@@ -20,7 +20,15 @@ This version includes bug fixes, mock improvements and utilities for local Disso
 - Local storage can be mocked.
 - Relative HTTPS Proxy requests can be mocked if the URL mappings are defined in the configuration file.
 
+### Fixed
+
+- Some mock implementations didn't work when disabling Dissonity info logs.
+
 ## Internal
+
+### Added
+
+- Unit tests.
 
 ### Changed
 
@@ -64,7 +72,12 @@ This version includes bug fixes, mock improvements and utilities for local Disso
 
 - `local-automation` folder, used for file management during local development.
 
-# 2025-03-2 - beta progress 1
+### Documentation
+
+- Updated website structure.
+- Improved API reference site.
+
+# 2025-03-02 - beta progress 1
 
 First beta version. The beta phase is expected to be more stable than alpha, but you should still watch out for breaking changes!
 

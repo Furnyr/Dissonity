@@ -127,7 +127,7 @@ namespace Dissonity
     /// This class is used internally to access the configuration. <br/> <br/>
     /// You do not need to interact with this class directly.
     /// </summary>
-    public class _UserData : ISdkConfiguration
+    public class I_UserData : ISdkConfiguration
     {
         public long ClientId { get; set; }
         public string[] OauthScopes { get; set; }

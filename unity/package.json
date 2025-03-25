@@ -4,6 +4,8 @@
     "unity": "2021.3",
     "displayName": "Dissonity",
     "description": "Interact with the Discord client inside a Unity activity",
+    "documentationUrl": "https://dissonity.dev/",
+    "license": "Apache-2.0",
     "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.2.1"
     },

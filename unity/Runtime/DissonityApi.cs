@@ -736,9 +736,12 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
-                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                if (_mock)
                 {
-                    Utils.DissonityLog("Invite dialog sent");
+                    if (!_configuration!.DisableDissonityInfoLogs) {
+                        Utils.DissonityLog("Invite dialog sent");
+                    }
+
                     return;
                 }
 
@@ -761,10 +764,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
-                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                if (_mock)
                 {
-                    if (Platform == Models.Platform.Desktop) Utils.DissonityLog($"Share moment dialog with ({mediaUrl}) sent");
-                    else Utils.DissonityLogWarning("Platform is mobile, not possible to open a share moment dialog");
+                    if (!_configuration!.DisableDissonityInfoLogs)
+                    {
+                        if (Platform == Models.Platform.Desktop) Utils.DissonityLog($"Share moment dialog with ({mediaUrl}) sent");
+                        else Utils.DissonityLogWarning("Platform is mobile, not possible to open a share moment dialog");
+                    }
                     
                     return;
                 }
@@ -861,10 +867,13 @@ namespace Dissonity
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
-                if (_mock && !_configuration!.DisableDissonityInfoLogs)
+                if (_mock)
                 {
-                    if (Platform == Models.Platform.Mobile) Utils.DissonityLog($"Set orientation lock state to ({lockState})");
-                    else Utils.DissonityLogWarning("Platform is desktop, not possible to set orientation lock state");
+                    if (!_configuration!.DisableDissonityInfoLogs)
+                    {
+                        if (Platform == Models.Platform.Mobile) Utils.DissonityLog($"Set orientation lock state to ({lockState})");
+                        else Utils.DissonityLogWarning("Platform is desktop, not possible to set orientation lock state");
+                    }
                     
                     return;
                 }
@@ -2830,4 +2839,14 @@ namespace Dissonity
             _mock = true;
         }
     }
+
+    /// @cond 
+    public static class I_UnitApi
+    {
+        public static void RawOverrideConfiguration(I_UserData config)
+        {
+            DissonityConfigAttribute._rawOverrideConfiguration = config;
+        }
+    }
+    /// @endcond
 }
