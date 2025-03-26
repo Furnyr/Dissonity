@@ -2584,7 +2584,7 @@ namespace Dissonity
 #endif
         }
         
-        // This method takes longs directly, unlike SendCommand, that takes the stringified long
+        // This method takes longs directly, unlike SendCommand, that takes the stringified long.
         private static Task<TResponse> MockSendCommand<TResponse>(object? arg = null) where TResponse : DiscordEvent
         {
             if (!_mock) throw new InvalidOperationException("This method can only be called in mock mode");
