@@ -14,7 +14,7 @@ on:
 
 jobs:
   unity_tests:
-    name: Tests
+    name: Unity Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -28,6 +28,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           packageMode: true
-          unityVersion: "6000.0.43f1"
+          unityVersion: "2021.3.45f1"
           projectPath: unity
+          testMode: playmode
           githubToken: ${{ secrets.GITHUB_TOKEN }}
