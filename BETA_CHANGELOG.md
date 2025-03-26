@@ -23,6 +23,7 @@ This version includes bug fixes, mock improvements and utilities for local Disso
 ### Fixed
 
 - Some mock implementations didn't work when disabling Dissonity info logs.
+- Compatibility issues with older Unity versions.
 
 ## Internal
 
