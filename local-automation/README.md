@@ -21,11 +21,17 @@ You may need to install [pnpm](https://pnpm.io).
 
 ### 0. 🎮 Prepare a Unity project
 
-Create a Unity project using Unity 2021.3 or later. Then, create a folder named `LocalDissonity` in your `Assets`.
+### Unity version
+
+While Dissonity supports Unity 2021.3 and later, please use the latest Unity version to develop new features. If you need to use older versions, be careful with `.meta` files and make sure you don't accidentally introduce obsolete APIs into the package.
+
+### New project
+
+Create a new Unity project, then, create a folder named `LocalDissonity` in your `Assets`.
 
 You can additionally right click your assets and select `Create > Dissonity > Development > Dev Dialogs Asset` to access C# local development utilities.
 
-### 1. ⚒️ Install dependencies
+### 1. ⚒️ Install script dependencies
 
 Run `pnpm i` to install dependencies.
 
@@ -42,13 +48,21 @@ Run this command to copy the Unity package to your `LocalDissonity` folder:
 pnpm pull
 ```
 
-If you are also working on TypeScript files, like hiRPC, read [Working on TypeScript modules](#working-on-typescript-modules).
+### Dependencies
 
-Once you are done, use this command to bring back the changes in your local project to the repository:
+Once the command runs, your console might have *a lot* of errors. Since you have the raw package files in your project, the package dependencies aren't automatically installed.
+
+Open `LocalDissonity/package.json` and install the corresponding dependencies manually using `Install package by name` in the Package Manager.
+
+### Saving your changes
+
+Once you are done, use this command to bring back the changes from your local project to the repository:
 
 ```
 pnpm sync
 ```
+
+You may need to close Unity if the files are inaccessible.
 
 ## Working on TypeScript modules
 

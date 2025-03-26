@@ -21,7 +21,7 @@ function main() {
     
     const proceed = rl("[ " + chalk.red("LocalDissonity") + " <- " + chalk.green("unity (repo)") + " ] Do you want to overwrite your local project with the repository contents? (Y/n): ");
 
-    if (proceed.toLowerCase() != "y") {
+    if (proceed.toLowerCase() != "y" && proceed.length != 0) {
         console.log("\nOperation canceled.");
         return;
     }
