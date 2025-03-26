@@ -1172,7 +1172,12 @@ namespace Dissonity
 
             private static IEnumerator SendPostRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs, Dictionary<string, string>? headers = null)
             {
-                UnityWebRequest request = UnityWebRequest.Post(uri, JsonConvert.SerializeObject(payload), "application/json");
+                //!! Unity 2021's UnityWebRequest.Post behaves differently than Unity 6's, so using a UnityWebRequest instance instead.
+                UnityWebRequest request = new UnityWebRequest(uri, "POST");
+
+                request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
 
                 if (headers != null)
                 {
