@@ -1,3 +1,10 @@
+/*
+        This file has been generated from a TypeScript source.
+        Don't modify it manually.
+    
+        https://github.com/Furnyr/Dissonity/
+*/
+
 mergeInto(LibraryManager.library, {
     DsoOpenDownwardFlow: function () {
         const hiRpc = window.dso_hirpc;
