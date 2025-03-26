@@ -37,11 +37,26 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+    - name: Check for changes
+      id: check_changes
+      run: |
+        git add -A
+        if git diff-index --quiet HEAD; then
+          echo "No changes to commit."
+          echo "changes=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "Changes found."
+          echo "changes=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Commit files
+      if: steps.check_changes.outputs.changes == 'true'
       run: |
         git commit -m "chore: bundle hirpc in unity"
       
     - name: Push changes
+      if: steps.check_changes.outputs.changes == 'true'
       uses: ad-m/github-push-action@master
       with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
         branch: ${{ github.head_ref }}
