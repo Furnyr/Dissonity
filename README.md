@@ -7,7 +7,8 @@
 </div>
 
 <div align="center">
-<img src="https://img.shields.io/badge/version-beta%202%20v2.0.0-yellow">
+    <img src="https://img.shields.io/badge/version-beta%202%20v2.0.0-yellow">
+    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/unity.yaml">
 </div>
 
 
