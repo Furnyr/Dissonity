@@ -15,6 +15,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
 
     - name: Install Node.js
       uses: actions/setup-node@v4
@@ -34,11 +37,11 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Commit and push changes
+    - name: Commit files
       run: |
-        git add .
         git commit -m "chore: bundle hirpc in unity"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: "/"
+      
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: ${{ github.head_ref }}
