@@ -28,6 +28,6 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           packageMode: true
-          unityVersion: "2021.3.45f1"
+          unityVersion: "6000.0.43f1"
           projectPath: unity
           githubToken: ${{ secrets.GITHUB_TOKEN }}
