@@ -55,7 +55,10 @@ async function setupHiRpc(_hiRpcVersion) {
       import("dso_proxy_bridge/dissonity_build_variables.js").then(() => {
         sessionStorage.setItem("dso_needs_prefix", "true");
         sessionStorage.setItem("dso_outside_discord", "false");
-        window.dso_hirpc = new window.Dissonity.HiRpc.default();
+        const instance = new window.Dissonity.HiRpc.default();
+        if (window.dso_hirpc != instance) {
+          window.dso_hirpc = instance;
+        }
         clearRpcSessionStorage();
         resolve(window.dso_hirpc);
       }).catch((err) => {
@@ -66,7 +69,10 @@ async function setupHiRpc(_hiRpcVersion) {
         import("dso_bridge/dissonity_build_variables.js").then(() => {
           sessionStorage.setItem("dso_needs_prefix", "false");
           sessionStorage.setItem("dso_outside_discord", "true");
-          window.dso_hirpc = new window.Dissonity.HiRpc.default();
+          const instance = new window.Dissonity.HiRpc.default();
+          if (window.dso_hirpc != instance) {
+            window.dso_hirpc = instance;
+          }
           clearRpcSessionStorage();
           resolve(window.dso_hirpc);
         }).catch((err) => {

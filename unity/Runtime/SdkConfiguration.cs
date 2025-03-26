@@ -4,6 +4,7 @@ using Dissonity.Models.Builders;
 
 namespace Dissonity
 {
+    /// @cond
     public interface ISdkConfiguration
     {
         long ClientId { get; }
@@ -25,6 +26,7 @@ namespace Dissonity
         abstract Type GetRequestType();
         abstract Type GetResponseType();
     }
+    /// @endcond
 
     public abstract class SdkConfiguration<TRequest, TResponse> : ISdkConfiguration
         where TRequest : ServerTokenRequest
@@ -120,11 +122,12 @@ namespace Dissonity
         }
     }
 
+    /// @cond
     /// <summary>
     /// This class is used internally to access the configuration. <br/> <br/>
     /// You do not need to interact with this class directly.
     /// </summary>
-    public class _UserData : ISdkConfiguration
+    public class I_UserData : ISdkConfiguration
     {
         public long ClientId { get; set; }
         public string[] OauthScopes { get; set; }
@@ -154,4 +157,5 @@ namespace Dissonity
             return ServerTokenResponse;
         }
     }
+    /// @endcond
 }

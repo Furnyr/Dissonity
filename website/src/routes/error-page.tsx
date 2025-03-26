@@ -26,8 +26,8 @@ export default function ErrorPage() {
             <p>We could not find what you were looking for.</p>
             <ul>
               <li><Link to={"/"}>Home Page</Link></li>
-              <li><Link to={"/docs"}>Documentation</Link></li>
               <li><Link to={"/guides"}>Guides</Link></li>
+              <li><Link to={"/docs"}>Documentation</Link></li>
             </ul>
           </div>
           <div id="error-page-img">

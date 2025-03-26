@@ -97,8 +97,12 @@ public class DissonityConfiguration : SdkConfiguration<ServerTokenRequest, Serve
           <li><b>ScreenResolution.Default</b>: Uses the resolution in the Unity WebGL settings</li>
           <li><b>ScreenResolution.Viewport</b>: Uses the resolution from the Unity viewport</li>
           <li><b>ScreenResolution.Dynamic</b>*: Lets Unity handle the resolution dynamically</li>
-          <li><b>ScreenResolution.Max</b>: Tries to use as much space as possible</li>
+          <li><b>ScreenResolution.Max</b>**: Tries to use as much space as possible</li>
         </ul>
+
+        <p>
+          ** Max resolution uses internal RPC subscriptions to expand the canvas when the Discord activity is updated.
+        </p>
 
         <BoxWarn title="* Unity Dynamic Resolution">
           <p>
@@ -142,8 +146,8 @@ using Dissonity.Models.Builders;
 public override MappingBuilder[] Mappings => new MappingBuilder[] {
     new()
     {
-        Prefix = "/foo",
-        Target = "foo.com"
+        Prefix = "/example",
+        Target = "example.com"
     }
 };
 

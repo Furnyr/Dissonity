@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using Dissonity.Models.Mock;
 using System.Collections.Generic;
-using System.Linq;
-using System;
+using static Dissonity.Editor.MockEditorUtils;
 
 namespace Dissonity.Editor
 {
@@ -41,7 +40,9 @@ namespace Dissonity.Editor
 
 
         public override void OnInspectorGUI()
-        {            
+        {
+            serializedObject.Update();
+
             DiscordMock mock = (DiscordMock) target;
 
             GUIStyle leftButtonStyle; 
@@ -735,43 +736,6 @@ namespace Dissonity.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        // Used to draw the children of a property. If Unity does it automatically, indentation breaks between versions.
-        // exclude is used to prevent properties from rendering
-        // tooltipMap is used to draw tooltips for specific properties
-        internal static void DrawChildrenRecursively(SerializedProperty property, string[] exclude = null, Dictionary<string, string> tooltipMap = null)
-        {
-            SerializedProperty endProperty = property.GetEndProperty();
-
-            property.NextVisible(true);
-
-            while (!SerializedProperty.EqualContents(property, endProperty))
-            {
-                if (exclude == null || !exclude.Contains(property.name))
-                {
-                    //? Tooltip
-                    if (tooltipMap != null && tooltipMap.ContainsKey(property.name))
-                    {
-                        GUIContent content = new (property.name, tooltipMap[property.name]);
-                        EditorGUILayout.PropertyField(property, content, property.isArray);
-                    }
-
-                    else EditorGUILayout.PropertyField(property, property.isArray);
-
-                    if (property.hasVisibleChildren && property.isExpanded)
-                    {
-                        EditorGUI.indentLevel++;
-                        DrawChildrenRecursively(property, exclude, tooltipMap);
-                        EditorGUI.indentLevel--;
-
-                        continue;
-                    }
-                }
-                
-                property.NextVisible(false);
-            }
-            
-        }
-
         private void DrawDispatchButtons(GUIStyle style, DiscordMock mock, int playerIndex = -1)
         {
             // Shorcut
@@ -850,61 +814,6 @@ namespace Dissonity.Editor
 
                 mock.SpeakingStop(playerIndex);
             }
-        }
-
-        private void SetButtonStyles(out GUIStyle leftButtonStyle)
-        {
-            // Normal button style
-            leftButtonStyle = new GUIStyle(GUI.skin.button);
-            leftButtonStyle.alignment = TextAnchor.MiddleLeft;
-        }
-    
-        private void StartSpace(int space)
-        {
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(space);
-            EditorGUILayout.BeginVertical();
-        }
-
-        private void EndSpace()
-        {
-            EditorGUILayout.EndVertical();
-            EditorGUILayout.EndHorizontal();
-        }
-    
-        // Danger
-        private void TintButtonRed()
-        {
-            GUI.backgroundColor = new Color(0.78f, 0.29f, 0.23f);
-        }
-
-        // Warning (currently unused)
-        private void TintButtonYellow()
-        {
-            GUI.backgroundColor = new Color(1f, 0.8f, 0f);
-        }
-
-        // Close
-        private void TintButtonDark()
-        {
-            GUI.backgroundColor = new Color(0.78f, 0.78f, 0.78f);
-        }
-
-        // Open
-        private void TintButtonBlue()
-        {
-            GUI.backgroundColor = new Color(0.6f, 1f, 0.96f);
-        }
-
-        // Unreleased
-        private void TintButtonDisabled()
-        {
-            GUI.backgroundColor = new Color(0.46f, 0.45f, 0.447f);
-        }
-
-        private void ResetButtonTint()
-        {
-            GUI.backgroundColor = Color.white;
         }
     }
 }

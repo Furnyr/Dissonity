@@ -1,6 +1,6 @@
 {
   "name": "@dissonity/hirpc-kit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Types and utilities for the Dissonity hiRPC",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

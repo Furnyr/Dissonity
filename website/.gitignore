@@ -9,7 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist/*
-public/doxygen
+public/ref
 .vite
 dist-ssr
 *.local

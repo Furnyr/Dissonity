@@ -14,9 +14,9 @@ function Footer() {
                         <p className="footer-link-header">Resources</p>
                         <Link to="/">Home Page</Link>
                         <br />
-                        <Link to="/docs">Documentation</Link>
-                        <br />
                         <Link to="/guides">Guides</Link>
+                        <br />
+                        <Link to="/docs">Docs</Link>
                     </div>
                     <div className="footer-link-column">
                         <p className="footer-link-header">About</p>
@@ -29,6 +29,8 @@ function Footer() {
                     <div className="footer-link-column">
                         <p className="footer-link-header">External</p>
                         <a href={GITHUB_LINK} target="_blank">GitHub</a>
+                        <br />
+                        <a target="_blank" href="/ref/index.html">Reference</a>
                     </div>
                 </div>
                 <div className="footer-copyright">

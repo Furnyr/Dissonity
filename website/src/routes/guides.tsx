@@ -3,6 +3,7 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { FaHome, FaPlug } from "react-icons/fa";
 import "../styles/docs.css";
+import { FaBook } from "react-icons/fa6";
 
 export default function Guides() {
 
@@ -131,14 +132,23 @@ export default function Guides() {
       </MenuItem>
 
       <MenuItem
+        component={<Link to="/guides" />}
+        active={location.pathname === "/guides/v2/index" || location.pathname === "/guides"}
+        icon={<FaBook />}>
+          Guides
+      </MenuItem>
+
+      <MenuItem
         component={<Link to="/docs" />}
         icon={<FaPlug />}>
           Documentation
       </MenuItem>
 
+      <hr className="bar-separator"/>
+
       <MenuItem
         component={<Link to="/guides/v2/getting-started" />}
-        active={location.pathname === "/guides/v2/getting-started" || location.pathname === "/guides"}
+        active={location.pathname === "/guides/v2/getting-started"}
         icon={"🚀"}
         onClick={closeSidebarMobile}>
           Getting Started

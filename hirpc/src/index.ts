@@ -10,16 +10,16 @@ import { OfficialUtils } from "./modules/official_utils";
 import { Rpc } from "./modules/rpc";
 
 import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcInputPayload, RpcPayload } from "./types";
+import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcInputPayload } from "./types";
 
 /**
- * Main hiRPC class. An instance should be located in window.dso_hirpc.
+ * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  * 
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */ 
-export default class HiRpc0_5 {
+export default class HiRpc {
 
     #state: State;
     #hashes: HashGenerator;
@@ -46,6 +46,20 @@ export default class HiRpc0_5 {
         });
 
         if (typeof window != "undefined") {
+
+            //? Instance already created
+            if (window.dso_hirpc instanceof HiRpc) {
+                return window.dso_hirpc as this;
+            }
+
+            //\ Save instance in window
+            Object.defineProperty(window, "dso_hirpc", {
+                value: this,
+                writable: false,
+                configurable: false
+            });
+
+            Object.freeze(window.dso_hirpc);
 
             //\ Load build variables by accessing them
             const buildVariables = this.getBuildVariables();
@@ -242,7 +256,13 @@ export default class HiRpc0_5 {
         //? Not deployed, but imported
         else if (typeof window.Dissonity.BuildVariables == "object") {
 
-            window.dso_build_variables = new (window.Dissonity.BuildVariables).default();
+            Object.defineProperty(window, "dso_build_variables", {
+                value: new (window.Dissonity.BuildVariables).default(),
+                writable: false,
+                configurable: false
+            });
+
+            Object.freeze(window.dso_build_variables);
 
             return window.dso_build_variables as BuildVariables;
         }
