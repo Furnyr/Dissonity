@@ -1998,7 +1998,7 @@ namespace Dissonity
         /// <exception cref="ArgumentException"></exception>
         public static Task<MultiEvent> Initialize()
         {
-#if !UNITY_WEBGL
+#if !UNITY_WEBGL && !UNITY_EDITOR
             throw new OutsideDiscordException("Not a WebGL build");
 #endif
             if (_initialized) throw new InvalidOperationException("Already attempted to initialize");
