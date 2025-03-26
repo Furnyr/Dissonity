@@ -52,11 +52,11 @@ This version includes bug fixes, mock improvements and utilities for local Disso
 
 ## hiRPC Interface
 
-## Changed
+### Changed
 
 - Plugin methods now start with `Dso`.
 
-## Fixed
+### Fixed
 
 - Loader path is now correctly set in production builds.
 - Fixed check to detect whether the game is nested.
@@ -73,7 +73,7 @@ This version includes bug fixes, mock improvements and utilities for local Disso
 
 - `local-automation` folder, used for file management during local development.
 
-### Documentation
+## Documentation
 
 - Updated website structure.
 - Improved API reference site.
