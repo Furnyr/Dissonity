@@ -1,5 +1,5 @@
 /*
-    - Move the app loader to the Unity resources
+    - Move the app loader to the Unity WebGL Template
     - Move the plugin to the Unity plugins folder
 */
 

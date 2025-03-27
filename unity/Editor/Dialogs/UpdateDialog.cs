@@ -33,9 +33,9 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.Space(10);
             GUILayout.BeginVertical();
             
-            GUILayout.Label("Beta 1 Overview", headerStyle);
+            GUILayout.Label("Beta 2 Overview", headerStyle);
 
-            GUILayout.Label("Bug fixes and hiRPC improvements.");
+            GUILayout.Label("Bug fixes, mock extension and local development utilities.");
 
             GUILayout.Space(15);
 
@@ -43,8 +43,8 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Api.AccessToken property");
-            GUILayout.Label("- Api.LocalStorage subclass");
+            GUILayout.Label("- Api.ApplicationAccessHash property");
+            GUILayout.Label("- @JavascriptMock object");
 
             GUILayout.Space(15);
 
@@ -52,8 +52,9 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- HiRpc methods now take the hiRPC channel as the first argument.");
-            GUILayout.Label("- The Resources folder is no longer used internally to load assets.");
+            GUILayout.Label("- HiRpc methods can now be mocked within Unity.");
+            GUILayout.Label("- LocalStorage methods can now be mocked within Unity.");
+            GUILayout.Label("- Relative HTTPS Proxy requests can be mocked if the URL mappings are defined in the config file.");
 
             GUILayout.Space(15);
 
@@ -61,9 +62,11 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Generated folders are now deleted with the uninstaller.");
-            GUILayout.Label("- All commands should now raise exceptions properly.");
-            GUILayout.Label("- Serialize enums as integers.");
+            GUILayout.Label("- Production builds use the correct loader file.");
+            GUILayout.Label("- Fixed check to detect whether the game is nested.");
+
+            GUILayout.Space(10);
+
             GUILayout.Label("And more!");
 
             GUILayout.Space(20);

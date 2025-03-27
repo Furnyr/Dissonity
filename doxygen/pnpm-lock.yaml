@@ -1,0 +1,23 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    devDependencies:
+      '@jothepro/doxygen-awesome-css':
+        specifier: github:jothepro/doxygen-awesome-css#v2.3.4
+        version: https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea
+
+packages:
+
+  '@jothepro/doxygen-awesome-css@https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea':
+    resolution: {tarball: https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea}
+    version: 2.3.4
+
+snapshots:
+
+  '@jothepro/doxygen-awesome-css@https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea': {}

@@ -5,7 +5,9 @@
 }
 
 .about-internal {
-  margin: 22px;
+  margin-left: 250px;
+  margin-right: 250px;
+  margin-top: 50px;
 }
 
 .card-container {
@@ -17,5 +19,10 @@
 @media only screen and (max-width: 600px) {
   .card-container {
     display: inline-block;
+  }
+  .about-internal {
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-top: 50px;
   }
 }

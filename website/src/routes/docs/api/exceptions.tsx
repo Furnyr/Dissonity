@@ -13,7 +13,7 @@ function DocsPage () {
     <div className="doc-page">
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Exceptions <HashLink link="/docs/v2/api/exceptions#start"/></h1> 
+        <h1>Exceptions <HashLink link="/?/docs/v2/api/exceptions"/></h1> 
 
         <BoxWarn title="WIP">
             <p>

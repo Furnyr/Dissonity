@@ -6,13 +6,13 @@
 */
 
 mergeInto(LibraryManager.library, {
-    OpenDownwardFlow: function () {
+    DsoOpenDownwardFlow: function () {
         const hiRpc = window.dso_hirpc;
         hiRpc.openDownwardFlow((stringifiedData) => {
             SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
         });
     },
-    EmptyRequest: function (stringifiedMessage) {
+    DsoEmptyRequest: function (stringifiedMessage) {
         const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         const payload = {
@@ -20,12 +20,12 @@ mergeInto(LibraryManager.library, {
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
-    SendToJs: function (stringifiedMessage) {
+    DsoSendToJs: function (stringifiedMessage) {
         const { data, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         hiRpc.sendToJs(app_hash, channel, data);
     },
-    PatchUrlMappings: function (stringifiedMessage) {
+    DsoPatchUrlMappings: function (stringifiedMessage) {
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const { mappings, config } = data;
         const hiRpc = window.dso_hirpc;
@@ -35,7 +35,7 @@ mergeInto(LibraryManager.library, {
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
-    FormatPrice: function (stringifiedMessage) {
+    DsoFormatPrice: function (stringifiedMessage) {
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const { amount, currency, locale } = data;
         const hiRpc = window.dso_hirpc;
@@ -49,7 +49,7 @@ mergeInto(LibraryManager.library, {
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
-    GetQueryObject: function (stringifiedMessage) {
+    DsoGetQueryObject: function (stringifiedMessage) {
         const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         const query = JSON.stringify(hiRpc.getQueryObject());
@@ -59,35 +59,35 @@ mergeInto(LibraryManager.library, {
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
-    SendToRpc: function (stringifiedMessage) {
+    DsoSendToRpc: function (stringifiedMessage) {
         const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         hiRpc.sendToRpc(app_hash, data[0], data[1]);
     },
-    ExpandCanvas: function () {
+    DsoExpandCanvas: function () {
         if (typeof window.dso_expand_canvas == "undefined")
             return;
         window.dso_expand_canvas();
         setTimeout(window.dso_expand_canvas, 15);
         setTimeout(window.dso_expand_canvas, 60);
     },
-    DissonityLog: function (stringifiedMessage) {
+    DsoLog: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         console.log(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
     },
-    DissonityWarn: function (stringifiedMessage) {
+    DsoWarn: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         console.warn(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
     },
-    DissonityError: function (stringifiedMessage) {
+    DsoError: function (stringifiedMessage) {
         const message = UTF8ToString(stringifiedMessage);
         console.error(`%c[Dissonity]%c ${message}`, "color:#8177f6;font-weight: bold;", "color:initial;");
     },
-    LocalStorageSetItem: function (stringifiedMessage) {
+    DsoLocalStorageSetItem: function (stringifiedMessage) {
         const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
         localStorage.setItem(data[0], data[1]);
     },
-    LocalStorageGetItem: function (stringifiedMessage) {
+    DsoLocalStorageGetItem: function (stringifiedMessage) {
         const { nonce, app_hash, data } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         const response = localStorage.getItem(data);
@@ -98,10 +98,10 @@ mergeInto(LibraryManager.library, {
         };
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
-    LocalStorageClear: function () {
+    DsoLocalStorageClear: function () {
         localStorage.clear();
     },
-    CloseDownwardFlow: function (stringifiedMessage) {
+    DsoCloseDownwardFlow: function (stringifiedMessage) {
         const { app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
         hiRpc.closeDownwardFlow(app_hash);

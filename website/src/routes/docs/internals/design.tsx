@@ -13,9 +13,9 @@ function DocsPage () {
     <div className="doc-page">
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Design <HashLink link="/docs/v2/internals/design#start"/></h1> 
+        <h1>Design <HashLink link="/?/docs/v2/internals/design"/></h1> 
 
-        {/*<h2 id="subtitle">Subtitle <HashLink link="/docs/v2/internals/design#subtitle" /></h2>*/}
+        {/*<h2 id="subtitle">Subtitle <HashLink link="/?/docs/v2/internals/design#subtitle" /></h2>*/}
 
         {/*
         //todo

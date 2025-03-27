@@ -20,8 +20,8 @@ public class DissonityConfiguration : SdkConfiguration<ServerTokenRequest, Serve
     public override MappingBuilder[] Mappings => new MappingBuilder[] {
         new()
         /*{
-            Prefix = "/foo",
-            Target = "foo.com"
+            Prefix = "/example",
+            Target = "example.com"
         }*/
     };
 

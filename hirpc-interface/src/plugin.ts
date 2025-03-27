@@ -12,7 +12,7 @@ mergeInto(LibraryManager.library, {
 
     // Allow messages to get from the JS layer to the Unity app
     //@unity-api
-    OpenDownwardFlow: function(): void {
+    DsoOpenDownwardFlow: function(): void {
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
@@ -23,7 +23,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-bridge
-    EmptyRequest: function (stringifiedMessage: string): void {
+    DsoEmptyRequest: function (stringifiedMessage: string): void {
 
         const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -40,7 +40,7 @@ mergeInto(LibraryManager.library, {
 
     // Send data to the JS layer
     //@unity
-    SendToJs: function (stringifiedMessage: string): void {
+    DsoSendToJs: function (stringifiedMessage: string): void {
 
         const { data, channel, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -50,7 +50,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-bridge
-    PatchUrlMappings: function (stringifiedMessage: string): void {
+    DsoPatchUrlMappings: function (stringifiedMessage: string): void {
 
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -69,7 +69,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-bridge
-    FormatPrice: function (stringifiedMessage: string): void {
+    DsoFormatPrice: function (stringifiedMessage: string): void {
 
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -92,7 +92,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-bridge
-    GetQueryObject: function (stringifiedMessage: string): void {
+    DsoGetQueryObject: function (stringifiedMessage: string): void {
 
         const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -110,7 +110,7 @@ mergeInto(LibraryManager.library, {
 
     // Send data to the client RPC
     //@unity-api
-    SendToRpc: function (stringifiedMessage: string): void {
+    DsoSendToRpc: function (stringifiedMessage: string): void {
 
         const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -121,8 +121,8 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-api
-    ExpandCanvas: function (): void {
-        
+    DsoExpandCanvas: function (): void {
+
         if (typeof window.dso_expand_canvas == "undefined") return;
 
         // These times have been tested to work as nicely as possible
@@ -132,7 +132,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity
-    DissonityLog: function (stringifiedMessage: string): void {
+    DsoLog: function (stringifiedMessage: string): void {
 
         const message = UTF8ToString(stringifiedMessage);
 
@@ -140,7 +140,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity
-    DissonityWarn: function (stringifiedMessage: string): void {
+    DsoWarn: function (stringifiedMessage: string): void {
 
         const message = UTF8ToString(stringifiedMessage);
 
@@ -148,7 +148,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity
-    DissonityError: function (stringifiedMessage: string): void {
+    DsoError: function (stringifiedMessage: string): void {
 
         const message = UTF8ToString(stringifiedMessage);
 
@@ -156,7 +156,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-api
-    LocalStorageSetItem: function (stringifiedMessage: string): void {
+    DsoLocalStorageSetItem: function (stringifiedMessage: string): void {
 
         const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -164,7 +164,7 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-bridge
-    LocalStorageGetItem: function (stringifiedMessage: string): void {
+    DsoLocalStorageGetItem: function (stringifiedMessage: string): void {
 
         const { nonce, app_hash, data } = JSON.parse(UTF8ToString(stringifiedMessage));
 
@@ -182,14 +182,14 @@ mergeInto(LibraryManager.library, {
     },
 
     //@unity-api
-    LocalStorageClear: function (): void {
+    DsoLocalStorageClear: function (): void {
 
         localStorage.clear();
     },
 
     // End current communication
     //@unity-api
-    CloseDownwardFlow: function (stringifiedMessage: string): void {
+    DsoCloseDownwardFlow: function (stringifiedMessage: string): void {
 
         const { app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
 

@@ -1,4 +1,4 @@
-import { ReactNode, StrictMode } from "react";
+import { ReactNode, StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
@@ -10,6 +10,7 @@ import "./index.css";
 import hljs from "highlight.js/lib/core";
 import javascriptHl from "highlight.js/lib/languages/javascript";
 import typescriptHl from "highlight.js/lib/languages/typescript";
+import xmlHl from "highlight.js/lib/languages/xml";
 import rustHl from "highlight.js/lib/languages/rust";
 import csharpHl from "highlight.js/lib/languages/csharp";
 
@@ -19,11 +20,13 @@ import Guides from "./routes/guides.tsx";
 import ErrorPage from "./routes/error-page.tsx";
 import About from "./routes/about.tsx";
 
+import GuidesIndex from "./routes/guides/guidesIndex.tsx";
 import GettingStarted from "./routes/guides/getting-started.tsx";
 import HowDoesItWork from "./routes/guides/how-does-it-work.tsx";
 import WhyDissonity from "./routes/guides/why-dissonity.tsx";
 import MigrationV2 from "./routes/guides/migration-v2.tsx";
 
+import DocsIndex from "./routes/docs/docsIndex.tsx";
 import Performance from "./routes/docs/development/performance.tsx";
 import Authentication from "./routes/docs/development/authentication.tsx";
 import Security from "./routes/docs/development/security.tsx";
@@ -42,23 +45,29 @@ import WebGLTemplate from "./routes/docs/internals/webgl-template.tsx";
 import BuildVariables from "./routes/docs/internals/build-variables.tsx";
 import HiRpc from "./routes/docs/internals/hirpc.tsx";
 
-import DoxygenPage from "./routes/doxygen/index.tsx";
-import DoxygenApi from "./routes/doxygen/api.tsx";
-
 import AutoScrollOnLoad from "./components/AutoScrollOnLoad.tsx";
 
 hljs.registerLanguage("javascript", javascriptHl);
 hljs.registerLanguage("typescript", typescriptHl);
 hljs.registerLanguage("rust", rustHl);
 hljs.registerLanguage("csharp", csharpHl);
+hljs.registerLanguage("xml", xmlHl);
 
 (async () => {
   const lightMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  
+
   lightMode
     ? await import("highlight.js/styles/atom-one-light.css")
     : await import("highlight.js/styles/atom-one-dark.css");
 })();
+
+const RedirectToReference = () => {
+  useEffect(() => {
+    window.location.href = "/ref/index.html";
+  }, []);
+
+  return null;
+};
 
 const wrapElement = (element: ReactNode) => {
   return (
@@ -84,12 +93,16 @@ const router = createBrowserRouter([
   },
   {
     path: "/docs",
-    element: <Navigate to="/docs/v2/api" replace />
+    element: <Navigate to="/docs/v2/index" replace />
   },
   {
     path: "/docs/v2",
     element: wrapElement(<Docs />),
     children: [
+      {
+        path: "/docs/v2/index",
+        element: <DocsIndex />
+      },
       {
         path: "/docs/v2/api",
         element: <StaticApi />
@@ -161,12 +174,16 @@ const router = createBrowserRouter([
   },
   {
     path: "/guides",
-    element: <Navigate to="/guides/v2/getting-started" replace />
+    element: <Navigate to="/guides/v2/index" replace />
   },
   {
     path: "/guides/v2",
     element: wrapElement(<Guides />),
     children: [
+      {
+        path: "/guides/v2/index",
+        element: <GuidesIndex />
+      },
       {
         path: "/guides/v2/getting-started",
         element: <GettingStarted />
@@ -186,12 +203,12 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: "/doxygen",
-    element: <DoxygenPage />
+    path: "/team",
+    element: <Navigate to="/about" replace />
   },
   {
-    path: "/doxygen/api",
-    element: <DoxygenApi />
+    path: "/doxygen/*",
+    element: <RedirectToReference />
   }
 ])
 

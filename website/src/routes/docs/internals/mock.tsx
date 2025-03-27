@@ -13,9 +13,9 @@ function DocsPage () {
     <div className="doc-page">
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Mock <HashLink link="/docs/v2/internals/mock#start"/></h1> 
+        <h1>Mock <HashLink link="/?/docs/v2/internals/mock"/></h1> 
 
-        {/*<h2 id="subtitle">Subtitle <HashLink link="/docs/v2/internals/mock#subtitle" /></h2>*/}
+        {/*<h2 id="subtitle">Subtitle <HashLink link="/?/docs/v2/internals/mock#subtitle" /></h2>*/}
 
         {/*
         //todo

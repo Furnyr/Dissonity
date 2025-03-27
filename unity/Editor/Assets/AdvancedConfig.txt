@@ -21,8 +21,8 @@ public class DissonityConfiguration : SdkConfiguration<MyServerRequest, MyServer
     public override MappingBuilder[] Mappings => new MappingBuilder[] {
         new()
         /*{
-            Prefix = "/foo",
-            Target = "foo.com"
+            Prefix = "/example",
+            Target = "example.com"
         }*/
     };
     public override PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig => new()

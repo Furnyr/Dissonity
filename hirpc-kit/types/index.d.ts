@@ -2,13 +2,13 @@ import { Opcode } from "./enums";
 import type { Mapping, PatchUrlMappingsConfig } from "./official_types";
 import type { BuildVariables, RpcInputPayload } from "./types";
 /**
- * Main hiRPC class. An instance should be located in window.dso_hirpc.
+ * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  *
  * Imports that must be defined:
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-export default class HiRpc0_5 {
+export default class HiRpc {
     #private;
     constructor();
     /**

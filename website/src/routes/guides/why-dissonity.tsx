@@ -4,6 +4,7 @@ import HashLink from "../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../types";
 import "../../styles/why-dissonity.css";
+import PageTitle from "../../components/PageTitle";
 
 function GuidesPage () {
 
@@ -11,9 +12,11 @@ function GuidesPage () {
 
   return (
     <div className="doc-page">
+      <PageTitle title="Why Dissonity?"/>
+
       <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-      <h1 id="start">Why Dissonity? <HashLink link="/guides/v2/why-dissonity#start"/></h1>
+      <h1>Why Dissonity? <HashLink link="/?/guides/v2/why-dissonity"/></h1>
 
       <p>
         There are several reasons to consider using Dissonity instead of the Embedded App SDK when using Unity:
@@ -30,10 +33,10 @@ function GuidesPage () {
         </ul>
       </div>
 
-      <h2 id="what-is-it">What is exactly Dissonity? <HashLink link="/guides/v2/why-dissonity#what-is-it"/></h2>
+      <h2 id="what-is-it">What is Dissonity exactly? <HashLink link="/?/guides/v2/why-dissonity#what-is-it"/></h2>
 
       <p>
-        Dissonity is a Unity <b>SDK</b> that modifies the game build through a WebGL Template. Its modules mirror the official <a target="_blank" href="https://www.npmjs.com/package/@discord/embedded-app-sdk">Embedded App SDK</a>.
+        Dissonity is a Unity <b>SDK</b> that modifies the WebGL build to enable interaction in a Discord activity. Its modules mirror the official <a target="_blank" href="https://www.npmjs.com/package/@discord/embedded-app-sdk">Embedded App SDK</a>.
       </p>
 
       <Footer />

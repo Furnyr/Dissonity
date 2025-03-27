@@ -14,19 +14,19 @@ namespace Dissonity
                 //# HIRPC INTERFACE - - - - -
 #if UNITY_WEBGL
         [DllImport("__Internal")]
-        private static extern void DissonityLog(string stringifiedMessage);
+        private static extern void DsoLog(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void DissonityWarn(string stringifiedMessage);
+        private static extern void DsoWarn(string stringifiedMessage);
 
         [DllImport("__Internal")]
-        private static extern void DissonityError(string stringifiedMessage);
+        private static extern void DsoError(string stringifiedMessage);
 #endif
 
 #if !UNITY_WEBGL
-        private static void DissonityLog(string _) {}
-        private static void DissonityWarn(string _) {}
-        private static void DissonityError(string _) {}
+        private static void DsoLog(string _) {}
+        private static void DsoWarn(string _) {}
+        private static void DsoError(string _) {}
 #endif
 
         /// <summary>
@@ -36,12 +36,12 @@ namespace Dissonity
         {
             if (Api.isEditor)
             {
-                Debug.Log(message);
+                Debug.Log($"[Dissonity] {message}");
             }
 
             else
             {
-                DissonityLog($"{message}");
+                DsoLog($"{message}");
             }
         }
 
@@ -52,12 +52,12 @@ namespace Dissonity
         {
             if (Api.isEditor)
             {
-                Debug.LogWarning(message);
+                Debug.LogWarning($"[Dissonity] {message}");
             }
 
             else
             {
-                DissonityWarn($"{message}");
+                DsoWarn($"{message}");
             }
         }
 
@@ -68,12 +68,12 @@ namespace Dissonity
         {
             if (Api.isEditor)
             {
-                Debug.LogError(message);
+                Debug.LogError($"[Dissonity] {message}");
             }
 
             else
             {
-                DissonityError($"{message}");
+                DsoError($"{message}");
             }
         }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Dissonity.Editor
 {
-    internal class MenuMock : MonoBehaviour
+    internal class MenuDiscordMock : MonoBehaviour
     {
         [MenuItem("GameObject/Dissonity/Discord Mock", priority = 2)]
         public static bool CreateDiscordMock() {

@@ -1,1 +1,5 @@
-The changelog isn't written yet
+# Changelog
+
+All notable changes to this package will be documented in this file.
+
+## [2.y.z] - TBD

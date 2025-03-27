@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { FaBook, FaCode, FaCube, FaHome } from "react-icons/fa";
-import { FaGear } from "react-icons/fa6";
+import { FaGear, FaPlug } from "react-icons/fa6";
 import "../styles/docs.css";
 
 export default function Docs() {
@@ -136,6 +136,16 @@ export default function Docs() {
           Guides
       </MenuItem>
 
+      <MenuItem
+        component={<Link to="/docs/v2/index" />}
+        active={location.pathname === "/docs/v2/index" || location.pathname === "/docs"}
+        icon={<FaPlug />}
+        onClick={closeSidebarMobile}>
+          Documentation
+      </MenuItem>
+
+      <hr className="bar-separator"/>
+
       <SubMenu
         label="API"
         icon={<FaCube />}
@@ -153,7 +163,7 @@ export default function Docs() {
         <MenuItem
           component={<Link to="/docs/v2/api/config" />}
           active={location.pathname === "/docs/v2/api/config"}
-          icon={"🔧"}
+          icon={"⚙️"}
           onClick={closeSidebarMobile}>
             Configuration
         </MenuItem>
@@ -264,7 +274,7 @@ export default function Docs() {
           active={location.pathname === "/docs/v2/internals/build-variables"}
           icon={"🔗"}
           onClick={closeSidebarMobile}>
-            Build variables
+            Build Variables
         </MenuItem>
 
         <MenuItem

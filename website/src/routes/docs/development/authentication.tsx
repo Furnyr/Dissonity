@@ -4,6 +4,7 @@ import Footer from "../../../components/Footer";
 import HashLink from "../../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../../types";
+import PageTitle from "../../../components/PageTitle";
 
 function DocsPage () {
 
@@ -11,19 +12,25 @@ function DocsPage () {
 
   return (
     <div className="doc-page">
+        <PageTitle title="Authentication | Dissonity"/>
+
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1 id="start">Authentication <HashLink link="/docs/v2/development/authentication#start"/></h1> 
+        <h1>Authentication <HashLink link="/?/docs/v2/development/authentication"/></h1> 
 
         <p>
           Dissonity automatically begins the <a href="https://discord.com/developers/docs/activities/how-activities-work#activity-lifecycle" target="_blank">Authorization and Authentication</a> process when the activity is launched based on your configuration file. This is why you don't have to call commands manually to start this process.
         </p>
 
         <p>
-          Authentication is necessary before using any command, so <code>Api.Initialize</code> won't resolve until it is completed.
+          All initialization data sent by Discord or the activity server is safely stored and sent to the app in a single payload, known as <b>MultiEvent</b>, which is returned by the first call to <code>Api.Initialize</code>.
         </p>
 
-        <h2 id="server-requirements">Server requirements <HashLink link="/docs/v2/development/authentication#server-requirements" /></h2>
+        <p>
+          Authentication is necessary before using any command, so <code>Api.Initialize</code> won't resolve until it is completed. Hence the need to <code>await</code> it.
+        </p>
+
+        <h2 id="server-requirements">Server requirements <HashLink link="/?/docs/v2/development/authentication#server-requirements" /></h2>
 
         <p>
           Dissonity will send an HTTPS POST request with a JSON payload to the server using the specified request path. It expects a JSON response containing an access token:

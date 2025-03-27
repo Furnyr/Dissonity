@@ -1,0 +1,25 @@
+
+.mermaid-div {
+    border: 1px solid #414141;
+    margin-top: 60px;
+    width: 1250px;
+    height: 1000px;
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+@media only screen and (max-width: 600px) {
+    .mermaid-div {
+        height: 100%;
+    }
+}
+
+@media only screen and (max-width: 1400px) {
+    .mermaid-div {
+        width: 120%;
+    }
+
+    .mermaid-div .mermaid {
+        min-width: 200%
+    }
+}

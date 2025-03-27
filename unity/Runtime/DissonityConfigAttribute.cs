@@ -5,11 +5,20 @@ using Dissonity.Models.Builders;
 
 namespace Dissonity
 {
+    /// <summary>
+    /// Use this attribute on a class that inherits from SdkConfiguration.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public class DissonityConfigAttribute : Attribute
     {
-        public static _UserData GetUserConfig()
+        /// @cond
+        public static I_UserData _rawOverrideConfiguration = null;
+        /// @endcond
+
+        public static I_UserData GetUserConfig()
         {
+            if (_rawOverrideConfiguration != null) return _rawOverrideConfiguration;
+
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             var found = assemblies
@@ -59,7 +68,7 @@ namespace Dissonity
                 ? tokenRequestPath
                 : $"/{tokenRequestPath}";
 
-            var data = new _UserData() {
+            var data = new I_UserData() {
                 ClientId = clientId,
                 DisableConsoleLogOverride = disableLogOverride,
                 OauthScopes = oauthScopes,

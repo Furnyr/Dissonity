@@ -1,4 +1,5 @@
 https://dissonity.dev/?/
+https://dissonity.dev/?/docs/v2/index
 https://dissonity.dev/?/docs/v2/api
 https://dissonity.dev/?/docs/v2/api/config
 https://dissonity.dev/?/docs/v2/api/utils
@@ -13,9 +14,10 @@ https://dissonity.dev/?/docs/v2/internals/design
 https://dissonity.dev/?/docs/v2/internals/mock
 https://dissonity.dev/?/docs/v2/internals/webgl-template
 https://dissonity.dev/?/docs/v2/internals/build-variables
+https://dissonity.dev/?/guides/v2/index
 https://dissonity.dev/?/guides/v2/getting-started
 https://dissonity.dev/?/guides/v2/how-does-it-work
 https://dissonity.dev/?/guides/v2/why-dissonity
 https://dissonity.dev/?/guides/v2/migration-v2
 https://dissonity.dev/?/about
-https://dissonity.dev/?/doxygen/api
+https://dissonity.dev/ref/index.html
