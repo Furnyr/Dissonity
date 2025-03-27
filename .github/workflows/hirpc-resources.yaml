@@ -2,6 +2,8 @@ name: hiRPC Resources
 
 on:
   pull_request:
+    branches:
+      - dev
     types: [labeled]
 
 jobs:
