@@ -1,6 +1,6 @@
 /*
     Classes (only) used to parse data received as string.
-    If you have any problem open an issue at https://github.com/Furnyr/Dissonity
+    If you have any problem open an issue at https://github.com/snapser-community/Dissonity
 */
 
 using System;
@@ -21,11 +21,11 @@ namespace Dissonity
     [Serializable]
     public class SpeakingData
     {
-        #nullable enable
-            public string? user_id;
-            public string? channel_id;
-            public string? lobby_id;
-        #nullable disable
+#nullable enable
+        public string? user_id;
+        public string? channel_id;
+        public string? lobby_id;
+#nullable disable
     }
 
     [Serializable]
@@ -42,7 +42,7 @@ namespace Dissonity
     }
 
     [Serializable]
-    public class CurrentUserUpdateData : User {}
+    public class CurrentUserUpdateData : User { }
 
     [Serializable]
     public class EntitlementCreateData
@@ -84,9 +84,9 @@ namespace Dissonity
     [Serializable]
     public class PlatformBehaviorsData
     {
-        #nullable enable
-            public bool? iosKeyboardResizesView;
-        #nullable disable
+#nullable enable
+        public bool? iosKeyboardResizesView;
+#nullable disable
     }
 
     //! Skus are not released yet for the developer preview.

@@ -39,6 +39,7 @@ var BridgeLibrary = {
                 }
                 break;
             }
+            case "GET_ACCESS_TOKEN":
             case "GET_APPLICATION_ID":
             case "GET_CHANNEL_ID":
             case "GET_GUILD_ID":
@@ -48,6 +49,10 @@ var BridgeLibrary = {
                 switch (messageData.command) {
                     case "GET_USER_ID": {
                         methodName = "ReceiveUserId";
+                        break;
+                    }
+                    case "GET_ACCESS_TOKEN": {
+                        methodName = "ReceiveAccessToken";
                         break;
                     }
                     case "GET_APPLICATION_ID": {
@@ -197,6 +202,11 @@ var BridgeLibrary = {
         window.parent.postMessage({
             command: "SET_ACTIVITY",
             args: { activity: JSON.parse(stringifiedActivity) }
+        });
+    },
+    RequestAccessToken: function () {
+        window.parent.postMessage({
+            command: "GET_ACCESS_TOKEN"
         });
     },
     RequestApplicationId: function () {

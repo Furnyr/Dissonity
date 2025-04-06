@@ -5,7 +5,7 @@ import fetch from "cross-fetch";
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents, DataPromise } from "./types";
 
 // Unity compatible version
-const PACKAGE_VERSION = "1.2.0";
+const PACKAGE_VERSION = "1.3.0";
 
 let initialized = false;
 
@@ -22,7 +22,7 @@ function stringifyBigInt (obj: Record<string, unknown>): string {
 
         return value;
     });
-    
+
     return str;
 }
 
@@ -39,7 +39,7 @@ function getChildIframe(): HTMLIFrameElement {
 }
 
 //\ Initialize the SDK
-async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: DiscordSDK, user: CompatibleUser }> {
+async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: DiscordSDK, user: CompatibleUser, access_token: string | null }> {
 
     //\ Initialize
     const discordSdk = new DiscordSDK(options.clientId);
@@ -54,12 +54,18 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
         scope: options.scope,
     });
 
+    let headers: Record<string, string> = {
+        "Content-Type": "application/json",
+    }
+
+    if('apiKey' in options) {
+        headers["Api-Key"] = `${options.apiKey}`;
+    }
+
     //\ Retrieve access token from the embedded app's server
     const response = await fetch(`/.proxy${options.tokenRoute}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        method: options.method,
+        headers: headers,
         body: JSON.stringify({ code }),
     });
 
@@ -79,11 +85,11 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
     (user as CompatibleUser).flags = user.public_flags;
     (user as CompatibleUser).bot = false;
 
-    return { discordSdk, user: (user as CompatibleUser) };
+    return { discordSdk, user: (user as CompatibleUser), access_token: data.access_token };
 }
 
 //\ Handle received message
-async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, messageData: MessageData) {
+async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, access_token: string, messageData: MessageData) {
 
     const { nonce, event, command } = messageData;
     let args = messageData.args ?? {};
@@ -146,7 +152,7 @@ async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | nul
             if (args.activity.party?.id == "") delete args.activity.party;
             if (args.activity.emoji?.id == "") delete args.activity.emoji;
             if (args.activity.secrets?.match == "") delete args.activity.secrets;
-            
+
             try {
                 const data = await discordSdk!.commands.setActivity(args);
                 getChildIframe().contentWindow?.postMessage({ nonce, event, command, data }, "*");
@@ -154,6 +160,12 @@ async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | nul
             } catch (_err) {
                 console.error("Dissonity NPM: Error attempting to set the activity. You may need the 'rpc.activities.write' scope.")
             }
+            break;
+        }
+
+        case "GET_ACCESS_TOKEN": {
+            if (access_token == null) throw new Error("You need to be authenticated to get the current access_token");
+            getChildIframe().contentWindow?.postMessage({ nonce, command, data: access_token, args }, "*");
             break;
         }
 
@@ -383,7 +395,7 @@ export async function setupSdk(options: ConfigOptions) {
     const dataPromise = initializeSdk(options);
     let discordSdk: DiscordSDK | null = null;
     let user: CompatibleUser | null = null;
-
+    let access_token: string | null = null;
     async function handleMessage({ data: messageData }: MessageEvent<MessageData>) {
 
         // Discard empty objects
@@ -396,7 +408,7 @@ export async function setupSdk(options: ConfigOptions) {
             await dataPromise;
         }
 
-        receiveMessage(discordSdk!, user!, messageData);
+        receiveMessage(discordSdk!, user!, access_token, messageData);
     }
 
     //\ Setup message event handler
@@ -406,7 +418,7 @@ export async function setupSdk(options: ConfigOptions) {
     const resolvedData = await dataPromise;
     discordSdk = resolvedData.discordSdk;
     user = resolvedData.user;
-
+    access_token = resolvedData.access_token;
     getChildIframe().contentWindow?.postMessage({ command: "LOADED", data: PACKAGE_VERSION }, "*");
 }
 

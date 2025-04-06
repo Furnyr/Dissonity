@@ -67,14 +67,14 @@ app.post("/api/token", async (req, res) => {
 });
 ```
 
-That's all the configuration you need inside Node.js! Now, in your Unity project install the [Dissonity Unity package](https://github.com/Furnyr/Dissonity/tree/main/unity#readme).
+That's all the configuration you need inside Node.js! Now, in your Unity project install the [Dissonity Unity package](https://github.com/snapser-community/Dissonity/tree/main/unity#readme).
 
 > As a note, there's an already configured Node.js project in the GitHub repository.
 
 # Links
 
-- [GitHub](https://github.com/Furnyr/Dissonity)
-- [NPM Package Source](https://github.com/Furnyr/Dissonity/tree/main/npm)
-- [Unity Package](https://github.com/Furnyr/Dissonity/tree/main/unity#readme)
-- [Unity Package Documentation](https://github.com/Furnyr/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
-- [Examples](https://github.com/Furnyr/Dissonity/tree/main/examples)
+- [GitHub](https://github.com/snapser-community/Dissonity)
+- [NPM Package Source](https://github.com/snapser-community/Dissonity/tree/main/npm)
+- [Unity Package](https://github.com/snapser-community/Dissonity/tree/main/unity#readme)
+- [Unity Package Documentation](https://github.com/snapser-community/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
+- [Examples](https://github.com/snapser-community/Dissonity/tree/main/examples)
