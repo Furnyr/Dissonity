@@ -27,7 +27,7 @@ OverrideApplicationId
 OverrideInstanceId
 OverrideUserId
 OverrideUserGlobal
-OverrideUsername 
+OverrideUsername
 OverrideUserAvatar
 OverrideHardwareAcceleration
 OverrideUserLocale
@@ -101,6 +101,16 @@ UnsubActivityInstanceParticipantsUpdate
 ```
 
 ##
+
+## `GetAccessToken`
+
+Used to obtain the discord access_token for the user.
+
+(No arguments)
+
+(No required scopes)
+
+- Returns: Task\<string\>
 
 ## `GetApplicationId`
 
