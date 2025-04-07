@@ -5,7 +5,7 @@ import fetch from "cross-fetch";
 import type { ConfigOptions, CompatibleUser, MessageData, MessageParentCommand, DiscordSDKEvents, DataPromise } from "./types";
 
 // Unity compatible version
-const PACKAGE_VERSION = "1.3.0";
+const PACKAGE_VERSION = "1.5.0";
 
 let initialized = false;
 
