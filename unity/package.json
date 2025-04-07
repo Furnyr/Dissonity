@@ -1,14 +1,14 @@
 {
     "name": "com.snapser-community.dissonity",
-    "version": "1.3.0",
+    "version": "1.5.0",
     "unity": "2022.2",
-    "displayName": "Dissonity",
-    "description": "Dissonity allows you to easily create a Discord activity using Unity and a configured Node.js app",
+    "displayName": "Snapser Dissonity",
+    "description": "Originally forked from Furnyr/Dissonity. This package Dissonity allows you to easily create a Discord activity using Unity and Snapser.",
     "keywords": [
         "discord"
     ],
     "author": {
-        "name": "Furnyr",
-        "url": "https://github.com/Furnyr"
+        "name": "Snapser Community",
+        "url": "https://github.com/snapser-community"
     }
 }
