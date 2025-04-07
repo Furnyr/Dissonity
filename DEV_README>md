@@ -1,0 +1,17 @@
+# Unity
+1. Make code changes.
+2. Make sure it compiles.
+3. Create a new branch and push the code to the branch.
+4. You can then ask your users to add the Unity package using
+```bash
+https://github.com/snapser-community/Dissonity.git?path=/unity#$branchName
+```
+
+# NPM
+1. Make code changes.
+2. Verify it build by running
+```bash
+npm run build
+```
+3. Then to publish a new version, bump the version from `npm/package.json` and then run `npm publish` to upload a new version.
+
