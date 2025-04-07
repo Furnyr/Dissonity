@@ -8,6 +8,7 @@ export type ConfigOptions = {
   scope: ScopeArgument;
   tokenRoute: `/${string}`
   method: string
+  apiKey?: string
 };
 
 
