@@ -89,7 +89,7 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
 }
 
 //\ Handle received message
-async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, access_token: string, messageData: MessageData) {
+async function receiveMessage(discordSdk: DiscordSDK, user: CompatibleUser | null, access_token: string | null, messageData: MessageData) {
 
     const { nonce, event, command } = messageData;
     let args = messageData.args ?? {};
@@ -431,6 +431,7 @@ export async function useSdk(dataPromise: DataPromise) {
 
     let discordSdk: DiscordSDK | null = null;
     let user: CompatibleUser | null = null;
+    let access_token: string | null = null;
 
     async function handleMessage({ data: messageData }: MessageEvent<MessageData>) {
 
@@ -444,7 +445,7 @@ export async function useSdk(dataPromise: DataPromise) {
             await dataPromise;
         }
 
-        receiveMessage(discordSdk!, user, messageData);
+        receiveMessage(discordSdk!, user, access_token, messageData);
     }
 
     //\ Setup message event handler
@@ -453,6 +454,7 @@ export async function useSdk(dataPromise: DataPromise) {
     // Wait for promise resolution
     const resolvedData = await dataPromise;
     discordSdk = resolvedData.discordSdk;
+    access_token = resolvedData.access_token;
 
     if (resolvedData.user != null) {
 
