@@ -21,10 +21,6 @@ function Footer() {
                     <div className="footer-link-column">
                         <p className="footer-link-header">About</p>
                         <Link to="/about">Team</Link>
-                        {/*<br />
-                        <Link to="/blog">Blog</Link>*/
-                        //todo
-                        }
                     </div>
                     <div className="footer-link-column">
                         <p className="footer-link-header">External</p>

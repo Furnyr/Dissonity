@@ -4,7 +4,6 @@ import HashLink from "../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../types";
 import PageTitle from "../../components/PageTitle";
-import BoxWarn from "../../components/BoxWarn";
 import { Link } from "react-router-dom";
 
 function DocsPage () {
@@ -24,15 +23,6 @@ function DocsPage () {
 
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <BoxWarn title="Warning!">
-          <p>
-            This documentation is for Dissonity Version 2, which is still in beta. Keep in mind there might be breaking changes between updates!
-          </p>
-          <p>
-            If you need stability, you should wait for the full release. <a href="https://github.com/Furnyr/Dissonity/releases" target="_blank">(Releases)</a>
-          </p>
-        </BoxWarn>
-
         <h1>Documentation <HashLink link="/?/docs/v2/index"/></h1> 
 
         <p>
@@ -43,6 +33,10 @@ function DocsPage () {
           <li>For a step-by-step introduction, see <Link to="/guides">Guides</Link></li>
           <li>For details of the Unity API, see <a target="_blank" href="/ref/index.html">Reference</a></li>
         </ul>
+
+        <p>
+          Use the sidebar on the left side of the screen to navigate the documentation.
+        </p>
 
         {buttonGuide}
 

@@ -149,7 +149,7 @@ export default function Docs() {
       <SubMenu
         label="API"
         icon={<FaCube />}
-        defaultOpen={location.pathname.includes("/docs/v2/api/")}
+        defaultOpen={location.pathname.includes("/docs/v2/api/") || location.pathname == "/docs/v2/index"}
         active={location.pathname.includes("/docs/v2/api") ? true : undefined}
       >
         <MenuItem
