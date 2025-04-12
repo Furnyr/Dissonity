@@ -14,10 +14,11 @@ namespace Dissonity.Editor.Dialogs
 
         private void OnGUI()
         {
-            GUIStyle headerStyle = new GUIStyle(EditorStyles.largeLabel)
+            GUIStyle headerStyle = new(EditorStyles.largeLabel)
             {
-                fontSize = 20,
-                fontStyle = FontStyle.Bold
+                fontSize = 23,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter
             };
 
             GUIStyle subHeaderStyle = new GUIStyle(EditorStyles.largeLabel)
@@ -41,65 +42,17 @@ namespace Dissonity.Editor.Dialogs
             
             GUILayout.Label("Welcome to Dissonity!", headerStyle);
 
-            //todo remove in final version
-            GUI.backgroundColor = new Color(0.85f, 0.88f, 0.28f);
-            GUILayout.Label("This is a beta version. Watch out for unexpected breaking changes!", boxStyle);
-            GUI.backgroundColor = Color.white;
-
             GUILayout.Space(15);
-
-            GUILayout.Label("Next steps:", subHeaderStyle);
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("1. Update your settings in Assets/Dissonity/DissonityConfiguration.cs");
-            GUILayout.Label("2. Create a Discord Mock in your scene (Hierarchy > Dissonity > Discord Mock)");
-            GUILayout.Label("3. Call and await Dissonity.Api.Initialize once when the game starts");
-            GUILayout.Label("4. Use the Dissonity namespace!");
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("You can open this dialog again through Assets/Dissonity/Dialogs.asset", EditorStyles.centeredGreyMiniLabel);
-
-            GUILayout.Space(20);
 
             if (ConfigurationExists())
             {
-                GUILayout.Label("Overwrite your configuration:", subHeaderStyle);
+                ConfigurationButtons(true);
             }
 
-            else GUILayout.Label("Choose your preferred configuration:", subHeaderStyle);
-
-            GUILayout.Space(5);
-
-            GUILayout.Label("Hover for more information.");
-
-            if (GUILayout.Button(new GUIContent("Basic configuration", "Ideal for beginners, only the necessary options."), GUILayout.Height(25)))
+            else
             {
-                Close();
-
-                string fileData = Loady.Load<TextAsset>("BasicConfig.txt").text;
-                SetConfiguration(fileData);
-            }
-
-            GUILayout.Space(1);
-
-            if (GUILayout.Button(new GUIContent("Standard configuration", "Adds utility features, but it's not too verbose."), GUILayout.Height(25)))
-            {
-                Close();
-
-                string fileData = Loady.Load<TextAsset>("StandardConfig.txt").text;
-                SetConfiguration(fileData);
-            }
-
-            GUILayout.Space(1);
-
-            if (GUILayout.Button(new GUIContent("Advanced configuration", "Includes all available configuration options."), GUILayout.Height(25)))
-            {
-                Close();
-
-                string fileData = Loady.Load<TextAsset>("AdvancedConfig.txt").text;
-                SetConfiguration(fileData);
+                NextSteps();
+                ConfigurationButtons(false);
             }
 
             GUILayout.Space(15);
@@ -128,6 +81,76 @@ namespace Dissonity.Editor.Dialogs
             
             // Bottom margin
             GUILayout.Space(20);
+
+            void NextSteps()
+            {
+                GUILayout.Label("Next steps", subHeaderStyle);
+
+                GUILayout.Space(10);
+
+                GUILayout.Label("1. Choose a configuration file.");
+                GUILayout.Label("2. Update your settings in Assets/Dissonity/DissonityConfiguration.cs");
+                GUILayout.Label("3. Open Build Settings and change the platform to Web/WebGL.");
+                GUILayout.Label("4. Open Player Settings > Resolution and Presentation and set the WebGL Template to Dissonity.");
+                GUILayout.Label("5. Create a Discord Mock in your scene (Hierarchy > Dissonity > Discord Mock).");
+
+                GUILayout.Space(20);
+
+                GUILayout.Label("Package use", subHeaderStyle);
+
+                GUILayout.Space(10);
+
+                GUILayout.Label("1. Call and await Dissonity.Api.Initialize once when the game starts.");
+                GUILayout.Label("2. Use the Dissonity namespace!");
+
+                GUILayout.Space(10);
+
+                GUILayout.Label("You can open this dialog again through Assets/Dissonity/Dialogs.asset", EditorStyles.centeredGreyMiniLabel);
+
+                GUILayout.Space(20);
+            }
+
+            void ConfigurationButtons(bool configExists)
+            {
+                if (configExists)
+                {
+                    GUILayout.Label("Overwrite your configuration:", subHeaderStyle);
+                }
+
+                else GUILayout.Label("Choose your preferred configuration:", subHeaderStyle);
+
+                GUILayout.Space(5);
+
+                GUILayout.Label("Hover for more information.");
+
+                if (GUILayout.Button(new GUIContent("Basic configuration", "Ideal for beginners, only the necessary options."), GUILayout.Height(25)))
+                {
+                    Close();
+
+                    string fileData = Loady.Load<TextAsset>("BasicConfig.txt").text;
+                    SetConfiguration(fileData);
+                }
+
+                GUILayout.Space(1);
+
+                if (GUILayout.Button(new GUIContent("Standard configuration", "Adds utility features, but it's not too verbose."), GUILayout.Height(25)))
+                {
+                    Close();
+
+                    string fileData = Loady.Load<TextAsset>("StandardConfig.txt").text;
+                    SetConfiguration(fileData);
+                }
+
+                GUILayout.Space(1);
+
+                if (GUILayout.Button(new GUIContent("Advanced configuration", "Includes all available configuration options."), GUILayout.Height(25)))
+                {
+                    Close();
+
+                    string fileData = Loady.Load<TextAsset>("AdvancedConfig.txt").text;
+                    SetConfiguration(fileData);
+                }
+            }
         }
 
         private void SetConfiguration(string fileText)

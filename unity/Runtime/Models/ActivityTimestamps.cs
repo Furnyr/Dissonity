@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Dissonity.Models
 {
     [Serializable]
-    public class Timeframe
+    public class ActivityTimestamps
     {
         [JsonProperty("start")]
         public long? Start { get; set; }

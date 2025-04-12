@@ -7,9 +7,9 @@ namespace Dissonity.Models.Mock
     {
         new public long Id = 9123456780;
 
-        new public string Username = "mock";
+        new public string Username = "mock_username";
 
-        new public string GlobalName = "Mock player";
+        new public string GlobalName = "Mock user";
 
         new public string Avatar = "4v4t43h4sh";
 

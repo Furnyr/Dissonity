@@ -15,7 +15,7 @@ namespace Dissonity.Models.Builders
         public ActivityType Type { get; set; }
 
         [JsonProperty("timestamps", NullValueHandling = NullValueHandling.Ignore)]
-        public Timeframe? Timestamps { get; set; }
+        public ActivityTimestamps? Timestamps { get; set; }
 
         [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
         public string? Details { get; set; }

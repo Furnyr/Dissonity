@@ -8,7 +8,9 @@ namespace Dissonity.Commands.Responses
     [Serializable]
     internal class GetChannelResponse : DiscordEvent
     {
+        #nullable enable annotations
+
         [JsonProperty("data")]
-        new public ChannelRpc Data { get; set; }
+        new public ChannelRpc? Data { get; set; }
     }
 }

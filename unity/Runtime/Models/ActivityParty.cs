@@ -13,5 +13,8 @@ namespace Dissonity.Models
         
         [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
         public int[] Size { get; set; } = new int[0];
+
+        // In <Relationship>.presence.activity.party, there is { privacy: z.number().optional() },
+        // but from the lack of information around it, I'm choosing not to include it.
     }
 }

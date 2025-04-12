@@ -425,6 +425,9 @@ namespace Dissonity
 
 
         //# COMMANDS - - - - -
+        /// <summary>
+        /// Subclass that allows sending RPC commands.
+        /// </summary>
         public static class Commands
         {
             /// <summary>
@@ -495,7 +498,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<ChannelRpc> GetChannel(long channelId)
+            public static async Task<ChannelRpc?> GetChannel(long channelId)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
@@ -503,7 +506,7 @@ namespace Dissonity
                 {
                     var mockResponse = await MockSendCommand<GetChannelResponse>(channelId);
 
-                    if (mockResponse.Data.Type == ChannelType.Dm || mockResponse.Data.Type == ChannelType.GroupDm)
+                    if (mockResponse.Data!.Type == ChannelType.Dm || mockResponse.Data.Type == ChannelType.GroupDm)
                     {
                         //? Invalid scopes
                         if (!_configuration!.OauthScopes.Contains(OauthScope.Guilds) || !_configuration!.OauthScopes.Contains(OauthScope.DmChannelsRead))
@@ -984,7 +987,7 @@ namespace Dissonity
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            public static async Task<ShareLinkData> ShareLink(string message, string? customId = null, string? referrerId = null)
+            public static async Task<ShareLinkData> ShareLink(string message, string? customId = null, string? linkId = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
@@ -995,13 +998,60 @@ namespace Dissonity
                     return mockResponse.Data;
                 }
 
-                var response = await SendCommand<ShareLink, ShareLinkResponse>(new (message, customId, referrerId));
+                var response = await SendCommand<ShareLink, ShareLinkResponse>(new (message, customId, linkId));
+
+                return response.Data;
+            }
+        
+            //todo This seems to depend on a scope that needs Discord approval, and the command itself is undocumented. I am leaving this method as private because I can't test it properly.
+            /// <summary>
+            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            private static async Task<Relationship[]> GetRelationships()
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetRelationshipsResponse>();
+
+                    return mockResponse.Data.Relationships;
+                }
+
+                var response = await SendCommand<GetRelationships, GetRelationshipsResponse>(new ());
+
+                return response.Data.Relationships;
+            }
+        
+            //todo Not documented
+            /// <summary>
+            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            private static async Task<User?> GetUser(long userId)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    var mockResponse = await MockSendCommand<GetUserResponse>(userId);
+
+                    return mockResponse.Data;
+                }
+
+                var response = await SendCommand<GetUser, GetUserResponse>(new (userId.ToString()));
 
                 return response.Data;
             }
         }
 
         //# PROXY - - - - -
+        /// <summary>
+        /// Subclass that helps sending HTTPs requests through the Discord proxy.
+        /// </summary>
         public static class Proxy
         {
             // POST - - - - -
@@ -1018,7 +1068,8 @@ namespace Dissonity
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
 #if UNITY_EDITOR
-                if (isEditor && !path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (isEditor && !loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     MockUseUrlMappings(ref path);
                 }
@@ -1047,7 +1098,8 @@ namespace Dissonity
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
 #if UNITY_EDITOR
-                if (isEditor && !path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (isEditor && !loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     MockUseUrlMappings(ref path);
                 }
@@ -1076,7 +1128,8 @@ namespace Dissonity
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
 #if UNITY_EDITOR
-                if (isEditor && !path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (isEditor && !loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     MockUseUrlMappings(ref path);
                 }
@@ -1105,7 +1158,8 @@ namespace Dissonity
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
 #if UNITY_EDITOR
-                if (isEditor && !path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (isEditor && !loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     MockUseUrlMappings(ref path);
                 }
@@ -1129,12 +1183,13 @@ namespace Dissonity
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="WebException"></exception>
             /// <exception cref="JsonException"></exception>
-            public static Task<TJsonResponse> HttpsDeleteRequest<TJsonResponse>(string path, Dictionary<string, string>? headers = null)
+            public static Task<TJsonResponse> HttpsDeleteRequest<TJsonRequest, TJsonResponse>(string path, TJsonRequest payload, Dictionary<string, string>? headers = null)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to make a proxy request without being ready");
 
 #if UNITY_EDITOR
-                if (isEditor && !path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (isEditor && !loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     MockUseUrlMappings(ref path);
                 }
@@ -1143,7 +1198,7 @@ namespace Dissonity
 
                 var tcs = new TaskCompletionSource<TJsonResponse>();
                 
-                bridge!.StartCoroutine( SendDeleteRequest(uri, tcs, headers) );
+                bridge!.StartCoroutine( SendDeleteRequest(uri, payload, tcs, headers) );
 
                 return tcs.Task;
             }
@@ -1152,7 +1207,8 @@ namespace Dissonity
             {
                 string uri;
 
-                if (!path.ToLower().StartsWith("http"))
+                string loweredPath = path.ToLower();
+                if (!loweredPath.StartsWith("http://") && !loweredPath.StartsWith("https://"))
                 {
                     path = path.StartsWith("/")
                         ? path
@@ -1307,10 +1363,13 @@ namespace Dissonity
                 }
             }
         
-            private static IEnumerator SendDeleteRequest<TJsonResponse>(string uri, TaskCompletionSource<TJsonResponse> tcs, Dictionary<string, string>? headers = null)
+            private static IEnumerator SendDeleteRequest<TJsonRequest, TJsonResponse>(string uri, TJsonRequest payload, TaskCompletionSource<TJsonResponse> tcs, Dictionary<string, string>? headers = null)
             {
                 UnityWebRequest request = new UnityWebRequest(uri, "DELETE");
+                
+                request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
                 request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
 
                 if (headers != null)
                 {
@@ -1364,6 +1423,9 @@ namespace Dissonity
         }
 
         //# SUBSCRIBE - - - -
+        /// <summary>
+        /// Subclass that allows listening to RPC events.
+        /// </summary>
         public static class Subscribe
         {
             //* SubscribeCommandFactory handles mock mode
@@ -1742,6 +1804,9 @@ namespace Dissonity
         }
 
         //# HIRPC - - - - -
+        /// <summary>
+        /// Subclass that enables C#/JS interoperation.
+        /// </summary>
         public static class HiRpc
         {
             /// <summary>
@@ -1911,6 +1976,9 @@ namespace Dissonity
         }
 
         //# LOCAL STORAGE - - - - -
+        /// <summary>
+        /// Subclass that allows storing key-value pairs locally.
+        /// </summary>
         public static class LocalStorage
         {
             /// <summary>
@@ -2829,6 +2897,44 @@ namespace Dissonity
                     };
 
                     ((TaskCompletionSource<ShareLinkResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetRelationshipsResponse
+                else if (typeof(TResponse) == typeof(GetRelationshipsResponse))
+                {
+                    var response = new GetRelationshipsResponse();
+
+                    response.Data = new()
+                    {
+                        Relationships = mock.GetRelationships()
+                    };
+
+                    ((TaskCompletionSource<GetRelationshipsResponse>) (object) tcs).TrySetResult(response);
+                }
+
+                // GetUserResponse
+                else if (typeof(TResponse) == typeof(GetUserResponse))
+                {
+                    var response = new GetUserResponse();
+
+                    response.Data = new();
+
+                    //? User id is an actual mock user
+                    MockPlayer? mockPlayer = mock._otherPlayers.Find(c => c.Participant.Id == (long) arg!);
+
+                    if (mockPlayer != null)
+                    {
+                        response.Data = mockPlayer.Participant.ToUser();
+                    }
+
+                    else if (mock._currentPlayer.Participant.Id == (long) arg!)
+                    {
+                        response.Data = mock._currentPlayer.Participant.ToUser();
+                    }
+
+                    else if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("You can get mock user data by calling Api.Commands.GetUser with a mock user id");
+
+                    ((TaskCompletionSource<GetUserResponse>) (object) tcs).TrySetResult(response);
                 }
 
                 else
