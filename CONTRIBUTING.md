@@ -35,8 +35,6 @@ After opening a pull request, a maintainer will review the code and may request 
 
 We recommend using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
-It's important to keep in mind that version 2 is currently in beta, so the codebase is still prone to changes.
-
 <table>
   <tr>
     <th>Module</th>
@@ -94,7 +92,6 @@ It's important to keep in mind that version 2 is currently in beta, so the codeb
     <td>✅</td>
     <td></td>
   </tr>
-  <tr>
 </table>
 
 ## Documentation
@@ -117,6 +114,14 @@ It's important to keep in mind that version 2 is currently in beta, so the codeb
 
 ### Unity package
 
+Dissonity is a strongly typed implementation of a weakly typed API, meaning Discord can make slight variations of a data structure and call it the same way.
+
+While developing the C# package we don't have as much information as Discord; we simply mirror the official package. Therefore, we need to make careful decisions about the package:
+
+- Mysterious or spontaneous fields without documentation can be excluded.
+
+- Notable structure variations can be handled by creating multiple models (e.g., `GuildMember`, `GuildMemberRpc`, `User`, `Participant`, etc.)
+
 #### RPC Commands
 
 - Add command models to Dissonity.Commands
@@ -135,6 +140,7 @@ It's important to keep in mind that version 2 is currently in beta, so the codeb
 
 - Check if it needs initialization / hiRPC ready
 - Check if it needs a mock implementation
+- Check if new models are needed
 
 After updating the C# API, the generated [Doxygen reference](https://www.doxygen.nl) on the website should be automatically updated via the deployment workflow.
 
@@ -164,19 +170,7 @@ Bump the package.json version as required. Lastly, the update dialog should be u
 
 ## Who are working on this project?
 
-It's mainly [Nyrrren](https://github.com/Furnyr) (me) and Kistar, the main tester. We are still experimenting with what we think is right for the project. You can submit feedback any time through the Issues tab.
-
-## What is being worked on currently?
-
-The [v2 board](https://github.com/users/Furnyr/projects/2) is updated frequently with what we are working on.
-
-In the long term, it's planned to collaborate with [Robo.js](https://github.com/Wave-Play/robo.js) to offer a simple hosting process, but we'll see over time.
-
-## What will happen after the alpha?
-
-When version 2 is stable, it will enter the **beta** phase, which could last for a few months. During that time, users of version 1 should reinstall the Unity package from the v1 branch.
-
-Then, the dev branch will be merged into main and version 1 will be deprecated in 3 months.
+The [Core Team](https://dissonity.dev/about) consists of two people, but the community is also an important part of the development process.
 
 ## Acknowledgements
 

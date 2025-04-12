@@ -1,14 +1,10 @@
-
-> [!WARNING]
-> Dissonity Version 2 is still in beta and may cause issues with your code between updates. Use it at your own discretion!
-
 <div align="center">
-    <img src="https://i.imgur.com/AmGkPpE.png" width="650">
+    <a href="https://dissonity.dev" alt="a"><img src="https://i.imgur.com/AmGkPpE.png" width="650"></a>
 </div>
 
 <div align="center">
-    <img src="https://img.shields.io/badge/version-beta%202%20v2.0.0-yellow">
-    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/unity.yaml">
+    <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fv2%2Funity%2Fpackage.json&query=version&prefix=v&label=version">
+    <a href="https://github.com/Furnyr/Dissonity/actions"><img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/unity.yaml"></a>
 </div>
 
 
