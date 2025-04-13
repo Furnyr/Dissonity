@@ -12,6 +12,10 @@ Compared to `v2.0.0-beta.2`:
 - Added HTTP DELETE body to Proxy.
 - Renamed `Timeframe` to `ActivityTimestamps`.
 
+### Added
+
+- Error propagation from JS to C# (ExternalException).
+
 ### Changed
 
 - hiRPC mock messages need initialization.

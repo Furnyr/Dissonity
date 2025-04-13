@@ -2067,6 +2067,7 @@ namespace Dissonity
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="OutsideDiscordException"></exception>
+        /// <exception cref="ExternalException"></exception>
         /// <exception cref="JsonException"></exception>
         /// <exception cref="ArgumentException"></exception>
         public static Task<MultiEvent> Initialize()
