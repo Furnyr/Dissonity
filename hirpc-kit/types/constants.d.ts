@@ -1,6 +1,6 @@
 export declare const HASH_RANDOM_BYTES = 16;
 export declare const DISSONITY_CHANNEL = "dissonity";
-export declare const SDK_VERSION = "1.9.0";
+export declare const SDK_VERSION = "2.0.0";
 export declare const HANDSHAKE_VERSION = 1;
 export declare const HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION = 250;
 export declare const HANDSHAKE_UNKNOWN_VERSION_NUMBER = -1;

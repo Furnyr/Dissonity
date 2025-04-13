@@ -17,6 +17,7 @@ export declare class State {
      */
     loaded: boolean;
     stateCode: StateCode;
+    errorMessage: string | null;
     readyPromise: Promise<void> | null;
     dispatchReady: (() => void) | null;
     authPromise: Promise<void> | null;

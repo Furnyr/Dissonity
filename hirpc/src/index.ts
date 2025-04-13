@@ -10,7 +10,7 @@ import { OfficialUtils } from "./modules/official_utils";
 import { Rpc } from "./modules/rpc";
 
 import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, DissonityChannelHandshake, InteropMessage, RpcInputPayload } from "./types";
+import type { BuildVariables, DissonityChannelError, DissonityChannelHandshake, InteropMessage, RpcInputPayload } from "./types";
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
@@ -268,11 +268,14 @@ export default class HiRpc {
         }
 
         else {
-            logError("Unable to access build variables. Import them through <import map>/dissonity_build_variables.js");
+
+            const errorMessage = "Unable to access build variables. Import them through <import map>/dissonity_build_variables.js";
+            logError(errorMessage);
 
             this.#state.stateCode = StateCode.Errored;
+            this.#state.errorMessage = errorMessage;
 
-            throw new Error("Unable to access build variables. Import them through <import map>/dissonity_build_variables.js")
+            throw new Error(errorMessage);
         }
     }
 
@@ -440,6 +443,29 @@ export default class HiRpc {
 
         this.#hashes.lock();
         this.#state.appSender = appSender;
+
+        //? Unexpected code
+        if (this.#state.stateCode == StateCode.Errored) {
+
+            const hiRpcPayload: DissonityChannelError = {
+                message: this.#state.errorMessage ?? "Unknown error"
+            };
+    
+            const interopMessage: InteropMessage = {
+                hirpc_state: this.#state.stateCode,
+                hirpc_message: {
+                    channel: DISSONITY_CHANNEL,
+                    data: hiRpcPayload,
+                    error: true
+                }
+            };
+
+            this.#state.appSender!(this.#rpc.serializePayload(interopMessage));
+
+            // App sender isn't dispatched since only the error message should be sent.
+
+            return;
+        }
 
         const outsideDiscord = sessionStorage.getItem("dso_outside_discord") as SessionStorage["dso_outside_discord"];
         if (outsideDiscord != "true") {

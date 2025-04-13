@@ -34,6 +34,11 @@ export type RpcInputPayload = {
     args?: unknown
 };
 
+// Sent when the downward flow is opened but the state is Errored.
+export type DissonityChannelError = {
+    message: string
+};
+
 // Sent when the downward flow is opened.
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null // Only null outside Discord
@@ -49,8 +54,9 @@ export type DissonityChannelPayload = {
 
 export type HiRpcMessage = {
     channel: string,
-    data: unknown | DissonityChannelPayload | DissonityChannelHandshake, // Just for documentation: anything can go through hiRPC, but the data sent through {channel:"dissonity"} can be typed.
+    data: unknown | DissonityChannelPayload | DissonityChannelHandshake | DissonityChannelError, // Just for documentation: anything can go through hiRPC, but the data sent through {channel:"dissonity"} can be typed.
     opening?: boolean // True in the first payload sent through {channel:"dissonity"}
+    error?: boolean // True in the first error payload sent through {channel:"dissonity"}
 }
 
 export type InteropMessage = {

@@ -199,6 +199,7 @@ export class Rpc {
 
                     //\ Close bridge
                     this.#state.stateCode = StateCode.Errored;
+                    this.#state.errorMessage = "User unauthorized scopes";
 
                     window.removeEventListener("message", this.receive);
                     window.removeEventListener("message", this.authentication);
@@ -249,7 +250,11 @@ export class Rpc {
                 //? No token
                 if (!json.token) {
 
-                    logError("The server JSON response didn't include a 'token' field");
+                    const errorMessage = "The server JSON response didn't include a 'token' field";
+                    logError(errorMessage);
+
+                    this.#state.stateCode = StateCode.Errored;
+                    this.#state.errorMessage = errorMessage;
 
                     return;
                 }
