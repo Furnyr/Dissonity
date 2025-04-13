@@ -74,6 +74,9 @@ pnpm build_all_and_pull
 
 To build everything before moving the files to your project.
 
+> [!IMPORTANT]
+> Remember using `pnpm sync` first if you have changes in your Unity project!
+
 You can also manage each module individually:
 
 ```
@@ -84,3 +87,5 @@ pnpm move
 # In the local folder (here)
 pnpm pull
 ```
+
+After moving the JavaScript files to the Unity project, use `DevDialogs.asset` to regenerate the WebGL Template.

@@ -7,7 +7,6 @@ import "../../../styles/api.css";
 import BoxInfo from "../../../components/BoxInfo";
 import { Link } from "react-router-dom";
 import PageTitle from "../../../components/PageTitle";
-import { Helmet, HelmetProvider } from "react-helmet-async";
 
 function DocsPage () {
 
@@ -15,12 +14,6 @@ function DocsPage () {
 
   return (
     <>
-    <HelmetProvider>
-                <Helmet prioritizeSeoTags>
-                    <meta property="og:title" content={"API | Dissonity"} />
-                    <title>{"API | Dissonity"}</title>
-                </Helmet>
-            </HelmetProvider>
     <div className="doc-page">
         <PageTitle title="API | Dissonity"/>
 

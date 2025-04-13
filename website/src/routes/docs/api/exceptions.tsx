@@ -13,7 +13,17 @@ function DocsPage () {
     <div className="doc-page">
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
-        <h1>Exceptions <HashLink link="/?/docs/v2/api/exceptions"/></h1> 
+        <h1>Exceptions <HashLink link="/?/docs/v2/api/exceptions"/></h1>
+
+        <h2 id="external-exception"><a href="/ref/classDissonity_1_1ExternalException.html">ExternalException</a> <HashLink link="/?/docs/v2/api/exceptions#external-exception"/></h2>
+
+        <p>
+          This exception is thrown by the <code>Api.Initialize</code> method when the hiRPC handshake is an error payload.
+        </p>
+
+        <p>
+            This usually means something failed during authentication. Read the Discord console.
+        </p>
 
         <h2 id="outside-discord-exception"><a href="/ref/classDissonity_1_1OutsideDiscordException.html">OutsideDiscordException</a> <HashLink link="/?/docs/v2/api/exceptions#outside-discord-exception"/></h2>
 
