@@ -4,6 +4,7 @@ import HashLink from "../../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../../types";
 import CodeBlock from "../../../components/CodeBlock";
+import PageTitle from "../../../components/PageTitle";
 
 function DocsPage () {
 
@@ -11,6 +12,8 @@ function DocsPage () {
 
   return (
     <div className="doc-page">
+        <PageTitle title="Exceptions | Dissonity"/>
+
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
         <h1>Exceptions <HashLink link="/?/docs/v2/api/exceptions"/></h1>

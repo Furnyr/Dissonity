@@ -33,8 +33,8 @@ function DocsPage () {
 
         <nav>
           <ul>
-            <li><Link to="/docs/v2/internals/design">Design</Link></li>
             <li><Link to="/docs/v2/development/authentication">Authentication</Link></li>
+            <li><Link to="/docs/v2/api/exceptions">Exceptions</Link></li>
           </ul>
         </nav>
 

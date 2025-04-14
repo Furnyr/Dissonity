@@ -73,7 +73,7 @@ Up and running! If you want to test your activity within Unity:
 
 ## Testing
 
-1. Right click the hierarchy > Dissonity > Discord Mock
+1. Right-click the hierarchy > Dissonity > Discord Mock
 
 If you run the game in a scene where there's a `@DiscordMock` object, you will be able to test the activity within Unity, simulating Discord.
 

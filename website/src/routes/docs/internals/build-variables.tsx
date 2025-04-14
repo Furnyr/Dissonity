@@ -5,6 +5,7 @@ import { useOutletContext } from "react-router-dom";
 import { PageContext } from "../../../types";
 import CodeBlock from "../../../components/CodeBlock";
 import { Link } from "react-router-dom";
+import PageTitle from "../../../components/PageTitle";
 
 function DocsPage () {
 
@@ -12,6 +13,8 @@ function DocsPage () {
 
   return (
     <div className="doc-page">
+        <PageTitle title="Build Variables | Dissonity"/>
+
         <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
 
         <h1>Build Variables <HashLink link="/?/docs/v2/internals/build-variables"/></h1>

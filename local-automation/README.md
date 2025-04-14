@@ -29,7 +29,7 @@ While Dissonity supports Unity 2021.3 and later, please use the latest Unity ver
 
 Create a new Unity project, then, create a folder named `LocalDissonity` in your `Assets`.
 
-You can additionally right click your assets and select `Create > Dissonity > Development > Dev Dialogs Asset` to access C# local development utilities.
+You can additionally right-click your assets and select `Create > Dissonity > Development > Dev Dialogs Asset` to access C# local development utilities.
 
 ### 1. ⚒️ Install script dependencies
 
@@ -50,7 +50,7 @@ pnpm pull
 
 ### Dependencies
 
-Once the command runs, your console might have *a lot* of errors. Since you have the raw package files in your project, the package dependencies aren't automatically installed.
+Once the command runs, your console might have *a lot* of errors.
 
 Open `LocalDissonity/package.json` and install the corresponding dependencies manually using `Install package by name` in the Package Manager.
 

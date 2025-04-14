@@ -40,8 +40,7 @@ import Utils from "./routes/docs/api/utils.tsx";
 import Exceptions from "./routes/docs/api/exceptions.tsx";
 
 import LocalDevelopment from "./routes/docs/internals/local-development.tsx";
-import Design from "./routes/docs/internals/design.tsx";
-import Mock from "./routes/docs/internals/mock.tsx";
+import Mocking from "./routes/docs/internals/mocking.tsx";
 import WebGLTemplate from "./routes/docs/internals/webgl-template.tsx";
 import BuildVariables from "./routes/docs/internals/build-variables.tsx";
 import HiRpc from "./routes/docs/internals/hirpc.tsx";
@@ -149,12 +148,8 @@ const router = createBrowserRouter([
         element: <LocalDevelopment />
       },
       {
-        path: "/docs/v2/internals/design",
-        element: <Design />
-      },
-      {
-        path: "/docs/v2/internals/mock",
-        element: <Mock />
+        path: "/docs/v2/internals/mocking",
+        element: <Mocking />
       },
       {
         path: "/docs/v2/internals/webgl-template",

@@ -2106,7 +2106,7 @@ namespace Dissonity
 
                     if (!_configuration!.DisableDissonityInfoLogs)
                     {
-                        Utils.DissonityLog("Running inside the Unity editor, a Discord Mock has been generated. To manually create one: Right click hierarchy > Dissonity > Discord Mock");
+                        Utils.DissonityLog("Running inside the Unity editor, a Discord Mock has been generated. To manually create one: Right-click hierarchy > Dissonity > Discord Mock");
                     }
                 }
 
