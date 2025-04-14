@@ -66,7 +66,7 @@ async function initializeSdk(options: ConfigOptions): Promise<{ discordSdk: Disc
     const response = await fetch(`/.proxy${options.tokenRoute}`, {
         method: options.method,
         headers: headers,
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code: code, create_user: true, access_token: '' }),
     });
 
     const data = await response.json();

@@ -6,6 +6,13 @@
 	<br />
 </div>
 
+# Who is this package for?
+This package is a fork of the original [Dissonity](https://www.npmjs.com/package/dissonity) package. This particular package been created to be used with [Snapser](https://snapser.com).
+If you are not building your game on Snapser, please use the original package [link](https://www.npmjs.com/package/dissonity).
+
+# Snapser
+Snapser is a modern alternative to Playfab and Firebase. We have built a starter project in Unity C# which you can deploy as a Discord activity within a manner of minutes, while having full access to Snapser backend services. If you are interested to know more, please [register](https://snapser.com/register) for a Snapser account.
+
 # About
 
 Dissonity allows you to easily create Discord activities with Unity. In version 1, the npm and Unity packages share data to provide functionality.
@@ -15,9 +22,9 @@ It's designed for a structure similar to the [nested-messages](https://github.co
 # Installation
 
 ```
-npm install dissonity
-yarn add dissonity
-pnpm add dissonity
+npm install snapser-dissonity
+yarn add snapser-dissonity
+pnpm add snapser-dissonity
 ```
 
 # Configuration
@@ -30,14 +37,14 @@ The child iframe must have the id "dissonity-child", like:
 Instead of manually creating an SDK instance, call `setupSdk` inside the parent index.js with your options:
 
 ```js
-import { setupSdk } from "dissonity";
+import { setupSdk } from "snapser-dissonity";
 
 window.addEventListener("DOMContentLoaded", () => {
 
   setupSdk({
     clientId: /*your-app-id*/,
-    scope: ["rpc.voice.read", "guilds.members.read"],
-    tokenRoute: "/api/token"
+    tokenRoute: "/v1/auth/discord/login",
+    method: "PUT",
   });
 });
 ```
@@ -46,12 +53,12 @@ Where `tokenRoute` is the route where your server is handling authorization code
 
 ### Request
 ```js
-{ code: string }
+{ code: string, create_user: bool, access_token: string }
 ```
 
 ### Expected response
 ```js
-{ access_token: string }
+{ access_token: string, user: UserObject }
 ```
 
 ### Example code
@@ -63,7 +70,7 @@ app.post("/api/token", async (req, res) => {
 
   (...)
 
-  res.send({ access_token });
+  res.send({ access_token, user });
 });
 ```
 
