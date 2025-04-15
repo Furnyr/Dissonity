@@ -1,7 +1,7 @@
-> [!IMPORTANT]
-> **Version 2** is now in beta! Read the release plan [here](https://github.com/Furnyr/Dissonity/blob/dev/ROADMAP.md).
->
-> TL;DR: If you installed v1 before January 2025, please reinstall the package from `https://github.com/Furnyr/Dissonity.git?path=/unity#v1`
+> [!NOTE]
+> Version 2 has released! Please update at your earliest convenience.
+> 
+> Check out the [migration guide](https://dissonity.dev/guides/v2/migration-v2).
 
 ---
 
@@ -62,9 +62,9 @@ First of all, you need to have installed:
 ## Node.js
 
 1. Install the npm package with `npm install dissonity`
-2. Inside the client's index.js, call `setupSdk` with your config ([sample](https://github.com/Furnyr/Dissonity/blob/main/npm/README.md#configuration))
-3. Make sure the iframe where your build will be has the id `dissonity-child` ([sample](https://github.com/Furnyr/Dissonity/blob/main/npm/README.md#configuration))
-4. Configure your server to send the proper content headers ([sample](https://github.com/Furnyr/Dissonity/blob/main/examples/projectConfiguration.md#other-server-configuration))
+2. Inside the client's index.js, call `setupSdk` with your config ([sample](https://github.com/Furnyr/Dissonity/blob/v1/npm/README.md#configuration))
+3. Make sure the iframe where your build will be has the id `dissonity-child` ([sample](https://github.com/Furnyr/Dissonity/blob/v1/npm/README.md#configuration))
+4. Configure your server to send the proper content headers ([sample](https://github.com/Furnyr/Dissonity/blob/v1/examples/projectConfiguration.md#other-server-configuration))
 
 That's everything you need in the Node.js client.
 
@@ -85,9 +85,9 @@ If you don't know how to test your activity refer to the [Discord documentation]
 
 - [GitHub](https://github.com/Furnyr/Dissonity)
 - [NPM package](https://www.npmjs.com/package/dissonity)
-- [Dissonity NPM Documentation](https://github.com/Furnyr/Dissonity/blob/main/npm/README.md)
-- [Dissonity Unity Documentation](https://github.com/Furnyr/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
-- [Project configuration](https://github.com/Furnyr/Dissonity/blob/main/examples/projectConfiguration.md)
+- [Dissonity NPM Documentation](https://github.com/Furnyr/Dissonity/blob/v1/npm/README.md)
+- [Dissonity Unity Documentation](https://github.com/Furnyr/Dissonity/blob/v1/unity/Documentation~/Dissonity.md)
+- [Project configuration](https://github.com/Furnyr/Dissonity/blob/v1/examples/projectConfiguration.md)
 
 # Examples
 

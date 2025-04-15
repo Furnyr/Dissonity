@@ -44,9 +44,9 @@ public class MyScript : MonoBehaviour
 ```
 
 # Links
-- [GitHub](https://github.com/Furnyr/Dissonity)
+- [GitHub](https://github.com/Furnyr/Dissonity/tree/v1)
 - [NPM Package](https://www.npmjs.com/package/dissonity)
-- [Unity Package Documentation](https://github.com/Furnyr/Dissonity/blob/main/unity/Documentation~/Dissonity.md)
-- [Project configuration](https://github.com/Furnyr/Dissonity/blob/main/examples/projectConfiguration.md)
+- [Unity Package Documentation](https://github.com/Furnyr/Dissonity/blob/v1/unity/Documentation~/Dissonity.md)
+- [Project configuration](https://github.com/Furnyr/Dissonity/blob/v1/examples/projectConfiguration.md)
 
 [Dissonity npm package]: https://www.npmjs.com/package/dissonity
