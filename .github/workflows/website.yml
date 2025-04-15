@@ -1,0 +1,88 @@
+name: Website
+
+# For development, the site will be updated on pushes to the dev branch.
+
+on: 
+  push:
+    branches:
+      - dev
+    paths:
+      - "website/**/*.ts"
+      - "website/**/*.tsx"
+      - "website/**/*.js"
+      - "website/**/*.jsx"
+      - "website/**/*.html"
+      - "website/**/*.css"
+      - "website/**/*.json"
+      - "website/assets/*"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  site_deploy:
+    environment:
+      name: "github-pages"
+      url: ${{ steps.deployment.outputs.page_url }}
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'furnyr'
+    defaults:
+      run:
+        working-directory: "./website"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Install Doxygen Dependencies
+        run: pnpm install
+        working-directory: "doxygen"
+      
+      - name: Install Doxygen
+        run: |
+          wget https://www.doxygen.nl/files/doxygen-1.12.0.linux.bin.tar.gz
+          tar -xzf doxygen-1.12.0.linux.bin.tar.gz
+          sudo cp doxygen-1.12.0/bin/doxygen /usr/local/bin/doxygen
+
+      - name: Check Doxygen version
+        run: doxygen -v
+
+      - name: Generate Documentation
+        run: doxygen Doxyfile
+        working-directory: "doxygen"
+
+      - name: Build
+        run: pnpm build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "website/dist"
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

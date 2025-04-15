@@ -1,0 +1,10 @@
+
+.why-list {
+    line-height: 30px;
+}
+
+@media only screen and (max-width: 600px) {
+    .why-list {
+        line-height: 24.5px;
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@dissonity/hirpc",
+  "version": "0.5.2",
+  "description": "Discord RPC library for activities made in game engines",
+  "scripts": {
+    "lint": "eslint",
+    "test": "tsc -p ci.tsconfig.json && pnpm variables ci && uvu tests",
+    "build": "webpack && node scripts/build.js && pnpm build/kit:types",
+    "build/kit:types": "tsc -p types.tsconfig.json",
+    "variables": "node scripts/update_variables.js",
+    "move": "node scripts/move.js"
+  },
+  "author": "Furnyr",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "chalk": "4.1.2",
+    "prompt-sync": "^4.2.0",
+    "terser-webpack-plugin": "^5.3.11",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.7.2",
+    "uvu": "^0.5.6",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "private": true
+}

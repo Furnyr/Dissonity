@@ -1,0 +1,42 @@
+
+.doc-page {
+    margin: 22px;
+    padding-bottom: 40px;
+    max-width: 88%;
+}
+
+.separator {
+    width: 50%;
+    margin-left: 0;
+    background-color:#4b4b4b;
+    border: none;
+    height: 3px;
+}
+
+.bar-separator {
+    margin-left: 0;
+    background-color:#666666;
+    border: none;
+    height: 1px;
+}
+
+.h3-margin {
+    margin-top: 35px;
+}
+
+.red {
+    color: #ff5b5b;
+}
+
+@media only screen and (max-width: 700px) {
+    .doc-page {
+        max-width: 70%;
+    }
+    button {
+        font-size: 14px;
+    }
+}
+
+#outlet-container {
+    width: 100%;
+}

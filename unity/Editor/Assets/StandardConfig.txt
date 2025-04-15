@@ -1,0 +1,35 @@
+using Dissonity;
+using Dissonity.Models;
+using Dissonity.Models.Builders;
+
+[DissonityConfig]
+public class DissonityConfiguration : SdkConfiguration<ServerTokenRequest, ServerTokenResponse>
+{
+    // Standard configuration
+    // Hover over properties for more information!
+
+    // Initialization
+    public override long ClientId => 0;
+    public override string[] OauthScopes => new string[] { OauthScope.Identify, /*, your-oauth-scopes*/ };
+    public override string TokenRequestPath => "/api/token";
+
+    // Logging
+    public override bool DisableDissonityInfoLogs => false;
+    
+    // Patch Url Mappings
+    public override MappingBuilder[] Mappings => new MappingBuilder[] {
+        new()
+        /*{
+            Prefix = "/example",
+            Target = "example.com"
+        }*/
+    };
+
+    // Utils
+    public override bool SynchronizeUser => false;
+    public override bool SynchronizeGuildMemberRpc => false;
+
+    // Resolution
+    public override ScreenResolution DesktopResolution => ScreenResolution.Max;
+    public override ScreenResolution MobileResolution => ScreenResolution.Max;
+}
