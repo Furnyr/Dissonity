@@ -1,5 +1,4 @@
 using System;
-using Dissonity.Commands.Responses;
 
 namespace Dissonity.Models.Mock
 {

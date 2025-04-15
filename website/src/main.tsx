@@ -13,6 +13,7 @@ import typescriptHl from "highlight.js/lib/languages/typescript";
 import xmlHl from "highlight.js/lib/languages/xml";
 import rustHl from "highlight.js/lib/languages/rust";
 import csharpHl from "highlight.js/lib/languages/csharp";
+import diffHl from "highlight.js/lib/languages/diff";
 
 import Root from "./routes/root.tsx";
 import Docs from "./routes/docs.tsx";
@@ -39,8 +40,7 @@ import Utils from "./routes/docs/api/utils.tsx";
 import Exceptions from "./routes/docs/api/exceptions.tsx";
 
 import LocalDevelopment from "./routes/docs/internals/local-development.tsx";
-import Design from "./routes/docs/internals/design.tsx";
-import Mock from "./routes/docs/internals/mock.tsx";
+import Mocking from "./routes/docs/internals/mocking.tsx";
 import WebGLTemplate from "./routes/docs/internals/webgl-template.tsx";
 import BuildVariables from "./routes/docs/internals/build-variables.tsx";
 import HiRpc from "./routes/docs/internals/hirpc.tsx";
@@ -51,6 +51,7 @@ hljs.registerLanguage("javascript", javascriptHl);
 hljs.registerLanguage("typescript", typescriptHl);
 hljs.registerLanguage("rust", rustHl);
 hljs.registerLanguage("csharp", csharpHl);
+hljs.registerLanguage("diff", diffHl);
 hljs.registerLanguage("xml", xmlHl);
 
 (async () => {
@@ -147,12 +148,8 @@ const router = createBrowserRouter([
         element: <LocalDevelopment />
       },
       {
-        path: "/docs/v2/internals/design",
-        element: <Design />
-      },
-      {
-        path: "/docs/v2/internals/mock",
-        element: <Mock />
+        path: "/docs/v2/internals/mocking",
+        element: <Mocking />
       },
       {
         path: "/docs/v2/internals/webgl-template",

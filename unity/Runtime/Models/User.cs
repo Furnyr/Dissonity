@@ -1,5 +1,4 @@
 using System;
-using Dissonity.Events;
 using Newtonsoft.Json;
 
 namespace Dissonity.Models

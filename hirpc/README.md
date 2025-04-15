@@ -6,7 +6,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FFurnyr%2FDissonity%2Frefs%2Fheads%2Fdev%2Fhirpc%2Fpackage.json&query=version&prefix=v&label=version&color=yellow" alt="Version Badge" />
-    <img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml">
+    <a href="https://github.com/Furnyr/Dissonity/actions"><img src="https://img.shields.io/github/actions/workflow/status/Furnyr/Dissonity/hirpc.yaml"></a>
   </p>
 
   <h3>

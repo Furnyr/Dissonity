@@ -31,6 +31,8 @@ namespace Dissonity.Commands
             { DiscordCommandType.Unsubscribe, typeof(SubscribeResponse) },
             { DiscordCommandType.UserSettingsGetLocale, typeof(UserSettingsGetLocaleResponse) },
             { DiscordCommandType.ShareLink, typeof(ShareLinkResponse) },
+            { DiscordCommandType.GetRelationships, typeof(GetRelationshipsResponse) },
+            { DiscordCommandType.GetUser, typeof(GetUserResponse) },
         };
 
         internal static Dictionary<string, Type> CommandDataMap = new ()
@@ -53,6 +55,8 @@ namespace Dissonity.Commands
             { DiscordCommandType.Unsubscribe, typeof(SubscribeData) },
             { DiscordCommandType.UserSettingsGetLocale, typeof(UserSettingsGetLocaleData) },
             { DiscordCommandType.ShareLink, typeof(ShareLinkData) },
+            { DiscordCommandType.GetRelationships, typeof(GetRelationshipsData) },
+            { DiscordCommandType.GetUser, typeof(User) },
         };
 
         internal static Type GetResponseFromString(string commandString)

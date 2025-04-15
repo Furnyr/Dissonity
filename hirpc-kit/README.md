@@ -15,8 +15,6 @@
   </h3>
 </div>
 
-> ⚠️ This is a pre-release meant to work with Dissonity Version 2 Beta. ⚠️
-
 ## About
 
 Utility package for using the hiRPC API from the JavaScript layer.

@@ -77,6 +77,9 @@ namespace Dissonity
             }
         }
 
+        /// <summary>
+        /// Get a snowflake to use as a placeholder.
+        /// </summary>
         public static long GetMockSnowflake()
         {
             var current = DateTimeOffset.Now.ToUnixTimeMilliseconds();

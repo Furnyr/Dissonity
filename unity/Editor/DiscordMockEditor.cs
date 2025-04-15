@@ -3,6 +3,7 @@ using UnityEditor;
 using Dissonity.Models.Mock;
 using System.Collections.Generic;
 using static Dissonity.Editor.MockEditorUtils;
+using Dissonity.Models;
 
 namespace Dissonity.Editor
 {
@@ -15,6 +16,7 @@ namespace Dissonity.Editor
         private bool showIap = false;
         private bool showCurrentPlayerEvents = false;
         private bool showOtherPlayers = false;
+        //private bool showRelationships = false;
         private bool showChannels = false;
         private bool showSkus = false;
         private bool showEntitlements = false;
@@ -31,6 +33,7 @@ namespace Dissonity.Editor
 
         // True when the clear menus are open
         private bool clearingPlayers = false;
+        //private bool clearingRelationships = false;
         private bool clearingChannels = false;
         private bool clearingSkus = false;
         private bool clearingEntitlements = false;
@@ -50,7 +53,7 @@ namespace Dissonity.Editor
             SetButtonStyles(out leftButtonStyle);
 
             // Shorcut
-            bool isPlaying = Application.isPlaying;
+            bool isPlaying = UnityEngine.Application.isPlaying;
 
             // Query
             var queryProperty = serializedObject.FindProperty(nameof(DiscordMock._query));
@@ -178,7 +181,7 @@ namespace Dissonity.Editor
                         player.GuildMemberRpc.UserId = id;
 
                         // Unique username
-                        player.Participant.Username += $" {mock._otherPlayers.Count+2}";
+                        player.Participant.Username += $"_{mock._otherPlayers.Count+2}";
 
                         // Unique global name
                         player.Participant.GlobalName += $" {mock._otherPlayers.Count+2}";
@@ -226,6 +229,98 @@ namespace Dissonity.Editor
 
                 else if (clearingPlayers) clearingPlayers = false;
 
+
+                //# RELATIONSHIPS - - - - -
+                /*
+                var relationshipsProperty = serializedObject.FindProperty(nameof(DiscordMock._relationships));
+                showRelationships = EditorGUILayout.Foldout(showRelationships, "Relationships");
+
+                if (showRelationships)
+                {
+                    EditorGUI.indentLevel++;
+
+                    // Draw every relationship
+                    for (int i = 0; i < mock._relationships.Count; i++)
+                    {
+                        // Draw the relationship element
+                        var relationship = relationshipsProperty.GetArrayElementAtIndex(i);
+                        var user = relationship.FindPropertyRelative(nameof(MockRelationship.User));
+                        string name = user.FindPropertyRelative(nameof(MockUser.GlobalName)).stringValue;
+                        
+                        EditorGUILayout.PropertyField(relationship, new GUIContent (name), false);
+
+                        if (relationship.isExpanded)
+                        {
+                            EditorGUI.indentLevel++;
+
+                            DrawChildrenRecursively(relationship, new string[] { });
+
+                            EditorGUI.indentLevel--;
+                        }
+                    }
+                    EditorGUI.indentLevel--;
+
+                    // Draw add relationship button
+                    StartSpace(20);
+
+                    if (GUILayout.Button("Add relationship", leftButtonStyle))
+                    {
+                        var user = new MockUser();
+
+                        // Unique id
+                        user.Id = Utils.GetMockSnowflake();
+
+                        // Unique username
+                        user.Username += $"_{mock._relationships.Count+1}";
+
+                        // Unique global name
+                        user.GlobalName += $" {mock._relationships.Count+1}";
+
+                        // Unique nickname
+
+                        var relationship = new MockRelationship()
+                        {
+                            User = user
+                        };
+
+                        mock._relationships.Add(relationship);
+                    }
+
+                    TintButtonBlue();
+
+                    if (!clearingRelationships && GUILayout.Button("Clear", leftButtonStyle))
+                    {
+                        clearingRelationships = true;
+                    }
+
+                    ResetButtonTint();
+
+                    if (clearingRelationships)
+                    {
+                        TintButtonDark();
+
+                        if (GUILayout.Button("Cancel clear", leftButtonStyle))
+                        {
+                            clearingRelationships = false;
+                        }
+
+                        ResetButtonTint();
+                        TintButtonRed();
+
+                        if (GUILayout.Button("Confirm clear", leftButtonStyle))
+                        {
+                            clearingRelationships = false;
+                            relationshipsProperty.ClearArray();
+                        }
+
+                        ResetButtonTint();
+                    }
+
+                    EndSpace();
+                }
+
+                else if (clearingRelationships) clearingRelationships = false;
+                */
 
                 //# CHANNELS - - - - -
                 var channelsProperty = serializedObject.FindProperty(nameof(DiscordMock._channels));
@@ -739,7 +834,7 @@ namespace Dissonity.Editor
         private void DrawDispatchButtons(GUIStyle style, DiscordMock mock, int playerIndex = -1)
         {
             // Shorcut
-            bool isPlaying = Application.isPlaying;
+            bool isPlaying = UnityEngine.Application.isPlaying;
 
             //? Current player
             if (playerIndex == -1)

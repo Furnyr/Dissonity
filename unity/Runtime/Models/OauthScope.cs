@@ -9,5 +9,8 @@ namespace Dissonity.Models
         public const string RpcVoiceRead = "rpc.voice.read";
         public const string RpcActivitiesWrite = "rpc.activities.write";
         public const string DmChannelsRead = "dm_channels.read";
+        public const string RelationshipsRead = "relationships.read";
+        public const string ApplicationsCommands = "applications.commands";
+        public const string Connections = "connections";
     }
 }
