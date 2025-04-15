@@ -14,7 +14,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "chalk": "4.1.2",
+    "chalk": "5.4.1",
     "prompt-sync": "^4.2.0",
     "terser-webpack-plugin": "^5.3.11",
     "ts-loader": "^9.5.1",
