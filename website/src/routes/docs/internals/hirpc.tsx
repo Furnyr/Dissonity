@@ -361,7 +361,7 @@ main();`}</CodeBlock>
         <i>Example index.ts using @dissonity/hirpc-kit</i>
 
         <p>
-          You can find further examples in the repository's <a href={GITHUB_FILE_EXAMPLES_LINK} target="_blank">examples folder</a>.
+          You can find further examples in the example repository's <a href={GITHUB_FILE_EXAMPLES_LINK} target="_blank">files folder</a>.
         </p>
 
         <h2 id="final-terminology">Final Terminology <HashLink link="/?/docs/v2/internals/hirpc#final-terminology" /></h2>
