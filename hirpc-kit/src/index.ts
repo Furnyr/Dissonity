@@ -29,62 +29,127 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
             return;   
         }
 
-        import("dso_proxy_bridge/dissonity_hirpc.js" as string)
-        .then(() => {
+        //? Not outside Discord
+        let skipPrefixCheck = false;
+        let useProxyImport = false;
+        if (window.location.hostname.endsWith(".discordsays.com")) {
+            sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
 
-            import("dso_proxy_bridge/dissonity_build_variables.js" as string)
-            .then(() => {
+        else {
+            skipPrefixCheck = true;
+            sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
 
-                // In this case, outside_discord is closely related to the path
-                sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-                sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        //? Doesn't need prefix
+        if (skipPrefixCheck || window.location.pathname.startsWith("/.proxy")) {
+            sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+        }
 
-                // Note: The instance is automatically defined in the window in newer hiRPC versions
-                const instance = new window.Dissonity.HiRpc.default();
+        else {
+            useProxyImport = true;
+            sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+        }
 
-                if (window.dso_hirpc != instance) {
-                    window.dso_hirpc = instance;
-                }
+        // Begin importing
+        if (useProxyImport) {
 
-                clearRpcSessionStorage();
-            
-                resolve(window.dso_hirpc as HiRpcShape<V>);
+            tryProxyImport()
+            .then(module => {
+                resolve(module as HiRpcShape<V>)
             })
-            .catch(err => {
-                reject(err);
+            .catch(() => {
+
+                tryDirectImport()
+                .then(module => {
+                    resolve(module as HiRpcShape<V>)
+                })
+                .catch(err => {
+                    reject(err);
+                })
             })
-        })
-        .catch(_ => {
+        }
 
-            import("dso_bridge/dissonity_hirpc.js" as string)
-            .then(() => {
+        else {
+            tryDirectImport()
+            .then(module => {
+                resolve(module as HiRpcShape<V>)
+            })
+            .catch(() => {
 
-                import("dso_bridge/dissonity_build_variables.js" as string)
+                tryProxyImport()
+                .then(module => {
+                    resolve(module as HiRpcShape<V>)
+                })
+                .catch(err => {
+                    reject(err);
+                })
+            })
+        }
+
+        function tryProxyImport() {
+
+            return new Promise((resolve, reject) => {
+
+                import("dso_proxy_bridge/dissonity_hirpc.js" as string)
                 .then(() => {
-
-                    // In this case, outside_discord is closely related to the path
-                    sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-                    sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+    
+                    import("dso_proxy_bridge/dissonity_build_variables.js" as string)
+                    .then(() => {
+    
+                        sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+    
+                        mountInstance();
                     
-                    // Note: The instance is automatically defined in the window in newer hiRPC versions
-                    const instance = new window.Dissonity.HiRpc.default();
-
-                    if (window.dso_hirpc != instance) {
-                        window.dso_hirpc = instance;
-                    }
-
-                    clearRpcSessionStorage();
-                
-                    resolve(window.dso_hirpc as HiRpcShape<V>);
+                        resolve(window.dso_hirpc as HiRpcShape<V>);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    })
                 })
                 .catch(err => {
                     reject(err);
                 });
             })
-            .catch(err => {
-                reject(err);
-            })
-        });
+        }
+
+        function tryDirectImport() {
+
+            return new Promise((resolve, reject) => {
+
+                import("dso_bridge/dissonity_hirpc.js" as string)
+                .then(() => {
+    
+                    import("dso_bridge/dissonity_build_variables.js" as string)
+                    .then(() => {
+    
+                        sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+                        
+                        mountInstance();
+                    
+                        resolve(window.dso_hirpc as HiRpcShape<V>);
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+                })
+                .catch(err => {
+                    reject(err);
+                })
+            });
+        }
+
+        function mountInstance() {
+
+            // Note: The instance is automatically defined in the window in newer hiRPC versions
+            const instance = new window.Dissonity.HiRpc.default();
+
+            if (window.dso_hirpc != instance) {
+                window.dso_hirpc = instance;
+            }
+
+            clearRpcSessionStorage();
+        }
     
         function clearRpcSessionStorage() {
 

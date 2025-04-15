@@ -152,6 +152,13 @@ namespace Dissonity.Editor
                         return;
                     }
 
+                    //? Not initialized
+                    if (!Api.Ready)
+                    {
+                        Debug.Log("[Dissonity Editor] You can only receive hiRPC messages once initialized!");
+                        return;
+                    }
+
                     mock.DispatchMessage();
                 }
 

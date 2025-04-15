@@ -25,6 +25,7 @@ export class State {
      */
     loaded = false;
     stateCode: StateCode = StateCode.Loading;
+    errorMessage: string | null = null;
     readyPromise: Promise<void> | null = null;
     dispatchReady: (() => void) | null = null;
     authPromise: Promise<void> | null = null;

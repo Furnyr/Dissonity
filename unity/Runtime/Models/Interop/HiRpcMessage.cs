@@ -20,5 +20,8 @@ namespace Dissonity.Models.Interop
 
         [JsonProperty("opening")]
         public bool? Opening { get; set; }
+
+        [JsonProperty("error")]
+        public bool? Error { get; set; }
     }
 }

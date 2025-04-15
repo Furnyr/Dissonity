@@ -22,6 +22,7 @@ namespace Dissonity
         public string _accessToken = "mock-access-token";
         public MockPlayer _currentPlayer = new();
         public List<MockPlayer> _otherPlayers = new();
+        internal List<MockRelationship> _relationships = new();
         public List<MockChannel> _channels = new();
 
         // General events
@@ -70,6 +71,18 @@ namespace Dissonity
             }
 
             return participants.ToArray();
+        }
+
+        internal Relationship[] GetRelationships()
+        {
+            List<Relationship> relationships = new();
+
+            foreach (MockRelationship relationship in _relationships)
+            {
+                relationships.Add(relationship.ToRelationship());
+            }
+
+            return relationships.ToArray();
         }
 
         internal Sku[] GetSkus()

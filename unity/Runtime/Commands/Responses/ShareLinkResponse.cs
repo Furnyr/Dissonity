@@ -16,5 +16,11 @@ namespace Dissonity.Commands.Responses
     {
         [JsonProperty("success")]
         public bool Success { get; set; }
+
+        [JsonProperty("didCopyLink")]
+        public bool DidCopyLink { get; set; }
+
+        [JsonProperty("didSendMessage")]
+        public bool DidSendMessage { get; set; }
     }
 }

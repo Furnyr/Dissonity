@@ -149,7 +149,7 @@ export default function Docs() {
       <SubMenu
         label="API"
         icon={<FaCube />}
-        defaultOpen={location.pathname.includes("/docs/v2/api/")}
+        defaultOpen={location.pathname.includes("/docs/v2/api/") || location.pathname == "/docs/v2/index"}
         active={location.pathname.includes("/docs/v2/api") ? true : undefined}
       >
         <MenuItem
@@ -242,23 +242,15 @@ export default function Docs() {
           active={location.pathname === "/docs/v2/internals/local-development"}
           icon={"📼"}
           onClick={closeSidebarMobile}>
-            Local development
+            Local Development
         </MenuItem>
 
         <MenuItem
-          component={<Link to="/docs/v2/internals/design" />}
-          active={location.pathname === "/docs/v2/internals/design"}
-          icon={"📋"}
-          onClick={closeSidebarMobile}>
-            Design
-        </MenuItem>
-
-        <MenuItem
-          component={<Link to="/docs/v2/internals/mock" />}
-          active={location.pathname === "/docs/v2/internals/mock"}
+          component={<Link to="/docs/v2/internals/mocking" />}
+          active={location.pathname === "/docs/v2/internals/mocking"}
           icon={"🎭"}
           onClick={closeSidebarMobile}>
-            Mock
+            Mocking
         </MenuItem>
 
         <MenuItem

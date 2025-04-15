@@ -21,7 +21,7 @@ namespace Dissonity.Models
         public long? CreatedAt { get; set; }
         
         [JsonProperty("timestamps")]
-        public Timeframe? Timestamps { get; set; }
+        public ActivityTimestamps? Timestamps { get; set; }
         
         [JsonProperty("application_id")]
         public long? ApplicationId { get; set; }
@@ -49,5 +49,9 @@ namespace Dissonity.Models
         
         [JsonProperty("flags")]
         public long? Flags { get; set; }
+
+        // In <Relationship>.presence.activity, there are more fields,
+        // but there's not much documentation around them and seem to be related
+        // to the Social SDK. I'm choosing not to create another model like PresenceActivity.
     }
 }

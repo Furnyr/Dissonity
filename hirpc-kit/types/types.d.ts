@@ -13,6 +13,9 @@ export type RpcInputPayload = {
     nonce?: string;
     args?: unknown;
 };
+export type DissonityChannelError = {
+    message: string;
+};
 export type DissonityChannelHandshake = {
     raw_multi_event: MultiEvent | null;
     hash: string;
@@ -24,8 +27,9 @@ export type DissonityChannelPayload = {
 };
 export type HiRpcMessage = {
     channel: string;
-    data: unknown | DissonityChannelPayload | DissonityChannelHandshake;
+    data: unknown | DissonityChannelPayload | DissonityChannelHandshake | DissonityChannelError;
     opening?: boolean;
+    error?: boolean;
 };
 export type InteropMessage = {
     hirpc_state: StateCode;

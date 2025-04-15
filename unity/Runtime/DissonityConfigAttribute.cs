@@ -30,7 +30,7 @@ namespace Dissonity
             //? No classes with the attribute
             if (type == null)
             {
-                throw new Exception("[Dissonity] No class with the DissonityConfigAttribute found. You can create a config file with (Right click > Create > Dissonity > Configuration)");
+                throw new Exception("[Dissonity] No class with the DissonityConfigAttribute found. You can create a config file with (Right-click > Create > Dissonity > Configuration)");
             }
 
             var instance = Activator.CreateInstance(type);

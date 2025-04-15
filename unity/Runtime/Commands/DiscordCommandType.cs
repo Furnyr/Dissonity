@@ -25,5 +25,7 @@ namespace Dissonity.Commands
         public const string InitiateImageUpload = "INITIATE_IMAGE_UPLOAD";
         public const string GetActivityInstanceConnectedParticipants = "GET_ACTIVITY_INSTANCE_CONNECTED_PARTICIPANTS";
         public const string ShareLink = "SHARE_LINK";
+        public const string GetRelationships = "GET_RELATIONSHIPS";
+        public const string GetUser = "GET_USER";
     }
 }

@@ -1,7 +1,6 @@
 import CollapseButton from "../../components/CollapseButton";
 import HashLink from "../../components/HashLink";
 import { useOutletContext } from "react-router-dom";
-import BoxWarn from "../../components/BoxWarn";
 import Footer from "../../components/Footer";
 import { PageContext } from "../../types";
 import PageTitle from "../../components/PageTitle";
@@ -23,15 +22,6 @@ function GuidesPage () {
       <PageTitle title="Guides | Dissonity"/>
 
       <CollapseButton onClick={context.onClick} collapsed={context.collapsed}/>
-      
-      <BoxWarn title="Warning!">
-        <p>
-          These guides are for Dissonity Version 2, which is still in beta. Keep in mind there might be breaking changes between updates!
-        </p>
-        <p>
-          If you need stability, you should wait for the full release. <a href="https://github.com/Furnyr/Dissonity/releases" target="_blank">(Releases)</a>
-        </p>
-      </BoxWarn>
 
       <h1>Guides <HashLink link="/?/guides/v2/index"/></h1>
 

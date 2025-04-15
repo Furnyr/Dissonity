@@ -8,21 +8,32 @@ namespace Dissonity.Editor.Dialogs
         public static void ShowDialog()
         {
             var window = GetWindow<UpdateDialog>(true, "Dissonity — Update Changelog", true);
-            window.minSize = new Vector2(600, 600);
+            window.minSize = new Vector2(600, 750);
         }
 
         private void OnGUI()
         {
-            GUIStyle headerStyle = new GUIStyle(EditorStyles.largeLabel)
+            GUIStyle headerStyle = new(EditorStyles.largeLabel)
             {
-                fontSize = 20,
-                fontStyle = FontStyle.Bold
+                fontSize = 23,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter
             };
 
-            GUIStyle subHeaderStyle = new GUIStyle(EditorStyles.largeLabel)
+            GUIStyle centerStyle = new(EditorStyles.label)
+            {
+                alignment = TextAnchor.MiddleCenter
+            };
+
+            GUIStyle subHeaderStyle = new(EditorStyles.largeLabel)
             {
                 fontSize = 17,
                 fontStyle = FontStyle.Bold
+            };
+
+            GUIStyle italicStyle = new(EditorStyles.label)
+            {
+                fontStyle = FontStyle.Italic,
             };
 
             // Top margin
@@ -33,9 +44,9 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.Space(10);
             GUILayout.BeginVertical();
             
-            GUILayout.Label("Beta 2 Overview", headerStyle);
+            GUILayout.Label("v1-v2.0.0 Overview", headerStyle);
 
-            GUILayout.Label("Bug fixes, mock extension and local development utilities.");
+            GUILayout.Label("Overhauled, improved and extended SDK.", centerStyle);
 
             GUILayout.Space(15);
 
@@ -43,7 +54,15 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Api.ApplicationAccessHash property");
+            GUILayout.Label("- Dissonity.Api methods");
+            GUILayout.Label("- Dissonity.Api.Commands methods");
+            GUILayout.Label("- Dissonity.Api.Subscribe methods");
+            GUILayout.Label("- Dissonity.Api.LocalStorage methods");
+            GUILayout.Label("- Dissonity.Api.Proxy methods");
+            GUILayout.Label("- Dissonity.Api.HiRpc methods");
+            GUILayout.Label("- Dissonity.Utils methods");
+            GUILayout.Label("- Dissonity.Models classes");
+            GUILayout.Label("- @DiscordMock object");
             GUILayout.Label("- @JavascriptMock object");
 
             GUILayout.Space(15);
@@ -52,9 +71,9 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- HiRpc methods can now be mocked within Unity.");
-            GUILayout.Label("- LocalStorage methods can now be mocked within Unity.");
-            GUILayout.Label("- Relative HTTPS Proxy requests can be mocked if the URL mappings are defined in the config file.");
+            GUILayout.Label("- Playtest your Discord activity within Unity!");
+            GUILayout.Label("- Not limited to Node.js servers.");
+            GUILayout.Label("- You must call and await Api.Initialize once per runtime.");
 
             GUILayout.Space(15);
 
@@ -62,12 +81,12 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Production builds use the correct loader file.");
-            GUILayout.Label("- Fixed check to detect whether the game is nested.");
+            GUILayout.Label("- Fixed check to detect absolute urls in proxy requests.");
+            GUILayout.Label("- Added hiRPC mock runtime limitations.");
 
             GUILayout.Space(10);
 
-            GUILayout.Label("And more!");
+            GUILayout.Label("And more!", italicStyle);
 
             GUILayout.Space(20);
 
@@ -80,9 +99,15 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Label("Links", subHeaderStyle);
 
-            if (EditorGUILayout.LinkButton("Full changelog"))
+            //todo remove after initial release
+            if (EditorGUILayout.LinkButton("Full Alpha changelog"))
             {
-                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/dev/BETA_CHANGELOG.md");
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/archive/ALPHA_CHANGELOG.md");
+            }
+
+            if (EditorGUILayout.LinkButton("Full Beta changelog"))
+            {
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/archive/BETA_CHANGELOG.md");
             }
 
             if (EditorGUILayout.LinkButton("Documentation"))

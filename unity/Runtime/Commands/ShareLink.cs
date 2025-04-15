@@ -16,14 +16,14 @@ namespace Dissonity.Commands
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string? CustomId { get; set; }
 
-        [JsonProperty("referrer_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string? ReferrerId { get; set; }
+        [JsonProperty("link_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string? LinkId { get; set; }
 
-        public ShareLink(string message, string? customId, string? referrerId)
+        public ShareLink(string message, string? customId, string? linkId)
         {
             Message = message;
             CustomId = customId;
-            ReferrerId = referrerId;
+            LinkId = linkId;
         }
     }
 }

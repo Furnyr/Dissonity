@@ -39,16 +39,6 @@ function GuidesPage () {
         an activity that uses the official SDK needs to use a Node.js-based server, or at least depend on Node.js for the development process. Dissonity gives you the option not to use Node.js while simplifying the development process.
       </p>
 
-      {/*<h2 id="why-use-dissonity">Why use Dissonity? <HashLink link="/?/guides/v2/how-does-it-work#why-use-dissonity" /></h2>
-
-      <ul>
-        <li>100% Coverage of the official SDK</li>
-        <li>API Designed for Unity</li>
-        <li>Easy testing</li>
-        <li>Support for different backends</li>
-        <li>JavaScript interop APIs</li>
-      </ul>*/}
-
       <h2 id="dissonity-implementation">Dissonity implementation <HashLink link="/?/guides/v2/how-does-it-work#dissonity-implementation"/></h2>
 
       <p>
@@ -57,7 +47,7 @@ function GuidesPage () {
 
       <p>
         Within Unity, Dissonity enables <b>Mock Mode</b>. You don't need to compile and host your game each time you need to test something, you can
-        simulate the Discord client in the Unity editor.
+        simulate the Discord client in the Unity editor. When running inside the Discord client, Dissonity automatically creates a <b>DissonityBridge</b> object in the scene to receive data from Discord.
       </p>
 
       {/*<p>

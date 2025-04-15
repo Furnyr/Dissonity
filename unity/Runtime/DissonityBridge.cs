@@ -302,6 +302,24 @@ namespace Dissonity
                 }
             }
 
+            //? Error payload
+            else if (message.HiRpcMessage.Error == true)
+            {
+                JObject objectPayload = (JObject) message.HiRpcMessage.Data;
+                DissonityChannelError? payload = (DissonityChannelError?) objectPayload.ToObject(typeof(DissonityChannelError));
+            
+                if (payload == null) throw new JsonException("Something went wrong trying to deserialize the hiRPC input");
+
+                // Set exception to multi event task
+                //? No task
+                if (!pendingTasks.ContainsKey(MultiId)) return;
+                var tcs = (TaskCompletionSource<MultiEvent?>) pendingTasks[MultiId];
+
+                //\ End task
+                tcs.TrySetException(new ExternalException(payload.Message));
+                pendingTasks.Remove(MultiId);
+            }
+
             //? Normal payload
             else
             {

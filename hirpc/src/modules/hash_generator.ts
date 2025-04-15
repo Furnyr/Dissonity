@@ -11,8 +11,9 @@ export class HashGenerator {
     #state: State;
 
     #locked: boolean = false;
-    #getHash: () => string | null = () => null;
-    #getAppHash: () => string | null = () => null;
+    #hash: string | null = null;
+    #verifyHash: (hash: string | null) => boolean | null = () => null;
+    #verifyAppHash: (hash: string | null) => boolean | null = () => null;
 
     constructor (state: State) {
         this.#state = state;
@@ -20,8 +21,26 @@ export class HashGenerator {
 
     async generateHash(appHash = false): Promise<string> {
 
-        if (appHash && this.#getAppHash() != null) return this.#getAppHash()!;
-        if (!appHash && this.#getHash() != null) return this.#getHash()!;
+        if (appHash) {
+
+            //? App hash already locked
+            if (this.#verifyAppHash(null) != null) {
+                throw new Error("App hash is locked");
+            }
+        }
+
+        else {
+
+            //? Access hash available
+            if (this.#hash != null) {
+                return this.#hash;
+            }
+
+            //? Access hash already locked
+            if (this.#verifyHash(null) != null) {
+                throw new Error("Access hash is locked");
+            }
+        }
 
         //\ Generate random bytes
         const salt = window.crypto.getRandomValues(new Uint8Array(HASH_RANDOM_BYTES));
@@ -42,8 +61,31 @@ export class HashGenerator {
             .join("");
 
         //\ Save hash
-        if (appHash) this.#getAppHash = () => hash;
-        else this.#getHash = () => hash;
+
+        if (appHash) {
+
+            // Check closure
+            this.#verifyAppHash = (testHash) => {
+
+                if (testHash == null) return false;
+
+                return this.compareHashes(testHash, hash);
+            }
+        }
+
+        else {
+
+            // Save temporarily to serve later
+            this.#hash = hash;
+
+            // Check closure
+            this.#verifyHash = (testHash) => {
+
+                if (testHash == null) return false;
+
+                return this.compareHashes(testHash, hash);
+            }
+        }
 
         return hash;
     }
@@ -81,24 +123,21 @@ export class HashGenerator {
 
     verifyHash(hash: string): boolean {
 
-        return this.verifyAccessHash(hash) || this.verifyAppHash(hash);
+        return !!this.#verifyHash(hash) || !!this.#verifyAppHash(hash);
     }
 
     verifyAccessHash(hash: string): boolean {
 
-        if (this.#getHash() == null) return false;
-
-        return this.compareHashes(hash, this.#getHash()!);
+        return !!this.#verifyHash(hash);
     }
 
     verifyAppHash(hash: string): boolean {
 
-        if (this.#getAppHash() == null) return false;
-
-        return this.compareHashes(hash, this.#getAppHash()!);
+        return !!this.#verifyAppHash(hash);
     }
 
     lock(): void {
+        this.#hash = null;
         this.#locked = true;
     }
 }

@@ -10,8 +10,7 @@ https://dissonity.dev/?/docs/v2/development/security
 https://dissonity.dev/?/docs/v2/development/multiplayer
 https://dissonity.dev/?/docs/v2/development/debugging
 https://dissonity.dev/?/docs/v2/internals/local-development
-https://dissonity.dev/?/docs/v2/internals/design
-https://dissonity.dev/?/docs/v2/internals/mock
+https://dissonity.dev/?/docs/v2/internals/mocking
 https://dissonity.dev/?/docs/v2/internals/webgl-template
 https://dissonity.dev/?/docs/v2/internals/build-variables
 https://dissonity.dev/?/guides/v2/index

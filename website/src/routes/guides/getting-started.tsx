@@ -160,7 +160,7 @@ public class MyScript : MonoBehaviour
         Dissonity simulates the Discord client inside Unity so you don't need to build the game each time you want to test it. This is called <b>mocking</b>.
       </p>
       <p>
-        By right clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it were a Discord server.
+        By right-clicking the hierarchy and selecting (Dissonity &gt; Discord Mock) you can manually create a mock object. Use this object to establish your testing environment as if it were a Discord server.
       </p>
 
       <h2 id="build-the-game">6. Build the game <HashLink link="/?/guides/v2/getting-started#build-the-game"/></h2>

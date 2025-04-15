@@ -15,7 +15,7 @@ namespace Dissonity.Editor.Dialogs
 
         private void OnGUI()
         {
-            GUIStyle headerStyle = new GUIStyle(EditorStyles.largeLabel)
+            GUIStyle headerStyle = new(EditorStyles.largeLabel)
             {
                 fontSize = 20,
                 font = EditorStyles.boldFont
