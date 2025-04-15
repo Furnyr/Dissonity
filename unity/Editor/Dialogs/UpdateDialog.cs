@@ -102,12 +102,12 @@ namespace Dissonity.Editor.Dialogs
             //todo remove after initial release
             if (EditorGUILayout.LinkButton("Full Alpha changelog"))
             {
-                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/ALPHA_CHANGELOG.md");
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/archive/ALPHA_CHANGELOG.md");
             }
 
             if (EditorGUILayout.LinkButton("Full Beta changelog"))
             {
-                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/BETA_CHANGELOG.md");
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/blob/v2/.github/archive/BETA_CHANGELOG.md");
             }
 
             if (EditorGUILayout.LinkButton("Documentation"))
