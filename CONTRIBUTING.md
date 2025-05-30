@@ -79,13 +79,6 @@ We recommend using [Conventional Commits](https://www.conventionalcommits.org/en
     <td></td>
   </tr>
   <tr>
-    <td>/examples</td>
-    <td>Code samples and basic backend.</td>
-    <td>Contributions are accepted. Open an issue to discuss new examples.</td>
-    <td>✅</td>
-    <td></td>
-  </tr>
-  <tr>
     <td>/website</td>
     <td>Site that hosts documentation and guides.</td>
     <td>Contributions are accepted.</td>
