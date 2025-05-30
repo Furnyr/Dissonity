@@ -1,3 +1,7 @@
+
+> [!NOTE]
+> Looking for version 1? See the [v1 branch](https://github.com/Furnyr/Dissonity/tree/v1).
+
 <div align="center">
     <a href="https://dissonity.dev" alt="a"><img src="https://i.imgur.com/AmGkPpE.png" width="650"></a>
 </div>
