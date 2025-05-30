@@ -41,11 +41,11 @@ namespace Dissonity.Editor
 
             // Target where the WebGL Template should be
             string targetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity");
-            string metaTargetPath = CombinePath(Application.dataPath, "WebGLTemplates/Dissonity.meta");
 
             //# ASSETS/DISSONITY - - - - -
             string pathToFolder = CombinePath(Application.dataPath, "Dissonity");
             string pathToDialogs = CombinePath(pathToFolder, "Dialogs.asset");
+            string pathToLink = CombinePath(pathToFolder, "link.xml");
 
             // If Assets/Dissonity doesn't exist, create it.
             if (!Directory.Exists(pathToFolder))
@@ -64,6 +64,17 @@ namespace Dissonity.Editor
 
                 DialogAsset asset = ScriptableObject.CreateInstance<DialogAsset>();
                 AssetDatabase.CreateAsset(asset, relativePathToDialogs);
+            }
+
+            // If Assets/Dissonity/link.xml doesn't exist, create it.
+            if (!File.Exists(pathToLink))
+            {
+                //\ Create link file
+                string fileText = Loady.Load<TextAsset>("Link.txt").text;
+
+                File.WriteAllText(pathToLink, fileText);
+
+                AssetDatabase.Refresh();
             }
 
             //# WEBGL TEMPLATE - - - - -
