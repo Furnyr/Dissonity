@@ -1,11 +1,9 @@
 name: Website
 
-# For development, the site will be updated on pushes to the dev branch.
-
 on: 
   push:
     branches:
-      - dev
+      - main
     paths:
       - "website/**/*.ts"
       - "website/**/*.tsx"

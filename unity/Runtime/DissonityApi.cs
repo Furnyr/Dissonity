@@ -28,7 +28,7 @@ namespace Dissonity
         internal static long? _clientId;
         internal static string? _instanceId;
         internal static string? _platform;
-        internal static long? _guildId;
+        internal static long? _guildId = null;
         internal static long? _channelId;
         internal static long? _userId = null;
         internal static string? _accessToken = null;
@@ -113,9 +113,9 @@ namespace Dissonity
         }  
         
         /// <summary>
-        /// <c> ❄️ </c> The id of the guild on which the activity is running.
+        /// <c> ❄️ </c> The id of the guild on which the activity is running. Returns null if the activity runs in a DM.
         /// </summary>
-        public static long GuildId
+        public static long? GuildId
         {
             get
             {
@@ -123,7 +123,7 @@ namespace Dissonity
 
                 if (_mock) return GameObject.FindAnyObjectByType<DiscordMock>()._query.GuildId;
 
-                return (long) _guildId!;
+                return _guildId;
             }
         }
         
@@ -1002,8 +1002,8 @@ namespace Dissonity
 
                 return response.Data;
             }
-        
-            //todo This seems to depend on a scope that needs Discord approval, and the command itself is undocumented. I am leaving this method as private because I can't test it properly.
+
+            //todo This is now documented and can be released in the next minor update.
             /// <summary>
             /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk
             /// </summary>
@@ -1020,7 +1020,7 @@ namespace Dissonity
                     return mockResponse.Data.Relationships;
                 }
 
-                var response = await SendCommand<GetRelationships, GetRelationshipsResponse>(new ());
+                var response = await SendCommand<GetRelationships, GetRelationshipsResponse>(new());
 
                 return response.Data.Relationships;
             }
@@ -2536,7 +2536,7 @@ namespace Dissonity
             }
 
             //? Synchronize guild member RPC
-            if (_configuration!.SynchronizeGuildMemberRpc)
+            if (_configuration!.SynchronizeGuildMemberRpc && _guildId != null)
             {
                 //? Invalid scopes
                 if (!_configuration!.OauthScopes.Contains(OauthScope.Identify) || !_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
@@ -2894,7 +2894,9 @@ namespace Dissonity
 
                     response.Data = new()
                     {
-                        Success = true
+                        Success = true,
+                        DidCopyLink = true,
+                        DidSendMessage = true
                     };
 
                     ((TaskCompletionSource<ShareLinkResponse>) (object) tcs).TrySetResult(response);

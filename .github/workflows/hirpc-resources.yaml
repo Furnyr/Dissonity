@@ -3,12 +3,19 @@ name: hiRPC Resources
 on:
   pull_request:
     branches:
-      - dev
-    types: [labeled]
+      - main
+    paths:
+      - "hirpc/**/*.json"
+      - "hirpc/**/*.js"
+      - "hirpc/**/*.ts"
+    types:
+      - opened
+      - labeled
+      - synchronize
 
 jobs:
   hirpc_build:
-    if: contains(github.event.label.name, 'ci:ready')
+    if: contains(join(github.event.pull_request.labels.*.name, ','), 'ci:ready')
     name: hiRPC Build
     runs-on: ubuntu-latest
     defaults:

@@ -1,4 +1,5 @@
 import { HiRpcShape } from "./types";
+export { HiRpcShape };
 
 // import type { Opcode } from "../types/enums";
 export enum RpcOpcode {

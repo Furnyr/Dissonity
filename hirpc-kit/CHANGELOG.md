@@ -2,6 +2,12 @@
 
 All notable changes to this package will be documented in this file.
 
+## [0.1.4] - 2025-05-30
+
+### Added
+
+- Added the HiRpcShape type to the exports.
+
 ## [0.1.3] - 2025-04-12
 
 ### Changed

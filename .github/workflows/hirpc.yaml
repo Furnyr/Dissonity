@@ -3,14 +3,14 @@ name: hiRPC
 on: 
   push:
     branches:
-      - dev
+      - main
     paths:
       - "hirpc/**/*.json"
       - "hirpc/**/*.js"
       - "hirpc/**/*.ts"
   pull_request:
     branches:
-      - dev
+      - main
     paths:
       - "hirpc/**/*.json"
       - "hirpc/**/*.js"

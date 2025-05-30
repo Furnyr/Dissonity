@@ -3,7 +3,7 @@ updates:
 - package-ecosystem: "npm"
   directory: "/hirpc"
   schedule:
-    interval: "weekly"
+    interval: "quarterly"
   open-pull-requests-limit: 10
   labels:
     - "scope:hirpc"
