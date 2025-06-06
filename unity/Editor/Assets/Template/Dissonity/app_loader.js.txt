@@ -56,7 +56,7 @@ async function initialize() {
 }
 async function handleHiRpc() {
     const isNested = window.parent != window.parent.parent;
-    if (isNested || typeof window.parent?.dso_hirpc == "object") {
+    if (isNested && typeof window.parent?.dso_hirpc == "object") {
         Object.defineProperty(window, "dso_hirpc", {
             value: window.parent.dso_hirpc,
             writable: false,

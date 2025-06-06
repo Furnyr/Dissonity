@@ -90,7 +90,7 @@ async function handleHiRpc() {
 
     // Nested
     const isNested = window.parent != window.parent.parent;
-    if (isNested || typeof window.parent?.dso_hirpc == "object") {
+    if (isNested && typeof window.parent?.dso_hirpc == "object") {
 
         //\ Add shallow references to this window to use later
         Object.defineProperty(window, "dso_hirpc", {
