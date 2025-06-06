@@ -88,6 +88,44 @@ async function handleHiRpc() {
 
     //? Module already created
 
+    //todo: remove, only for testing purposes
+    function checkDepth() {
+
+        let depth = 0;
+        let data: { canAccess: boolean, error: unknown }[] = [];
+        let doContinue = true;
+        let lastWindow: Window | null = window;
+    
+        while (doContinue) {
+            try {
+                let _ = lastWindow.dso_hirpc;
+                
+                data.push({
+                    canAccess: true,
+                    error: null
+                });
+
+            } catch (error) {
+
+                data.push({
+                    canAccess: false,
+                    error
+                });
+            }
+            if (lastWindow == lastWindow.parent) break;
+            lastWindow = lastWindow.parent;
+            depth++;
+        }
+
+        return [depth, data];
+    }
+
+    const [depth, data] = checkDepth();
+    console.log(`[Dissonity Debug]: App Loader Depth: ${depth}`);
+    console.log(`[Dissonity Debug]: Obtained depth data - - - - -`);
+    console.log(data);
+    console.log(`[Dissonity Debug]: End depth data - - - - -`);
+
     // Nested
     const isNested = window.parent != window.parent.parent;
     if (isNested && typeof window.parent?.dso_hirpc == "object") {
