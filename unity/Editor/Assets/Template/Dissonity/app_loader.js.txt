@@ -17,10 +17,8 @@ let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`
 if (!baseUrl.endsWith("/"))
     baseUrl += "/";
 let outsideDiscord = false;
-let proxyPrefixAdded = false;
 let needsProxyPrefix = false;
 let loaderPath = "Build/{{{ LOADER_FILENAME }}}";
-const versionCheckPath = baseUrl + ".proxy/version.json";
 const proxyBridgeImport = "dso_proxy_bridge/";
 const normalBridgeImport = "dso_bridge/";
 const hirpcFileName = "dissonity_hirpc.js";
@@ -29,18 +27,21 @@ const MOBILE = "mobile";
 let initialWidth = window.innerWidth;
 let initialHeight = window.innerHeight;
 async function initialize() {
-    async function fileExists(url) {
-        const response = await fetch(url, { method: "HEAD" });
-        return response.ok;
-    }
     async function updatePaths() {
-        let { pathname } = window.location;
-        const pathSegments = pathname.split("/");
-        pathSegments.shift();
-        proxyPrefixAdded = pathSegments[0] == ".proxy";
-        const prefixData = sessionStorage.getItem("dso_needs_prefix");
-        needsProxyPrefix = !proxyPrefixAdded && prefixData != "false" && (prefixData == "true" || await fileExists(versionCheckPath));
-        outsideDiscord = !proxyPrefixAdded && !needsProxyPrefix;
+        if (window.location.hostname.endsWith(".discordsays.com")) {
+            sessionStorage.setItem("dso_outside_discord", "false");
+        }
+        else {
+            outsideDiscord = true;
+            sessionStorage.setItem("dso_outside_discord", "true");
+        }
+        if (outsideDiscord || window.location.pathname.startsWith("/.proxy")) {
+            sessionStorage.setItem("dso_needs_prefix", "false");
+        }
+        else {
+            needsProxyPrefix = true;
+            sessionStorage.setItem("dso_needs_prefix", "true");
+        }
         if (needsProxyPrefix) {
             loaderPath = ".proxy/" + loaderPath;
         }
