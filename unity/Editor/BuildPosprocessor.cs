@@ -38,15 +38,26 @@ namespace Dissonity.Editor
             string buildVariablesPath = Path.Combine(bridgeFolder, "dissonity_build_variables.js");
             string appLoaderPath = Path.Combine(pathToBuiltProject, "app_loader.js");
 
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: Path to target file is {buildVariablesPath}");
+
             //# BUILD VARIABLES - - - - -
             string fileContent = File.ReadAllText(buildVariablesPath);
 
             // Client id
             int index = fileContent.IndexOf("[[[ CLIENT_ID ]]]");
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: Index of Client Id PH: {index}");
             CheckIndex(index);
             int endIndex = fileContent.IndexOf(VariableSeparator, index);
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: End Index of Client Id PH: {endIndex}");
             string substring = fileContent.Substring(index, endIndex - index);
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: Client Id Substring: {substring}");
             fileContent = fileContent.Replace(substring, $"[[[ CLIENT_ID ]]] {data.ClientId}");
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: New Client Id Substring: [[[ CLIENT_ID ]]] {data.ClientId}");
 
             // Disable console log override
             index = fileContent.IndexOf("[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]");
@@ -121,8 +132,16 @@ namespace Dissonity.Editor
 
             fileContent = fileContent.Replace(substring, $"[[[ PATCH_URL_MAPPINGS_CONFIG ]]] {patchConfig}");
 
+            //todo: remove, only for testing purposes
+            Debug.Log("[Dissonity Debug]: Printing whole file content in the console - - - - ");
+            Debug.Log(fileContent);
+            Debug.Log("[Dissonity Debug]: End file content - - - - ");
+
             //\ Write final file
             File.WriteAllText(buildVariablesPath, fileContent);
+
+            //todo: remove, only for testing purposes
+            Debug.Log($"[Dissonity Debug]: File written: {buildVariablesPath} - - - - ");
 
             //# APP LOADER - - - - -
             fileContent = File.ReadAllText(appLoaderPath);
