@@ -330,7 +330,7 @@ export class Rpc {
         console.log([window.parent.opener, window.parent]);
         console.log("-----------")
 
-        source.postMessage([opcode, payload], sourceOrigin);
+        source.postMessage([opcode, payload], "*");
     }
 
     getNonce() {
