@@ -297,6 +297,9 @@ export class Rpc {
         const isNested = window.parent != window.parent.parent;
         if (isNested) {
 
+            //todo: remove
+            console.log("[Dissonity Debug]: RPC nested");
+
             const parent = window.parent.parent;
             const activity = window.parent;
 
@@ -309,9 +312,17 @@ export class Rpc {
             const parent = window.parent;
             const activity = window;
 
+            //todo: remove
+            console.log("[Dissonity Debug]: Not nested RPC");
+
             source = parent.opener ?? parent;
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
+
+        //todo: remove
+        console.log("[Dissonity Debug]: Source is:");
+        console.log(sourceOrigin);
+        console.log([opcode, payload]);
 
         source.postMessage([opcode, payload], sourceOrigin);
     }

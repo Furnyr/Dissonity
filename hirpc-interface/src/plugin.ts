@@ -133,7 +133,11 @@ mergeInto(LibraryManager.library, {
     //@unity-api
     DsoSendToRpc: function (stringifiedMessage: string): void {
 
+        //todo remove
+        console.log("[Dissonity Debug]: Sending to RPC:");
+        
         const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        console.log(data);
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 

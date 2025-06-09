@@ -709,6 +709,9 @@ namespace Dissonity
             /// <exception cref="CommandException"></exception>
             public static async Task<OpenExternalLinkData> OpenExternalLink(string url)
             {
+                //todo remove
+                Debug.Log("OpenExternalLink was called");
+
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
@@ -2632,6 +2635,10 @@ namespace Dissonity
             // Only the handshake command lacks a nonce
             string commandNonce = command.Guid.ToString();
 
+            //todo remove
+            Debug.Log("Command nonce is:");
+            Debug.Log(commandNonce);
+
             // Even for NoResponse commands. This allows CommandException(s) to be raised correctly.
             pendingCommands.Add(commandNonce, tcs);
 
@@ -2664,9 +2671,12 @@ namespace Dissonity
                     Data = new object[2] { command.Opcode, payload },
                     AppHash = _appHash!
                 };
+                
+                Debug.Log("Now sending to bridge");
+                Debug.Log(_appHash != null);
 
                 //\ Send data to RPC
-                DsoSendToRpc(JsonConvert.SerializeObject(message));
+            DsoSendToRpc(JsonConvert.SerializeObject(message));
 #endif
         }
         

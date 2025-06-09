@@ -74,7 +74,9 @@ mergeInto(LibraryManager.library, {
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     DsoSendToRpc: function (stringifiedMessage) {
+        console.log("[Dissonity Debug]: Sending to RPC:");
         const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        console.log(data);
         const hiRpc = window.dso_hirpc;
         hiRpc.sendToRpc(app_hash, data[0], data[1]);
     },
