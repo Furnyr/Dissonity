@@ -13,6 +13,9 @@ function getPath() {
     }
     return pathname;
 }
+function logButRemoveLater(...obj) {
+    console.log(...obj);
+}
 let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`;
 if (!baseUrl.endsWith("/"))
     baseUrl += "/";
@@ -111,6 +114,7 @@ async function handleHiRpc() {
             load();
         }
         else {
+            logButRemoveLater("[Dissonity Debug]: Importing hiRPC module");
             await import(`${normalBridgeImport}${hirpcFileName}`);
             await import(`${normalBridgeImport}${buildVariablesFileName}`);
             load();
@@ -118,6 +122,7 @@ async function handleHiRpc() {
         async function load() {
             const hiRpc = new window.Dissonity.HiRpc.default();
             await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
+            logButRemoveLater("[Dissonity Debug]: hiRPC promise resolution");
             resolve(hiRpc);
         }
     });
@@ -132,6 +137,8 @@ async function handleUnityBuild() {
     const hiRpc = window.dso_hirpc;
     const query = hiRpc.getQueryObject();
     const canvas = document.querySelector("#unity-canvas");
+    logButRemoveLater("[Dissonity Debug]: Unity canvas is:");
+    logButRemoveLater(canvas);
     const defaultWidth = Number('{{{ WIDTH }}}');
     const defaultHeight = Number('{{{ HEIGHT }}}');
     let width;
@@ -241,7 +248,9 @@ async function handleUnityBuild() {
             : "url('" + background;
     }
     canvas.style.background = background;
+    logButRemoveLater("[Dissonity Debug]: Trying to laod Unity build now...");
     await loadUnityBuild();
+    logButRemoveLater("[Dissonity Debug]: Unity build is loaded, but not instantiated yet.");
     handleResolution();
     const USE_THREADS = /true|1/i.test("{{{ USE_THREADS }}}");
     const USE_WASM = /true|1/i.test("{{{ USE_WASM }}}");
@@ -264,6 +273,7 @@ async function handleUnityBuild() {
     const companyName = '{{{ JSON.stringify(COMPANY_NAME) }}}'.replace('"', "");
     const productName = '{{{ JSON.stringify(PRODUCT_NAME) }}}'.replace('"', "");
     const productVersion = '{{{ JSON.stringify(PRODUCT_VERSION) }}}'.replace('"', "");
+    logButRemoveLater("[Dissonity Debug]: Creating Unity instance...");
     createUnityInstance(canvas, {
         dataUrl,
         frameworkUrl,
@@ -276,11 +286,16 @@ async function handleUnityBuild() {
         productName,
         productVersion,
         matchWebGLToCanvasSize: autoSize,
+    }).then(() => {
+        logButRemoveLater("[Dissonity Debug]: Unity instance created.");
     });
 }
 (async () => {
+    logButRemoveLater("[Dissonity Debug]: First initialization");
     await initialize();
+    logButRemoveLater("[Dissonity Debug]: hiRPC initialization");
     await handleHiRpc();
+    logButRemoveLater("[Dissonity Debug]: Unity initialization");
     await handleUnityBuild();
 })();
 export {};

@@ -7,6 +7,7 @@
 
 mergeInto(LibraryManager.library, {
     DsoOpenDownwardFlow: function () {
+        console.log("Opening downward flow");
         const hiRpc = window.dso_hirpc;
         if (hiRpc.getBuildVariables().LAZY_HIRPC_LOAD) {
             hiRpc.load(0)
@@ -19,6 +20,7 @@ mergeInto(LibraryManager.library, {
             openFlow();
         }
         function openFlow() {
+            console.log("Setting app sender");
             hiRpc.openDownwardFlow((stringifiedData) => {
                 SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
             });

@@ -22,6 +22,10 @@ function getPath() {
     return pathname;
 }
 
+function logButRemoveLater(...obj: any[]) {
+    console.log(...obj);
+}
+
 let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`;
 if (!baseUrl.endsWith("/")) baseUrl += "/";
 
@@ -167,6 +171,7 @@ async function handleHiRpc() {
         }
 
         else {
+            logButRemoveLater("[Dissonity Debug]: Importing hiRPC module");
             await import(`${normalBridgeImport}${hirpcFileName}`);
             await import(`${normalBridgeImport}${buildVariablesFileName}`);
             
@@ -179,6 +184,8 @@ async function handleHiRpc() {
             const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
 
             await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
+
+            logButRemoveLater("[Dissonity Debug]: hiRPC promise resolution");
 
             resolve(hiRpc);
         }
@@ -202,6 +209,9 @@ async function handleUnityBuild() {
     const query = hiRpc.getQueryObject();
 
     const canvas: HTMLCanvasElement = document.querySelector("#unity-canvas")!;
+
+    logButRemoveLater("[Dissonity Debug]: Unity canvas is:");
+    logButRemoveLater(canvas);
 
     // Resolution
     const defaultWidth = Number('{{{ WIDTH }}}');
@@ -348,7 +358,9 @@ async function handleUnityBuild() {
     canvas.style.background = background;
 
     // Load Unity and handle resolution - - - - -
+    logButRemoveLater("[Dissonity Debug]: Trying to laod Unity build now...");
     await loadUnityBuild();
+    logButRemoveLater("[Dissonity Debug]: Unity build is loaded, but not instantiated yet.");
 
     handleResolution();
 
@@ -374,6 +386,8 @@ async function handleUnityBuild() {
     const productName = '{{{ JSON.stringify(PRODUCT_NAME) }}}'.replace('"', "");
     const productVersion = '{{{ JSON.stringify(PRODUCT_VERSION) }}}'.replace('"', "");
 
+    logButRemoveLater("[Dissonity Debug]: Creating Unity instance...");
+
     createUnityInstance(canvas, {
         dataUrl,
         frameworkUrl,
@@ -387,14 +401,22 @@ async function handleUnityBuild() {
         productVersion,
         matchWebGLToCanvasSize: autoSize,
         // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+    }).then(() => {
+        logButRemoveLater("[Dissonity Debug]: Unity instance created.");
     });
 }
 
 (async () => {
 
+    logButRemoveLater("[Dissonity Debug]: First initialization");
+
     await initialize();
 
+    logButRemoveLater("[Dissonity Debug]: hiRPC initialization");
+
     await handleHiRpc();
+
+    logButRemoveLater("[Dissonity Debug]: Unity initialization");
 
     await handleUnityBuild();
 })();

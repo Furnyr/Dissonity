@@ -2138,6 +2138,7 @@ namespace Dissonity
             {
                 // OverrideConsoleLogging is done in the hiRPC layer.
                 // The RPC handshake is handled by the hiRPC even before the Unity build loads.
+                Utils.DissonityLog("Waiting for multi event"); //todo remove
                 MultiEvent? multiEvent = await bridge!.ExeMultiEvent();
 
                 _hiRpcReady = true;
@@ -2145,6 +2146,7 @@ namespace Dissonity
                 //? Null Multi Event
                 if (multiEvent == null)
                 {
+                    Utils.DissonityLog("Multi event is null"); //todo remove
                     tcs.TrySetException(new OutsideDiscordException("The Multi Event is null - the environment is outside Discord"));
                     readyTask.SetResult(false);
                     return;
@@ -2152,6 +2154,8 @@ namespace Dissonity
 
                 _userId = multiEvent.AuthenticateData.User.Id;
                 _accessToken = multiEvent.AuthenticateData.AccessToken;
+
+                Utils.DissonityLog("Getting query"); //todo remove
 
                 string query = await bridge!.ExeQuery();
 
@@ -2163,6 +2167,7 @@ namespace Dissonity
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
             // From then, the JS and C# layer can interact.
             // This loads the hiRPC module if LAZY_HIRPC_LOAD is set to true.
+            Utils.DissonityLog("Opening downward flow in C#"); //todo remove
             DsoOpenDownwardFlow();
 
             return tcs.Task;
@@ -2414,6 +2419,8 @@ namespace Dissonity
                 return;
             }
 
+            Utils.DissonityLog("Handling query"); //todo remove
+
             //# QUERY PARAMS - - - - -
             // Frame id
             if (query.FrameId == null)
@@ -2485,6 +2492,8 @@ namespace Dissonity
 
         private static async void CompleteInitialization(TaskCompletionSource<MultiEvent> tcs, MultiEvent multiEvent)
         {
+            Utils.DissonityLog("Completing init"); //todo remove
+
             //# CHECK STATE - - - - -
             var code = await bridge!.ExeState();
 
@@ -2502,6 +2511,7 @@ namespace Dissonity
             //? OutsideDiscord
             if (code == StateCode.OutsideDiscord)
             {
+                Utils.DissonityLog("Outside discord"); //todo remove
                 tcs.TrySetException(new OutsideDiscordException("hiRPC returned OutsideDiscord state"));
             }
 
@@ -2586,6 +2596,7 @@ namespace Dissonity
                 }
             }
 
+            Utils.DissonityLog("Everything is ready"); //todo remove
             _ready = true;
             readyTask.SetResult(true);
             tcs.TrySetResult(multiEvent);
