@@ -26,11 +26,9 @@ let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`
 if (!baseUrl.endsWith("/")) baseUrl += "/";
 
 let outsideDiscord = false;
-let proxyPrefixAdded = false;
 let needsProxyPrefix = false;
 
 let loaderPath = "Build/{{{ LOADER_FILENAME }}}"; 
-const versionCheckPath = baseUrl + ".proxy/version.json";
 
 const proxyBridgeImport = "dso_proxy_bridge/";
 const normalBridgeImport = "dso_bridge/";
@@ -45,23 +43,27 @@ let initialHeight = window.innerHeight;
 // Set up paths before anything
 async function initialize() {
 
-    async function fileExists(url: string) {
-        const response = await fetch(url, { method: "HEAD" });
-        return response.ok;
-    }
-
     async function updatePaths() {
         
-        let { pathname } = window.location;
-    
-        // Handle URL override
-        const pathSegments = pathname.split("/"); // "/.proxy/staging" -> ["", ".proxy", "staging"]
-        pathSegments.shift();
-    
-        proxyPrefixAdded = pathSegments[0] == ".proxy";
-        const prefixData = sessionStorage.getItem("dso_needs_prefix") as SessionStorage["dso_needs_prefix"];
-        needsProxyPrefix = !proxyPrefixAdded && prefixData != "false" && (prefixData == "true" || await fileExists(versionCheckPath));
-        outsideDiscord = !proxyPrefixAdded && !needsProxyPrefix;
+        //? Not outside Discord
+        if (window.location.hostname.endsWith(".discordsays.com")) {
+            sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
+
+        else {
+            outsideDiscord = true;
+            sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
+
+        //? Doesn't need prefix
+        if (outsideDiscord || window.location.pathname.startsWith("/.proxy")) {
+            sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+        }
+
+        else {
+            needsProxyPrefix = true;
+            sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
+        }
     
         // Add .proxy
         if (needsProxyPrefix) {
@@ -87,7 +89,6 @@ async function initialize() {
 async function handleHiRpc() {
 
     //? Module already created
-
     // Nested
     const isNested = window.parent != window.parent.parent;
     if (isNested && typeof window.parent?.dso_hirpc == "object") {
@@ -138,7 +139,7 @@ async function handleHiRpc() {
             // window.dso_hirpc is defined after this line
             const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
 
-            await initialize(hiRpc, false);
+            await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
 
             resolve(hiRpc);
         }

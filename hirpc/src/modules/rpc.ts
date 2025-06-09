@@ -297,19 +297,34 @@ export class Rpc {
         const isNested = window.parent != window.parent.parent;
         if (isNested) {
 
-            const parent = window.parent.parent;
+            const thisParent = window.parent.parent;
             const activity = window.parent;
 
-            source = parent.opener ?? parent;
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch {
+
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
+
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
         else {
 
-            const parent = window.parent;
+            const thisParent = window.parent;
             const activity = window;
 
-            source = parent.opener ?? parent;
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch (_) {
+
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
