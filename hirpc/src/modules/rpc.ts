@@ -300,29 +300,35 @@ export class Rpc {
             //todo: remove
             console.log("[Dissonity Debug]: RPC nested");
 
-            const parent = window.parent.parent;
+            const thisParent = window.parent.parent;
             const activity = window.parent;
 
-            source = parent.opener ?? parent;
+            source = thisParent.opener ?? thisParent;
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
         else {
 
-            const parent = window.parent;
+            const thisParent = window.parent;
             const activity = window;
 
             //todo: remove
             console.log("[Dissonity Debug]: Not nested RPC");
 
-            source = parent.opener ?? parent;
+            source = thisParent.opener ?? thisParent;
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
         //todo: remove
         console.log("[Dissonity Debug]: Source is:");
+        console.log(source);
+        console.log("[Dissonity Debug]: Source origin is:");
         console.log(sourceOrigin);
+        console.log("[Dissonity Debug]: Payload is:");
         console.log([opcode, payload]);
+        console.log("[Dissonity Debug]: Detailed source:");
+        console.log([window.parent.opener, window.parent]);
+        console.log("-----------")
 
         source.postMessage([opcode, payload], sourceOrigin);
     }
