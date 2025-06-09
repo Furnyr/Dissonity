@@ -297,13 +297,18 @@ export class Rpc {
         const isNested = window.parent != window.parent.parent;
         if (isNested) {
 
-            //todo: remove
-            console.log("[Dissonity Debug]: RPC nested");
-
             const thisParent = window.parent.parent;
             const activity = window.parent;
 
-            source = thisParent.opener ?? thisParent;
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch {
+
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
+
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
@@ -312,25 +317,18 @@ export class Rpc {
             const thisParent = window.parent;
             const activity = window;
 
-            //todo: remove
-            console.log("[Dissonity Debug]: Not nested RPC");
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch (_) {
 
-            source = thisParent.opener ?? thisParent;
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
-        //todo: remove
-        console.log("[Dissonity Debug]: Source is:");
-        console.log(source);
-        console.log("[Dissonity Debug]: Source origin is:");
-        console.log(sourceOrigin);
-        console.log("[Dissonity Debug]: Payload is:");
-        console.log([opcode, payload]);
-        console.log("[Dissonity Debug]: Detailed source:");
-        console.log([window.parent.opener, window.parent]);
-        console.log("-----------")
-
-        source.postMessage([opcode, payload], "*");
+        source.postMessage([opcode, payload], sourceOrigin);
     }
 
     getNonce() {
