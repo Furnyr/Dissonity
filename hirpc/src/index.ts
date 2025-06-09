@@ -340,18 +340,9 @@ export default class HiRpc {
      */
     async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
 
-        //todo: remove
-        console.log("[Dissonity Debug]: Checking hash");
-
         if (!this.#hashes.verifyHash(hash)) return;
 
-        //todo: remove
-        console.log("[Dissonity Debug]: Hash is valid, waiting for promise");
-
         await this.#state.readyPromise;
-
-        //todo: remove
-        console.log("[Dissonity Debug]: Ready promise resolved. RPC call");
 
         this.#rpc.send(opcode, payload);
     }

@@ -14,9 +14,6 @@ mergeInto(LibraryManager.library, {
     //@unity-api
     DsoOpenDownwardFlow: function(): void {
 
-        //todo remove logs
-        console.log("Opening downward flow");
-
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
         // Load module now if LAZY_HIRPC_LOAD is set to true.
@@ -36,7 +33,6 @@ mergeInto(LibraryManager.library, {
         }
 
         function openFlow() {
-            console.log("Setting app sender");
             hiRpc.openDownwardFlow((stringifiedData: string) => {
                 SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
             });
@@ -133,11 +129,7 @@ mergeInto(LibraryManager.library, {
     //@unity-api
     DsoSendToRpc: function (stringifiedMessage: string): void {
 
-        //todo remove
-        console.log("[Dissonity Debug]: Sending to RPC:");
-        
         const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
-        console.log(data);
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 

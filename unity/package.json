@@ -1,6 +1,6 @@
 {
     "name": "com.furnyr.dissonity",
-    "version": "0.0.7",
+    "version": "2.1.0",
     "unity": "2021.3",
     "displayName": "Dissonity",
     "description": "Interact with the Discord client inside a Unity activity.",
