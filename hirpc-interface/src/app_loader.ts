@@ -178,7 +178,7 @@ async function handleHiRpc() {
             // window.dso_hirpc is defined after this line
             const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
 
-            await initialize(hiRpc, false);
+            await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
 
             resolve(hiRpc);
         }

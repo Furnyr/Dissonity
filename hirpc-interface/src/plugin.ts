@@ -16,10 +16,27 @@ mergeInto(LibraryManager.library, {
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.openDownwardFlow((stringifiedData: string) => {
+        // Load module now if LAZY_HIRPC_LOAD is set to true.
+        // This loads the module with zero hash accesses. Hash access is already locked at this point either way.
+        if (hiRpc.getBuildVariables().LAZY_HIRPC_LOAD) {
+            hiRpc.load(0)
+                .then(openFlow)
+                .catch(err => {
 
-            SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
-        });
+                    // So if something weird happens we can see what's going on
+                    console.log(err);
+                });
+        }
+
+        else {
+            openFlow();
+        }
+
+        function openFlow() {
+            hiRpc.openDownwardFlow((stringifiedData: string) => {
+                SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
+            });
+        }
     },
 
     //@unity-bridge

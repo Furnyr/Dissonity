@@ -2162,6 +2162,7 @@ namespace Dissonity
 
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
             // From then, the JS and C# layer can interact.
+            // This loads the hiRPC module if LAZY_HIRPC_LOAD is set to true.
             DsoOpenDownwardFlow();
 
             return tcs.Task;

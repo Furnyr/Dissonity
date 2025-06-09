@@ -9,6 +9,7 @@ import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
 export default class BuildVariables {
     #private;
     DISABLE_INFO_LOGS: boolean;
+    LAZY_HIRPC_LOAD: boolean;
     CLIENT_ID: string;
     DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
     MAPPINGS: Mapping[];

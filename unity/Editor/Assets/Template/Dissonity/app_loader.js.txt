@@ -117,7 +117,7 @@ async function handleHiRpc() {
         }
         async function load() {
             const hiRpc = new window.Dissonity.HiRpc.default();
-            await initialize(hiRpc, false);
+            await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
             resolve(hiRpc);
         }
     });

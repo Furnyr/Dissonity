@@ -98,6 +98,13 @@ namespace Dissonity.Editor
             substring = fileContent.Substring(index, endIndex - index);
             fileContent = fileContent.Replace(substring, $"[[[ DISABLE_INFO_LOGS ]]] {data.DisableDissonityInfoLogs}");
 
+            // Lazy hiRPC load
+            index = fileContent.IndexOf("[[[ LAZY_HIRPC_LOAD ]]]");
+            CheckIndex(index);
+            endIndex = fileContent.IndexOf(VariableSeparator, index);
+            substring = fileContent.Substring(index, endIndex - index);
+            fileContent = fileContent.Replace(substring, $"[[[ LAZY_HIRPC_LOAD ]]] {data.LazyHiRpcLoad}");
+
             // Mappings
             index = fileContent.IndexOf("[[[ MAPPINGS ]]]");
             CheckIndex(index);

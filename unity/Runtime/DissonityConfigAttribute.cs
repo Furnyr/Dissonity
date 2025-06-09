@@ -55,6 +55,7 @@ namespace Dissonity
             Type requestType = ((ISdkConfiguration) instance).GetRequestType();
             Type responseType = ((ISdkConfiguration) instance).GetResponseType();
             bool disableDissonityInfoLogs = ((ISdkConfiguration) instance).DisableDissonityInfoLogs;
+            bool lazyHiRpcLoad = ((ISdkConfiguration) instance).LazyHiRpcLoad;
             MappingBuilder[] mappings = ((ISdkConfiguration) instance).Mappings;
             PatchUrlMappingsConfigBuilder patchConfig = ((ISdkConfiguration) instance).PatchUrlMappingsConfig;
             ScreenResolution desktopResolution = ((ISdkConfiguration) instance).DesktopResolution;
@@ -76,6 +77,7 @@ namespace Dissonity
                 ServerTokenRequest = requestType,
                 ServerTokenResponse = responseType,
                 DisableDissonityInfoLogs = disableDissonityInfoLogs,
+                LazyHiRpcLoad = lazyHiRpcLoad,
                 Mappings = mappings,
                 PatchUrlMappingsConfig = patchConfig,
                 DesktopResolution = desktopResolution,

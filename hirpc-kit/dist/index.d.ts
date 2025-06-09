@@ -33,6 +33,7 @@ interface PatchUrlMappingsConfig {
 declare class BuildVariables$1 {
     #private;
     DISABLE_INFO_LOGS: boolean;
+    LAZY_HIRPC_LOAD: boolean;
     CLIENT_ID: string;
     DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
     MAPPINGS: Mapping[];
@@ -148,4 +149,4 @@ declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpcSh
  */
 declare function loadIframe(src: string, id: string): void;
 
-export { RpcOpcode, loadIframe, setupHiRpc };
+export { type HiRpcShape, RpcOpcode, loadIframe, setupHiRpc };
