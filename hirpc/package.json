@@ -16,7 +16,7 @@
     "@types/node": "^22.10.2",
     "chalk": "4.1.2",
     "prompt-sync": "^4.2.0",
-    "terser-webpack-plugin": "^5.3.11",
+    "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.1",
     "typescript": "^5.7.2",
     "uvu": "^0.5.6",
