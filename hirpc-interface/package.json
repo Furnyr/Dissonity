@@ -1,6 +1,6 @@
 {
   "name": "@dissonity/hirpc-interface",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "A hiRPC implementation for Unity WebGL",
   "scripts": {
     "build": "pnpm tsc && node scripts/build.js",

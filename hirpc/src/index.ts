@@ -338,9 +338,9 @@ export default class HiRpc {
     /**
      * Send data to Discord through RPC.
      */
-    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
+    async sendToRpc(opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
 
-        if (!this.#hashes.verifyHash(hash)) return;
+        if (this.#state.stateCode == StateCode.OutsideDiscord) return;
 
         await this.#state.readyPromise;
 

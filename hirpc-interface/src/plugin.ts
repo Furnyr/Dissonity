@@ -129,12 +129,12 @@ mergeInto(LibraryManager.library, {
     //@unity-api
     DsoSendToRpc: function (stringifiedMessage: string): void {
 
-        const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
         // The array is formed again at the hiRPC layer
-        hiRpc.sendToRpc(app_hash, data[0], data[1]);
+        hiRpc.sendToRpc(data[0], data[1]);
     },
 
     //@unity-api

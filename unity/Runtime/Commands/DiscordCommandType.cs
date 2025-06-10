@@ -27,5 +27,6 @@ namespace Dissonity.Commands
         public const string ShareLink = "SHARE_LINK";
         public const string GetRelationships = "GET_RELATIONSHIPS";
         public const string GetUser = "GET_USER";
+        public const string InviteUserEmbedded = "INVITE_USER_EMBEDDED";
     }
 }

@@ -1,6 +1,6 @@
-import { Opcode } from "./enums";
-import type { Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, RpcInputPayload } from "./types";
+import { Opcode } from "../enums";
+import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
+import type { RpcInputPayload } from "../types";
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  *
@@ -8,7 +8,7 @@ import type { BuildVariables, RpcInputPayload } from "./types";
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-export default class HiRpc {
+export default class HiRpcV0_4 {
     #private;
     constructor();
     /**
@@ -47,7 +47,7 @@ export default class HiRpc {
     /**
      * Send data to Discord through RPC.
      */
-    sendToRpc(opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
+    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
     /**
      * **Only used inside the game build.**
      *
@@ -77,3 +77,17 @@ export default class HiRpc {
      */
     closeDownwardFlow(hash: string): void;
 }
+
+declare class _BuildVariables {
+    #private;
+    DISABLE_INFO_LOGS: boolean;
+    CLIENT_ID: string;
+    DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
+    MAPPINGS: Mapping[];
+    PATCH_URL_MAPPINGS_CONFIG: PatchUrlMappingsConfig;
+    OAUTH_SCOPES: string[];
+    TOKEN_REQUEST_PATH: string;
+    SERVER_REQUEST: string;
+    constructor();
+}
+type BuildVariables = InstanceType<typeof _BuildVariables>;

@@ -14,7 +14,8 @@ public class RpcEvents
 
         // ActivityInstanceParticipantsUpdate
         TaskCompletionSource<bool> ActivityInstanceParticipantsUpdateTask = new();
-        _ = Subscribe.ActivityInstanceParticipantsUpdate((d) => {
+        _ = Subscribe.ActivityInstanceParticipantsUpdate((d) =>
+        {
             ActivityInstanceParticipantsUpdateTask.SetResult(true);
         });
         mock.ActivityInstanceParticipantsUpdate();
@@ -23,7 +24,8 @@ public class RpcEvents
 
         // ActivityLayoutModeUpdate
         TaskCompletionSource<bool> ActivityLayoutModeUpdateTask = new();
-        _ = Subscribe.ActivityLayoutModeUpdate((d) => {
+        _ = Subscribe.ActivityLayoutModeUpdate((d) =>
+        {
             ActivityLayoutModeUpdateTask.SetResult(true);
         });
         mock.ActivityLayoutModeUpdate();
@@ -32,7 +34,8 @@ public class RpcEvents
 
         // CurrentGuildMemberUpdate
         TaskCompletionSource<bool> CurrentGuildMemberUpdateTask = new();
-        _ = Subscribe.CurrentGuildMemberUpdate(0, (d) => {
+        _ = Subscribe.CurrentGuildMemberUpdate(0, (d) =>
+        {
             CurrentGuildMemberUpdateTask.SetResult(true);
         });
         mock.CurrentGuildMemberUpdate();
@@ -41,7 +44,8 @@ public class RpcEvents
 
         // CurrentUserUpdate
         TaskCompletionSource<bool> CurrentUserUpdateTask = new();
-        _ = Subscribe.CurrentUserUpdate((d) => {
+        _ = Subscribe.CurrentUserUpdate((d) =>
+        {
             CurrentUserUpdateTask.SetResult(true);
         });
         mock.CurrentUserUpdate();
@@ -50,10 +54,12 @@ public class RpcEvents
 
         // EntitlementCreate
         TaskCompletionSource<bool> EntitlementCreateTask = new();
-        _ = Subscribe.EntitlementCreate((d) => {
+        _ = Subscribe.EntitlementCreate((d) =>
+        {
             EntitlementCreateTask.SetResult(true);
         });
-        mock._entitlements.Add(new() {
+        mock._entitlements.Add(new()
+        {
             Id = 0
         });
         mock.EntitlementCreate(0);
@@ -62,7 +68,8 @@ public class RpcEvents
 
         // OrientationUpdate
         TaskCompletionSource<bool> OrientationUpdateTask = new();
-        _ = Subscribe.OrientationUpdate((d) => {
+        _ = Subscribe.OrientationUpdate((d) =>
+        {
             OrientationUpdateTask.SetResult(true);
         });
         mock.OrientationUpdate();
@@ -71,7 +78,8 @@ public class RpcEvents
 
         // SpeakingStart
         TaskCompletionSource<bool> SpeakingStartTask = new();
-        _ = Subscribe.SpeakingStart(0, (d) => {
+        _ = Subscribe.SpeakingStart(0, (d) =>
+        {
             SpeakingStartTask.SetResult(true);
         });
         mock.SpeakingStart();
@@ -80,7 +88,8 @@ public class RpcEvents
 
         // SpeakingStop
         TaskCompletionSource<bool> SpeakingStopTask = new();
-        _ = Subscribe.SpeakingStop(0, (d) => {
+        _ = Subscribe.SpeakingStop(0, (d) =>
+        {
             SpeakingStopTask.SetResult(true);
         });
         mock.SpeakingStop();
@@ -89,18 +98,30 @@ public class RpcEvents
 
         // ThermalStateUpdate
         TaskCompletionSource<bool> ThermalStateUpdateTask = new();
-        _ = Subscribe.ThermalStateUpdate((d) => {
+        _ = Subscribe.ThermalStateUpdate((d) =>
+        {
             ThermalStateUpdateTask.SetResult(true);
         });
         mock.ThermalStateUpdate();
         yield return new WaitUntil(() => ThermalStateUpdateTask.Task.IsCompleted);
 
+
         // VoiceStateUpdate
         TaskCompletionSource<bool> VoiceStateUpdateTask = new();
-        _ = Subscribe.VoiceStateUpdate(0, (d) => {
+        _ = Subscribe.VoiceStateUpdate(0, (d) =>
+        {
             VoiceStateUpdateTask.SetResult(true);
         });
         mock.VoiceStateUpdate();
         yield return new WaitUntil(() => VoiceStateUpdateTask.Task.IsCompleted);
+        
+
+        // RelationshipUpdate
+        TaskCompletionSource<bool> RelationshipUpdateTask = new();
+        _ = Subscribe.RelationshipUpdate((d) => {
+            RelationshipUpdateTask.SetResult(true);
+        });
+        mock.RelationshipUpdate();
+        yield return new WaitUntil(() => RelationshipUpdateTask.Task.IsCompleted);
     }
 }

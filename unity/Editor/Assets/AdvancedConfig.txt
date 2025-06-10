@@ -12,6 +12,7 @@ public class DissonityConfiguration : SdkConfiguration<MyServerRequest, MyServer
     public override long ClientId => 0;
     public override string[] OauthScopes => new string[] { OauthScope.Identify, /*, your-oauth-scopes*/ };
     public override string TokenRequestPath => "/api/token";
+    public override bool LazyHiRpcLoad => false;
 
     // Logging
     public override bool DisableConsoleLogOverride => true;

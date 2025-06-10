@@ -72,9 +72,9 @@ mergeInto(LibraryManager.library, {
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     DsoSendToRpc: function (stringifiedMessage) {
-        const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.sendToRpc(app_hash, data[0], data[1]);
+        hiRpc.sendToRpc(data[0], data[1]);
     },
     DsoExpandCanvas: function () {
         if (typeof window.dso_expand_canvas == "undefined")

@@ -1,6 +1,6 @@
 import { CLOSE_NORMAL, HANDSHAKE_UNKNOWN_VERSION_NUMBER } from "../constants";
 import { Opcode, RpcCommands, RpcEvents, StateCode } from "../enums";
-import { InteropMessage, RpcMessage } from "../types";
+import { InteropMessage, RpcMessage, RpcSource } from "../types";
 
 import { State } from "./state";
 import { BuildVariables } from "../types";
@@ -13,6 +13,7 @@ import { OfficialUtils } from "./official_utils";
 export class Rpc {
 
     #state: State;
+    #source: RpcSource;
     #utils: OfficialUtils;
     #allowedOrigins = new Set([
         typeof window != "undefined"
@@ -32,6 +33,7 @@ export class Rpc {
 
     constructor(state: State, utils: OfficialUtils) {
         this.#state = state;
+        this.#source = this.#getRpcSource();
         this.#utils = utils;
 
         // Ensure the class context is preserved in the message event
@@ -289,6 +291,36 @@ export class Rpc {
 
     send(opcode: Opcode, payload: unknown): void {
 
+        const { source, sourceOrigin } = this.#source;
+
+        source.postMessage([opcode, payload], sourceOrigin);
+    }
+
+    getNonce() {
+
+        const uuid = new Array(36);
+
+        for (let i = 0; i < 36; i++) {
+            uuid[i] = Math.floor(Math.random() * 16);
+        }
+
+        uuid[14] = 4;
+        uuid[19] = uuid[19] &= ~(1 << 2);
+        uuid[19] = uuid[19] |= (1 << 3);
+        uuid[8] = uuid[13] = uuid[18] = uuid[23] = "-";
+        return uuid.map((x) => x.toString(16)).join("");
+    }
+
+    serializePayload(payload: unknown): string {
+
+        return JSON.stringify(payload, (_, value) => {
+            if (typeof value == "bigint") return value.toString();
+            else return value;
+        });
+    }
+
+    #getRpcSource(): RpcSource {
+
         // The hiRPC needs to work inside a nested iframe. So it can be two iframes in the Discord client.
 
         let source: Window;
@@ -328,30 +360,7 @@ export class Rpc {
             sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
         }
 
-        source.postMessage([opcode, payload], sourceOrigin);
-    }
-
-    getNonce() {
-
-        const uuid = new Array(36);
-
-        for (let i = 0; i < 36; i++) {
-            uuid[i] = Math.floor(Math.random() * 16);
-        }
-
-        uuid[14] = 4;
-        uuid[19] = uuid[19] &= ~(1 << 2);
-        uuid[19] = uuid[19] |= (1 << 3);
-        uuid[8] = uuid[13] = uuid[18] = uuid[23] = "-";
-        return uuid.map((x) => x.toString(16)).join("");
-    }
-
-    serializePayload(payload: unknown): string {
-
-        return JSON.stringify(payload, (_, value) => {
-            if (typeof value == "bigint") return value.toString();
-            else return value;
-        });
+        return { source, sourceOrigin };
     }
 
     // Literal implementation of overrideConsoleLogging from the official SDK
