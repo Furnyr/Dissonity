@@ -17,7 +17,7 @@
     "chalk": "4.1.2",
     "prompt-sync": "^4.2.0",
     "terser-webpack-plugin": "^5.3.11",
-    "ts-loader": "^9.5.1",
+    "ts-loader": "^9.5.2",
     "typescript": "^5.7.2",
     "uvu": "^0.5.6",
     "webpack": "^5.97.1",
