@@ -114,11 +114,12 @@ public class RpcEvents
         });
         mock.VoiceStateUpdate();
         yield return new WaitUntil(() => VoiceStateUpdateTask.Task.IsCompleted);
-        
+
 
         // RelationshipUpdate
         TaskCompletionSource<bool> RelationshipUpdateTask = new();
-        _ = Subscribe.RelationshipUpdate((d) => {
+        _ = Subscribe.RelationshipUpdate((d) =>
+        {
             RelationshipUpdateTask.SetResult(true);
         });
         mock.RelationshipUpdate();
