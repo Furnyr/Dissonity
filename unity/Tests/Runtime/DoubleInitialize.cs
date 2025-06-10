@@ -15,7 +15,7 @@ public class DoubleInitialize
     {
         RawOverrideConfiguration(new Dissonity.I_UserData {
             DisableDissonityInfoLogs = true,
-            OauthScopes = new string[] { OauthScope.Identify, OauthScope.RpcActivitiesWrite, OauthScope.RpcVoiceRead, OauthScope.Guilds, OauthScope.GuildsMembersRead }
+            OauthScopes = new string[] { OauthScope.Identify, OauthScope.RpcActivitiesWrite, OauthScope.RpcVoiceRead, OauthScope.Guilds, OauthScope.GuildsMembersRead, OauthScope.RelationshipsRead }
         });
 
         Task task = Initialize();

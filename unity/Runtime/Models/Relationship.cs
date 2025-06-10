@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Dissonity.Models
 {
     [Serializable]
-    internal class Relationship
+    public class Relationship
     {
         #nullable enable annotations
 

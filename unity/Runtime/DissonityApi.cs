@@ -482,7 +482,7 @@ namespace Dissonity
 
                 var response = await SendCommand<EncourageHardwareAcceleration, EncourageHardwareAccelerationResponse>(new());
 
-                return response.Data;                
+                return response.Data;
             }
 
 
@@ -512,7 +512,7 @@ namespace Dissonity
                         if (!_configuration!.OauthScopes.Contains(OauthScope.Guilds) || !_configuration!.OauthScopes.Contains(OauthScope.DmChannelsRead))
                         {
                             if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Channel is DM and oauth scopes don't include 'guilds' and 'dm_channels.read'. Can't get the channel");
-                        
+
                             throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
                         }
                     }
@@ -558,7 +558,7 @@ namespace Dissonity
                     if (!_configuration!.OauthScopes.Contains(OauthScope.GuildsMembersRead))
                     {
                         if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'guilds.members.read'. Can't get channel permissions");
-                    
+
                         throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
                     }
 
@@ -664,7 +664,7 @@ namespace Dissonity
 
                 if (response.Data == null) return new Entitlement[] {};
 
-                return response.Data;                
+                return response.Data;
             }
 
 
@@ -741,7 +741,8 @@ namespace Dissonity
 
                 if (_mock)
                 {
-                    if (!_configuration!.DisableDissonityInfoLogs) {
+                    if (!_configuration!.DisableDissonityInfoLogs)
+                    {
                         Utils.DissonityLog("Invite dialog sent");
                     }
 
@@ -774,7 +775,7 @@ namespace Dissonity
                         if (Platform == Models.Platform.Desktop) Utils.DissonityLog($"Share moment dialog with ({mediaUrl}) sent");
                         else Utils.DissonityLogWarning("Platform is mobile, not possible to open a share moment dialog");
                     }
-                    
+
                     return;
                 }
 
@@ -796,14 +797,14 @@ namespace Dissonity
             public static async Task<Activity> SetActivity(ActivityBuilder activity)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
-                
+
                 if (_mock)
                 {
                     //? Invalid scopes
                     if (!_configuration!.OauthScopes.Contains(OauthScope.RpcActivitiesWrite))
                     {
                         if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'rpc.activities.write'. Can't set the activity");
-                    
+
                         throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
                     }
 
@@ -877,7 +878,7 @@ namespace Dissonity
                         if (Platform == Models.Platform.Mobile) Utils.DissonityLog($"Set orientation lock state to ({lockState})");
                         else Utils.DissonityLogWarning("Platform is desktop, not possible to set orientation lock state");
                     }
-                    
+
                     return;
                 }
 
@@ -906,8 +907,8 @@ namespace Dissonity
                     if (!_configuration!.OauthScopes.Contains(OauthScope.Identify))
                     {
                         if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Oauth scopes don't include 'identify'. Can't get user locale");
-                    
-                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+
+                        throw new CommandException("Invalid oauth scopes inside mock", (int)RpcErrorCode.InvalidPermissions);
                     }
 
                     var mockResponse = await MockSendCommand<UserSettingsGetLocaleResponse>();
@@ -975,7 +976,7 @@ namespace Dissonity
 
                 return response.Data.Participants;
             }
-        
+
             /// <summary>
             /// Presents a modal for the user to share a link to your activity with custom query params. <br/> <br/>
             /// No scopes required. <br/>
@@ -1003,18 +1004,32 @@ namespace Dissonity
                 return response.Data;
             }
 
-            //todo This is now documented and can be released in the next minor update.
             /// <summary>
-            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk
+            /// Returns the current user's relationships. <br/> <br/>
+            /// Scopes required: <c> relationships.read </c> <br/> <br/>
+            /// <c> relationships.read </c> requires approval from Discord. <br/>
+            /// ---------------------- <br/>
+            /// ✅ | Web <br/>
+            /// ✅ | iOS <br/>
+            /// ✅ | Android <br/>
+            /// ---------------------- <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            private static async Task<Relationship[]> GetRelationships()
+            public static async Task<Relationship[]> GetRelationships()
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
                 if (_mock)
                 {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RelationshipsRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Cannot get relationships without the oauth scope 'relationships.read'");
+
+                        throw new CommandException("Invalid oauth scopes inside mock", (int)RpcErrorCode.InvalidPermissions);
+                    }
+
                     var mockResponse = await MockSendCommand<GetRelationshipsResponse>();
 
                     return mockResponse.Data.Relationships;
@@ -1024,10 +1039,12 @@ namespace Dissonity
 
                 return response.Data.Relationships;
             }
-        
-            //todo Not documented
+
+            //todo Not documented but well-known functionality
             /// <summary>
-            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk
+            /// Returns a user. <br/> <br/>
+            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk <br/> <br/>
+            /// Consider contributing.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
@@ -1045,6 +1062,31 @@ namespace Dissonity
                 var response = await SendCommand<GetUser, GetUserResponse>(new (userId.ToString()));
 
                 return response.Data;
+            }
+            
+            //todo Not documented
+            /// <summary>
+            /// Invite a user. <br/> <br/>
+            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk <br/> <br/>
+            /// Consider contributing.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            private static async Task InviteUserEmbedded(long userId, string? content = null)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
+
+                if (_mock)
+                {
+                    if (!_configuration!.DisableDissonityInfoLogs)
+                    {
+                        Utils.DissonityLog("Embedded invitation sent");
+                    }
+
+                    return;
+                }
+
+                await SendCommand<InviteUserEmbedded, NoResponse>(new(userId.ToString(), content));
             }
         }
 
@@ -1708,6 +1750,33 @@ namespace Dissonity
 
                 return reference;
             }
+            
+            /// <summary>
+            /// Received when a relationship of the current user is updated. <br/> <br/>
+            /// Scopes required: <c> relationships.read </c> <br/> <br/>
+            /// <c> relationships.read </c> requires approval from Discord. <br/>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="CommandException"></exception>
+            public static async Task<DiscordSubscription> RelationshipUpdate(Action<Relationship> listener)
+            {
+                if (!_ready) throw new InvalidOperationException("Tried to subscribe without being ready");
+
+                if (_mock)
+                {
+                    //? Invalid scopes
+                    if (!_configuration!.OauthScopes.Contains(OauthScope.RelationshipsRead))
+                    {
+                        if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("Cannot subscribe to Relationship Update without the oauth scope 'relationships.read'");
+                    
+                        throw new CommandException("Invalid oauth scopes inside mock", (int) RpcErrorCode.InvalidPermissions);
+                    }
+                }
+
+                var reference = await SubscribeCommandFactory<RelationshipUpdate, Relationship>(listener);
+
+                return reference;
+            }
 
             // Method used to simplify the subscription methods
             internal static async Task<DiscordSubscription> SubscribeCommandFactory<TEvent, TEventData>(Action<TEventData> listener, object? args = null, bool isInternal = false, bool once = false) where TEvent : DiscordEvent
@@ -2162,6 +2231,7 @@ namespace Dissonity
 
             // After opening the downward flow, hiRPC will send the first payload (dissonity channel handshake) once ready.
             // From then, the JS and C# layer can interact.
+            // This loads the hiRPC module if LAZY_HIRPC_LOAD is set to true.
             DsoOpenDownwardFlow();
 
             return tcs.Task;
@@ -2649,8 +2719,7 @@ namespace Dissonity
 #if !UNITY_EDITOR
                 BridgeMessage message = new()
                 {
-                    Data = new object[2] { command.Opcode, payload },
-                    AppHash = _appHash!
+                    Data = new object[2] { command.Opcode, payload }
                 };
 
                 //\ Send data to RPC
@@ -2935,7 +3004,20 @@ namespace Dissonity
                         response.Data = mock._currentPlayer.Participant.ToUser();
                     }
 
-                    else if (!_configuration!.DisableDissonityInfoLogs) Utils.DissonityLogWarning("You can get mock user data by calling Api.Commands.GetUser with a mock user id");
+                    else
+                    {
+                        MockRelationship? mockRelationship = mock._relationships.Find(c => c.User.Id == (long)arg!);
+
+                        if (mockRelationship != null)
+                        {
+                            response.Data = mockRelationship.User.ToUser();
+                        }
+
+                        else if (!_configuration!.DisableDissonityInfoLogs)
+                        {
+                            Utils.DissonityLogWarning("You can get mock user data by calling Api.Commands.GetUser with a mock user id");
+                        }
+                    }
 
                     ((TaskCompletionSource<GetUserResponse>) (object) tcs).TrySetResult(response);
                 }

@@ -16,7 +16,7 @@ namespace Dissonity.Editor
         private bool showIap = false;
         private bool showCurrentPlayerEvents = false;
         private bool showOtherPlayers = false;
-        //private bool showRelationships = false;
+        private bool showRelationships = false;
         private bool showChannels = false;
         private bool showSkus = false;
         private bool showEntitlements = false;
@@ -33,7 +33,7 @@ namespace Dissonity.Editor
 
         // True when the clear menus are open
         private bool clearingPlayers = false;
-        //private bool clearingRelationships = false;
+        private bool clearingRelationships = false;
         private bool clearingChannels = false;
         private bool clearingSkus = false;
         private bool clearingEntitlements = false;
@@ -41,14 +41,17 @@ namespace Dissonity.Editor
         // Handles the "other players" event foldouts
         private List<bool> showOtherPlayerEvents = new();
 
+        // Handles the "relationships" event foldouts
+        private List<bool> showRelationshipEvents = new();
+
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            DiscordMock mock = (DiscordMock) target;
+            DiscordMock mock = (DiscordMock)target;
 
-            GUIStyle leftButtonStyle; 
+            GUIStyle leftButtonStyle;
 
             SetButtonStyles(out leftButtonStyle);
 
@@ -96,7 +99,7 @@ namespace Dissonity.Editor
                     if (showCurrentPlayerEvents)
                     {
                         StartSpace(40);
-                        DrawDispatchButtons(leftButtonStyle, mock);
+                        DrawPlayerDispatchButtons(leftButtonStyle, mock);
                         EndSpace();
                     }
 
@@ -119,8 +122,8 @@ namespace Dissonity.Editor
                         var otherPlayer = otherPlayersProperty.GetArrayElementAtIndex(i);
                         var participant = otherPlayer.FindPropertyRelative(nameof(MockPlayer.Participant));
                         string name = participant.FindPropertyRelative(nameof(MockParticipant.GlobalName)).stringValue;
-                        
-                        EditorGUILayout.PropertyField(otherPlayer, new GUIContent (name), false);
+
+                        EditorGUILayout.PropertyField(otherPlayer, new GUIContent(name), false);
 
                         if (otherPlayer.isExpanded)
                         {
@@ -149,7 +152,7 @@ namespace Dissonity.Editor
                                     }
                                 }
                             }
-                            
+
                             EditorGUI.indentLevel++;
 
                             DrawChildrenRecursively(otherPlayer, new string[] { nameof(MockPlayer.GuildMemberRpc) });
@@ -159,14 +162,14 @@ namespace Dissonity.Editor
                             if (showOtherPlayerEvents[i])
                             {
                                 StartSpace(60);
-                                DrawDispatchButtons(leftButtonStyle, mock, i);
+                                DrawPlayerDispatchButtons(leftButtonStyle, mock, i);
                                 EndSpace();
                             }
-                        
+
                             EditorGUI.indentLevel--;
                         }
                     }
-                    
+
                     EditorGUI.indentLevel--;
 
                     // Draw add player button
@@ -181,13 +184,13 @@ namespace Dissonity.Editor
                         player.GuildMemberRpc.UserId = id;
 
                         // Unique username
-                        player.Participant.Username += $"_{mock._otherPlayers.Count+2}";
+                        player.Participant.Username += $"_{mock._otherPlayers.Count + 2}";
 
                         // Unique global name
-                        player.Participant.GlobalName += $" {mock._otherPlayers.Count+2}";
+                        player.Participant.GlobalName += $" {mock._otherPlayers.Count + 2}";
 
                         // Unique nickname
-                        string nickname = player.Participant.Nickname += $" {mock._otherPlayers.Count+2}";
+                        string nickname = player.Participant.Nickname += $" {mock._otherPlayers.Count + 2}";
                         player.GuildMemberRpc.Nickname = nickname;
 
                         mock._otherPlayers.Add(player);
@@ -231,7 +234,6 @@ namespace Dissonity.Editor
 
 
                 //# RELATIONSHIPS - - - - -
-                /*
                 var relationshipsProperty = serializedObject.FindProperty(nameof(DiscordMock._relationships));
                 showRelationships = EditorGUILayout.Foldout(showRelationships, "Relationships");
 
@@ -246,18 +248,54 @@ namespace Dissonity.Editor
                         var relationship = relationshipsProperty.GetArrayElementAtIndex(i);
                         var user = relationship.FindPropertyRelative(nameof(MockRelationship.User));
                         string name = user.FindPropertyRelative(nameof(MockUser.GlobalName)).stringValue;
-                        
-                        EditorGUILayout.PropertyField(relationship, new GUIContent (name), false);
+
+                        EditorGUILayout.PropertyField(relationship, new GUIContent(name), false);
 
                         if (relationship.isExpanded)
                         {
+                            //? Handle difference in relationships and tracked relationships
+                            if (showRelationshipEvents.Count != mock._relationships.Count)
+                            {
+                                //? Mock has more
+                                if (showRelationshipEvents.Count < mock._relationships.Count)
+                                {
+                                    int newRelationships = mock._relationships.Count - showRelationshipEvents.Count;
+
+                                    for (int y = 0; y < newRelationships; y++)
+                                    {
+                                        showRelationshipEvents.Add(false);
+                                    }
+                                }
+
+                                //? A relationship was deleted, regen
+                                else
+                                {
+                                    showRelationshipEvents.Clear();
+
+                                    foreach (var _ in mock._relationships)
+                                    {
+                                        showRelationshipEvents.Add(false);
+                                    }
+                                }
+                            }
+
                             EditorGUI.indentLevel++;
 
                             DrawChildrenRecursively(relationship, new string[] { });
 
+                            showRelationshipEvents[i] = EditorGUILayout.Foldout(showRelationshipEvents[i], "Dispatch Events");
+
+                            if (showRelationshipEvents[i])
+                            {
+                                StartSpace(60);
+                                DrawRelationshipDispatchButtons(leftButtonStyle, mock, i);
+                                EndSpace();
+                            }
+
                             EditorGUI.indentLevel--;
                         }
                     }
+
                     EditorGUI.indentLevel--;
 
                     // Draw add relationship button
@@ -271,10 +309,10 @@ namespace Dissonity.Editor
                         user.Id = Utils.GetMockSnowflake();
 
                         // Unique username
-                        user.Username += $"_{mock._relationships.Count+1}";
+                        user.Username += $"_{mock._relationships.Count + 1}";
 
                         // Unique global name
-                        user.GlobalName += $" {mock._relationships.Count+1}";
+                        user.GlobalName += $" {mock._relationships.Count + 1}";
 
                         // Unique nickname
 
@@ -311,6 +349,7 @@ namespace Dissonity.Editor
                         {
                             clearingRelationships = false;
                             relationshipsProperty.ClearArray();
+                            showRelationshipEvents.Clear();
                         }
 
                         ResetButtonTint();
@@ -320,7 +359,6 @@ namespace Dissonity.Editor
                 }
 
                 else if (clearingRelationships) clearingRelationships = false;
-                */
 
                 //# CHANNELS - - - - -
                 var channelsProperty = serializedObject.FindProperty(nameof(DiscordMock._channels));
@@ -336,8 +374,8 @@ namespace Dissonity.Editor
                         // Draw the array element
                         var channel = channelsProperty.GetArrayElementAtIndex(i);
                         string channelName = channel.FindPropertyRelative(nameof(MockChannel.Name)).stringValue;
-                        
-                        EditorGUILayout.PropertyField(channel, new GUIContent (channelName), false);
+
+                        EditorGUILayout.PropertyField(channel, new GUIContent(channelName), false);
 
                         if (channel.isExpanded)
                         {
@@ -348,7 +386,7 @@ namespace Dissonity.Editor
                             EditorGUI.indentLevel--;
                         }
                     }
-                    
+
                     EditorGUI.indentLevel--;
 
                     // Draw add channel button
@@ -426,7 +464,7 @@ namespace Dissonity.Editor
                     }
 
                     if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Activity Instance Participants Update");
-                    
+
                     mock.ActivityInstanceParticipantsUpdate();
                 }
 
@@ -598,7 +636,7 @@ namespace Dissonity.Editor
                                 Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
                                 return;
                             }
-                            
+
                             if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Thermal State Update");
 
                             mock.ThermalStateUpdate();
@@ -624,7 +662,7 @@ namespace Dissonity.Editor
 
                     EditorGUI.indentLevel--;
                 }
-            
+
                 EndSpace();
             }
 
@@ -649,8 +687,8 @@ namespace Dissonity.Editor
                         // Draw the array element
                         var sku = skusProperty.GetArrayElementAtIndex(i);
                         string skuName = sku.FindPropertyRelative(nameof(MockSku.Name)).stringValue;
-                        
-                        EditorGUILayout.PropertyField(sku, new GUIContent (skuName), false);
+
+                        EditorGUILayout.PropertyField(sku, new GUIContent(skuName), false);
 
                         if (sku.isExpanded)
                         {
@@ -664,7 +702,7 @@ namespace Dissonity.Editor
                             EditorGUI.indentLevel--;
                         }
                     }
-                    
+
                     EditorGUI.indentLevel--;
 
                     // Draw add sku button
@@ -736,14 +774,14 @@ namespace Dissonity.Editor
                         var entitlement = entitlementsProperty.GetArrayElementAtIndex(i);
                         string name = entitlement.FindPropertyRelative(nameof(MockEntitlement._mock_name)).stringValue;
                         long id = entitlement.FindPropertyRelative(nameof(MockEntitlement.Id)).longValue;
-                        
-                        EditorGUILayout.PropertyField(entitlement, new GUIContent (name), false);
+
+                        EditorGUILayout.PropertyField(entitlement, new GUIContent(name), false);
 
                         if (entitlement.isExpanded)
                         {
                             EditorGUI.indentLevel++;
 
-                            DrawChildrenRecursively(entitlement, null, new Dictionary<string, string>{{ nameof(MockEntitlement._mock_name), "Entitlements don't have names, this only changes the visual name in the mock." }});
+                            DrawChildrenRecursively(entitlement, null, new Dictionary<string, string> { { nameof(MockEntitlement._mock_name), "Entitlements don't have names, this only changes the visual name in the mock." } });
 
                             StartSpace(40);
 
@@ -757,7 +795,7 @@ namespace Dissonity.Editor
                                 }
 
                                 if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Entitlement Create");
-                                
+
                                 mock.EntitlementCreate(id);
                             }
 
@@ -768,7 +806,7 @@ namespace Dissonity.Editor
                             EditorGUI.indentLevel--;
                         }
                     }
-                    
+
                     EditorGUI.indentLevel--;
 
                     // Draw add sku button
@@ -826,12 +864,12 @@ namespace Dissonity.Editor
 
                 EditorGUI.indentLevel--;
             }
-            
+
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawDispatchButtons(GUIStyle style, DiscordMock mock, int playerIndex = -1)
+        private void DrawPlayerDispatchButtons(GUIStyle style, DiscordMock mock, int playerIndex = -1)
         {
             // Shorcut
             bool isPlaying = UnityEngine.Application.isPlaying;
@@ -908,6 +946,26 @@ namespace Dissonity.Editor
                 if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Speaking Stop");
 
                 mock.SpeakingStop(playerIndex);
+            }
+        }
+
+        private void DrawRelationshipDispatchButtons(GUIStyle style, DiscordMock mock, int relationshipIndex)
+        {
+            // Shorcut
+            bool isPlaying = UnityEngine.Application.isPlaying;
+
+            if (GUILayout.Button("Relationship Update", style))
+            {
+                //? Not in runtime
+                if (!isPlaying)
+                {
+                    Debug.Log("[Dissonity Editor] You can only dispatch events during runtime!");
+                    return;
+                }
+
+                if (!Api.Configuration.DisableDissonityInfoLogs) Utils.DissonityLog("Dispatching mock Relationship Update");
+
+                mock.RelationshipUpdate(relationshipIndex);
             }
         }
     }

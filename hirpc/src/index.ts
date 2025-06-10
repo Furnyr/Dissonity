@@ -52,6 +52,23 @@ export default class HiRpc {
                 return window.dso_hirpc as this;
             }
 
+            //? Clear RPC session storage
+            const query = this.getQueryObject();
+            const saveInstanceId = sessionStorage.getItem("dso_instance_id") as SessionStorage["dso_instance_id"];
+            if (query.instance_id != saveInstanceId) {
+
+                // If these ids don't match, it means that the RPC external session values can be outdated.
+
+                // In this case, RPC session storage is only used to prevent
+                // initialization triggering multiple times.
+
+                // Meaningless casts to provoke an error if the SessionStorage property changes.
+                sessionStorage.removeItem("dso_connected" as NonNullable<SessionStorage["dso_connected"]>);
+                sessionStorage.removeItem("dso_authenticated" as NonNullable<SessionStorage["dso_authenticated"]>);
+
+                sessionStorage.setItem("dso_instance_id", query.instance_id as NonNullable<SessionStorage["dso_instance_id"]>);
+            }
+
             //\ Save instance in window
             Object.defineProperty(window, "dso_hirpc", {
                 value: this,
@@ -104,24 +121,6 @@ export default class HiRpc {
         //\ Ready to request hash
         this.#state.loaded = true;
         this.#state.maxAccessCount = maxAccessCount;
-
-        //? Clear RPC session storage
-        const query = this.getQueryObject();
-        const saveInstanceId = sessionStorage.getItem("dso_instance_id") as SessionStorage["dso_instance_id"];
-        if (query.instance_id != saveInstanceId) {
-
-            // If these ids don't match, it means that the hiRPC kit isn't enabled,
-            // so the RPC external session values can be outdated.
-
-            // In this case, RPC session storage is only used to prevent
-            // initialization triggering multiple times.
-
-            // Meaningless casts to provoke an error if the SessionStorage property changes.
-            sessionStorage.removeItem("dso_connected" as NonNullable<SessionStorage["dso_connected"]>);
-            sessionStorage.removeItem("dso_authenticated" as NonNullable<SessionStorage["dso_authenticated"]>);
-
-            sessionStorage.setItem("dso_instance_id", query.instance_id as NonNullable<SessionStorage["dso_instance_id"]>);
-        }
         
         return new Promise(async (resolve, reject) => {
 
@@ -339,9 +338,9 @@ export default class HiRpc {
     /**
      * Send data to Discord through RPC.
      */
-    async sendToRpc(hash: string, opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
+    async sendToRpc(opcode = Opcode.Frame, payload: RpcInputPayload): Promise<void> {
 
-        if (!this.#hashes.verifyHash(hash)) return;
+        if (this.#state.stateCode == StateCode.OutsideDiscord) return;
 
         await this.#state.readyPromise;
 

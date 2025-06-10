@@ -8,9 +8,21 @@
 mergeInto(LibraryManager.library, {
     DsoOpenDownwardFlow: function () {
         const hiRpc = window.dso_hirpc;
-        hiRpc.openDownwardFlow((stringifiedData) => {
-            SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
-        });
+        if (hiRpc.getBuildVariables().LAZY_HIRPC_LOAD) {
+            hiRpc.load(0)
+                .then(openFlow)
+                .catch(err => {
+                console.log(err);
+            });
+        }
+        else {
+            openFlow();
+        }
+        function openFlow() {
+            hiRpc.openDownwardFlow((stringifiedData) => {
+                SendMessage("_DissonityBridge", "_HiRpcInput", stringifiedData);
+            });
+        }
     },
     DsoEmptyRequest: function (stringifiedMessage) {
         const { nonce, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
@@ -60,9 +72,9 @@ mergeInto(LibraryManager.library, {
         hiRpc.sendToApp(app_hash, "dissonity", payload);
     },
     DsoSendToRpc: function (stringifiedMessage) {
-        const { data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
+        const { data } = JSON.parse(UTF8ToString(stringifiedMessage));
         const hiRpc = window.dso_hirpc;
-        hiRpc.sendToRpc(app_hash, data[0], data[1]);
+        hiRpc.sendToRpc(data[0], data[1]);
     },
     DsoExpandCanvas: function () {
         if (typeof window.dso_expand_canvas == "undefined")

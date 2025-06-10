@@ -1,6 +1,6 @@
 import { CLOSE_NORMAL, HANDSHAKE_UNKNOWN_VERSION_NUMBER } from "../constants";
 import { Opcode, RpcCommands, RpcEvents, StateCode } from "../enums";
-import { InteropMessage, RpcMessage } from "../types";
+import { InteropMessage, RpcMessage, RpcSource } from "../types";
 
 import { State } from "./state";
 import { BuildVariables } from "../types";
@@ -13,6 +13,7 @@ import { OfficialUtils } from "./official_utils";
 export class Rpc {
 
     #state: State;
+    #source: RpcSource;
     #utils: OfficialUtils;
     #allowedOrigins = new Set([
         typeof window != "undefined"
@@ -32,6 +33,7 @@ export class Rpc {
 
     constructor(state: State, utils: OfficialUtils) {
         this.#state = state;
+        this.#source = this.#getRpcSource();
         this.#utils = utils;
 
         // Ensure the class context is preserved in the message event
@@ -289,31 +291,9 @@ export class Rpc {
 
     send(opcode: Opcode, payload: unknown): void {
 
-        // The hiRPC needs to work inside a nested iframe. So it can be two iframes in the Discord client.
+        const { source, sourceOrigin } = this.#source;
 
-        let source: Window;
-        let sourceOrigin: string;
-
-        const isNested = window.parent != window.parent.parent;
-        if (isNested) {
-
-            const parent = window.parent.parent;
-            const activity = window.parent;
-
-            source = parent.opener ?? parent;
-            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
-        }
-
-        else {
-
-            const parent = window.parent;
-            const activity = window;
-
-            source = parent.opener ?? parent;
-            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
-        }
-
-        source.postMessage([opcode, payload], sourceOrigin);
+        source!.postMessage([opcode, payload], sourceOrigin);
     }
 
     getNonce() {
@@ -337,6 +317,52 @@ export class Rpc {
             if (typeof value == "bigint") return value.toString();
             else return value;
         });
+    }
+
+    #getRpcSource(): RpcSource {
+
+        if (typeof window == "undefined") return { source: null, sourceOrigin: "*" };
+
+        // The hiRPC needs to work inside a nested iframe. So it can be two iframes in the Discord client.
+
+        let source: Window;
+        let sourceOrigin: string;
+
+        const isNested = window.parent != window.parent.parent;
+        if (isNested) {
+
+            const thisParent = window.parent.parent;
+            const activity = window.parent;
+
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch {
+
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
+
+            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
+        }
+
+        else {
+
+            const thisParent = window.parent;
+            const activity = window;
+
+            try {
+                source = thisParent.opener ?? thisParent;
+            }
+            catch (_) {
+
+                // In case a SecurityError occurs
+                source = thisParent;
+            }
+            sourceOrigin = !!activity.document.referrer ? activity.document.referrer : "*";
+        }
+
+        return { source, sourceOrigin };
     }
 
     // Literal implementation of overrideConsoleLogging from the official SDK

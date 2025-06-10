@@ -75,3 +75,8 @@ export type MultiEvent = {
     authenticate: string,
     response: string
 }
+
+export type RpcSource = {
+    source: Window | null,
+    sourceOrigin: string
+}

@@ -44,9 +44,9 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.Space(10);
             GUILayout.BeginVertical();
             
-            GUILayout.Label("v2.0.1 Overview", headerStyle);
+            GUILayout.Label("v2.1.0 Overview", headerStyle);
 
-            GUILayout.Label("Bug fixes", centerStyle);
+            GUILayout.Label("Compatibility improvements, relationship features and bug fixes", centerStyle);
 
             GUILayout.Space(15);
 
@@ -54,7 +54,11 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Added link.xml file to the Dissonity folder.");
+            GUILayout.Label("- LazyHiRpcLoad option in the Advanced Configuration");
+            GUILayout.Label("- Api.Commands.GetRelationships (requires Discord approval)");
+            GUILayout.Label("- Api.Subscribe.RelationshipUpdate (requires Discord approval)");
+            GUILayout.Label("- Models.Relationship");
+            GUILayout.Label("- Relationships section in the Discord Mock");
 
             GUILayout.Space(15);
 
@@ -62,7 +66,7 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Api.Commands.ShareLink returns a complete mock response.");
+            GUILayout.Label("- Minor performance improvements related to the hiRPC Interface");
 
             GUILayout.Space(15);
 
@@ -70,13 +74,13 @@ namespace Dissonity.Editor.Dialogs
 
             GUILayout.Space(10);
 
-            GUILayout.Label("- Api.GuildId is now nullable as it should be.");
+            GUILayout.Label("- The game doesn't turn into a black screen when loading the index.html");
 
             GUILayout.Space(10);
 
-            //GUILayout.Label("And more!", italicStyle);
+            GUILayout.Label("And more!", italicStyle);
 
-            //GUILayout.Space(20);
+            GUILayout.Space(20);
 
             if (GUILayout.Button("Got it!", GUILayout.Height(25)))
             {
@@ -86,6 +90,11 @@ namespace Dissonity.Editor.Dialogs
             GUILayout.Space(15);
 
             GUILayout.Label("Links", subHeaderStyle);
+
+            if (EditorGUILayout.LinkButton("Full changelog"))
+            {
+                Application.OpenURL("https://github.com/Furnyr/Dissonity/releases/tag/v2.1.0");
+            }
 
             if (EditorGUILayout.LinkButton("Documentation"))
             {

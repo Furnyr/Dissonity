@@ -23,6 +23,7 @@ namespace Dissonity.Events
             { DiscordEventType.OrientationUpdate, typeof(OrientationUpdate) },
             { DiscordEventType.ThermalStateUpdate, typeof(ThermalStateUpdate) },
             { DiscordEventType.EntitlementCreate, typeof(EntitlementCreate) },
+            { DiscordEventType.RelationshipUpdate, typeof(RelationshipUpdate) },
         };
 
         // Don't confuse "event data" with "event return data".
@@ -30,7 +31,7 @@ namespace Dissonity.Events
         // while event return data is the useful data returned to the user.
         // E.g.: ActivityInstanceParticipantsUpdateData vs Participant[]
 
-        internal static Dictionary<string, Type> EventDataMap = new ()
+        internal static Dictionary<string, Type> EventDataMap = new()
         {
             { DiscordEventType.Ready, typeof(ReadyEventData) },
             { DiscordEventType.Error, typeof(ErrorEventData) },
@@ -44,9 +45,10 @@ namespace Dissonity.Events
             { DiscordEventType.OrientationUpdate, typeof(OrientationUpdateData) },
             { DiscordEventType.ThermalStateUpdate, typeof(ThermalStateUpdateData) },
             { DiscordEventType.EntitlementCreate, typeof(EntitlementCreateData) },
+            { DiscordEventType.RelationshipUpdate, typeof(Relationship) },
         };
 
-        internal static Dictionary<string, Type> EventReturnDataMap = new ()
+        internal static Dictionary<string, Type> EventReturnDataMap = new()
         {
             { DiscordEventType.Ready, typeof(ReadyEventData) },
             { DiscordEventType.Error, typeof(ErrorEventData) },
@@ -60,6 +62,7 @@ namespace Dissonity.Events
             { DiscordEventType.OrientationUpdate, typeof(OrientationType) },
             { DiscordEventType.ThermalStateUpdate, typeof(ThermalStateType) },
             { DiscordEventType.EntitlementCreate, typeof(Entitlement) },
+            { DiscordEventType.RelationshipUpdate, typeof(Relationship) },
         };
 
         internal static Type GetTypeFromString(string eventString)
