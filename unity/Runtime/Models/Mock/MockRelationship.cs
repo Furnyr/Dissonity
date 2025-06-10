@@ -3,7 +3,7 @@ using System;
 namespace Dissonity.Models.Mock
 {
     [Serializable]
-    internal class MockRelationship : Relationship
+    public class MockRelationship : Relationship
     {
         new public RelationshipType Type = RelationshipType.Friend;
 

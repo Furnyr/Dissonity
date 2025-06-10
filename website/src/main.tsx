@@ -26,6 +26,7 @@ import GettingStarted from "./routes/guides/getting-started.tsx";
 import HowDoesItWork from "./routes/guides/how-does-it-work.tsx";
 import WhyDissonity from "./routes/guides/why-dissonity.tsx";
 import MigrationV2 from "./routes/guides/migration-v2.tsx";
+import ThirdPartySupport from "./routes/guides/third-party-support.tsx";
 
 import DocsIndex from "./routes/docs/docsIndex.tsx";
 import Performance from "./routes/docs/development/performance.tsx";
@@ -115,9 +116,6 @@ const router = createBrowserRouter([
       {
         path: "/docs/v2/api/utils",
         element: <Utils />
-      },{
-        path: "/docs/v2/api/configuration",
-        element: <Configuration />
       },
       {
         path: "/docs/v2/api/exceptions",
@@ -197,6 +195,10 @@ const router = createBrowserRouter([
         path: "/guides/v2/migration-v2",
         element: <MigrationV2 />
       },
+      {
+        path: "/guides/v2/third-party-support",
+        element: <ThirdPartySupport />
+      }
     ]
   },
   {

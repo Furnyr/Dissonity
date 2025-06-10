@@ -178,6 +178,14 @@ export default function Guides() {
           Migrating to v2
       </MenuItem>
 
+      <MenuItem
+        component={<Link to="/guides/v2/third-party-support" />}
+        active={location.pathname === "/guides/v2/third-party-support"}
+        icon={"🌉"}
+        onClick={closeSidebarMobile}>
+          Third-party support
+      </MenuItem>
+
       </Menu>
       </Sidebar>
       <Sidebar

@@ -14,6 +14,7 @@ namespace Dissonity
         // Optional
         bool DisableConsoleLogOverride { get; }
         bool DisableDissonityInfoLogs { get; }
+        bool LazyHiRpcLoad { get; }
         MappingBuilder[] Mappings { get; }
         PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; }
         bool SynchronizeUser { get; }
@@ -55,6 +56,12 @@ namespace Dissonity
         /// Defaults to true.
         /// </summary>
         public virtual bool DisableConsoleLogOverride { get; } = true;
+
+        /// <summary>
+        /// Load the hiRPC module on <c>Api.Initialize</c>, rather than before loading the game. <br/> <br/>
+        /// Defaults to false.
+        /// </summary>
+        public virtual bool LazyHiRpcLoad { get; } = false;
 
         /// <summary>
         /// Disable information logs. <br/> <br/>
@@ -137,6 +144,7 @@ namespace Dissonity
 
         // Optional
         public bool DisableConsoleLogOverride { get; set; }
+        public bool LazyHiRpcLoad { get; set; }
         public bool DisableDissonityInfoLogs { get; set; }
         public bool SynchronizeUser { get; set; }
         public bool SynchronizeGuildMemberRpc { get; set; }

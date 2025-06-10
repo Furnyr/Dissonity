@@ -15,5 +15,6 @@ namespace Dissonity.Events
         public const string EntitlementCreate = "ENTITLEMENT_CREATE";
         public const string ThermalStateUpdate = "THERMAL_STATE_UPDATE";
         public const string ActivityInstanceParticipantsUpdate = "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE";
+        public const string RelationshipUpdate = "RELATIONSHIP_UPDATE";
     }
 }

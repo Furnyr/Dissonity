@@ -290,6 +290,13 @@ end`}/>
 
         <CodeBlock language="xml">{`<html>
   <head>
+    <style>
+      body {
+        margin: 0px;
+        background-color: #000000;
+        padding: 0px;
+      }
+    </style>
     <script type="importmap">
       {
         "imports": {

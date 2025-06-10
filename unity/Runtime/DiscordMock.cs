@@ -22,7 +22,7 @@ namespace Dissonity
         public string _accessToken = "mock-access-token";
         public MockPlayer _currentPlayer = new();
         public List<MockPlayer> _otherPlayers = new();
-        internal List<MockRelationship> _relationships = new();
+        public List<MockRelationship> _relationships = new();
         public List<MockChannel> _channels = new();
 
         // General events
@@ -46,13 +46,13 @@ namespace Dissonity
                 return;
             }
 
-            if (Singleton != null && Singleton != this) 
+            if (Singleton != null && Singleton != this)
             {
-                Destroy(gameObject); 
+                Destroy(gameObject);
             }
-            else 
+            else
             {
-                Singleton = this; 
+                Singleton = this;
             }
 
             DontDestroyOnLoad(gameObject);
@@ -208,7 +208,7 @@ namespace Dissonity
             data.Nickname = _currentPlayer.Participant.Nickname;
             data.UserId = _currentPlayer.Participant.Id;
 
-            Api.bridge!.MockDiscordDispatch(DiscordEventType.CurrentGuildMemberUpdate, data); 
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.CurrentGuildMemberUpdate, data);
         }
 
 
@@ -258,7 +258,7 @@ namespace Dissonity
                 ChannelId = _query.ChannelId,
                 UserId = userId
             };
-            
+
             Api.bridge!.MockDiscordDispatch(DiscordEventType.SpeakingStart, data);
         }
 
@@ -281,10 +281,10 @@ namespace Dissonity
                 ChannelId = _query.ChannelId,
                 UserId = userId
             };
-            
+
             Api.bridge!.MockDiscordDispatch(DiscordEventType.SpeakingStop, data);
         }
-    
+
 
         /// <summary>
         /// Dispatch a mock Entitlement Create.
@@ -305,6 +305,21 @@ namespace Dissonity
             };
 
             Api.bridge!.MockDiscordDispatch(DiscordEventType.EntitlementCreate, data);
+        }
+        
+        /// <summary>
+        /// Dispatch a mock Relationship Update.
+        /// </summary>
+        public void RelationshipUpdate(int relationshipIndex = -1)
+        {
+            //\ Dispatch
+            Relationship data;
+            
+            //? Test
+            if (relationshipIndex == -1) data = new MockRelationship().ToRelationship();
+            else data = _relationships[relationshipIndex].ToRelationship();
+
+            Api.bridge!.MockDiscordDispatch(DiscordEventType.RelationshipUpdate, data);
         }
     }
 }

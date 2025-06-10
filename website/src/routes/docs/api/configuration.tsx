@@ -161,6 +161,12 @@ public override PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig => new()
 
         <i>Example URL mappings configuration.</i>
 
+        <h2 id="lazy-hirpc-load">Lazy hiRPC Load <HashLink link="/?/docs/v2/api/config#lazy-hirpc-load"/></h2>
+
+        <p>
+          By default, Dissonity begins <Link to="/docs/v2/development/authentication">authentication</Link> before loading the Unity build. If you need to check whether authentication is necessary when calling <code>Initialize</code> rather than before running the C# code, set <code>LazyHiRpcLoad</code> to true.
+        </p>
+
         <h2>External links</h2>
 
         <ul>

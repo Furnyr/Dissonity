@@ -14,6 +14,7 @@ export default class BuildVariables {
     // After build post-processing, constants look like "[[[ CLIENT_ID ]]] 123454321§"
 
     #DISABLE_INFO_LOGS             = '[[[ DISABLE_INFO_LOGS ]]]§';
+    #LAZY_HIRPC_LOAD               = '[[[ LAZY_HIRPC_LOAD ]]]§';
     #CLIENT_ID                     = '[[[ CLIENT_ID ]]]§';
     #DISABLE_CONSOLE_LOG_OVERRIDE  = '[[[ DISABLE_CONSOLE_LOG_OVERRIDE ]]]§';
     #MAPPINGS                      = '[[[ MAPPINGS ]]]§'; // Keep these single quotes ('), (") breaks the string when the JSON is loaded.
@@ -23,6 +24,7 @@ export default class BuildVariables {
     #SERVER_REQUEST                = '[[[ SERVER_REQUEST ]]]§'; // Keep these single quotes ('), (") breaks the string when the JSON is loaded.
 
     DISABLE_INFO_LOGS:            boolean;
+    LAZY_HIRPC_LOAD:              boolean;
     CLIENT_ID:                    string;
     DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
     MAPPINGS:                     Mapping[];
@@ -33,6 +35,7 @@ export default class BuildVariables {
 
     constructor() {
         this.DISABLE_INFO_LOGS = this.#parseBuildVariable(this.#DISABLE_INFO_LOGS, "boolean") as boolean;
+        this.LAZY_HIRPC_LOAD = this.#parseBuildVariable(this.#LAZY_HIRPC_LOAD, "boolean") as boolean;
         this.CLIENT_ID = this.#parseBuildVariable(this.#CLIENT_ID, "string") as string;
         this.DISABLE_CONSOLE_LOG_OVERRIDE = this.#parseBuildVariable(this.#DISABLE_CONSOLE_LOG_OVERRIDE, "boolean") as boolean;
         this.MAPPINGS = this.#parseBuildVariable(this.#MAPPINGS, "json_array") as Mapping[];

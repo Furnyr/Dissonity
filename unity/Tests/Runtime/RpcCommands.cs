@@ -14,54 +14,57 @@ public class RpcCommands
         yield return new WaitUntil(() => captureLogTask.IsCompleted);
 
         var hwaTask = Commands.EncourageHardwareAcceleration();
-        yield return new WaitUntil(() => hwaTask.IsCompleted); 
+        yield return new WaitUntil(() => hwaTask.IsCompleted);
 
         var getChannelTask = Commands.GetChannel(0);
-        yield return new WaitUntil(() => getChannelTask.IsCompleted); 
+        yield return new WaitUntil(() => getChannelTask.IsCompleted);
 
         var getChannelPermsTask = Commands.GetChannelPermissions();
-        yield return new WaitUntil(() => getChannelPermsTask.IsCompleted); 
+        yield return new WaitUntil(() => getChannelPermsTask.IsCompleted);
 
         var getEntTask = Commands.GetEntitlements();
-        yield return new WaitUntil(() => getEntTask.IsCompleted); 
+        yield return new WaitUntil(() => getEntTask.IsCompleted);
 
         var getParticipantsTask = Commands.GetInstanceConnectedParticipants();
-        yield return new WaitUntil(() => getParticipantsTask.IsCompleted); 
+        yield return new WaitUntil(() => getParticipantsTask.IsCompleted);
 
         var getPlatformBhTask = Commands.GetPlatformBehaviors();
-        yield return new WaitUntil(() => getPlatformBhTask.IsCompleted); 
+        yield return new WaitUntil(() => getPlatformBhTask.IsCompleted);
 
         var getSkusTask = Commands.GetSkus();
-        yield return new WaitUntil(() => getSkusTask.IsCompleted); 
+        yield return new WaitUntil(() => getSkusTask.IsCompleted);
 
         var initImgUpTask = Commands.InitiateImageUpload();
-        yield return new WaitUntil(() => initImgUpTask.IsCompleted); 
+        yield return new WaitUntil(() => initImgUpTask.IsCompleted);
 
         var openLinkTask = Commands.OpenExternalLink("");
-        yield return new WaitUntil(() => openLinkTask.IsCompleted); 
+        yield return new WaitUntil(() => openLinkTask.IsCompleted);
 
         var openInviteTask = Commands.OpenInviteDialog();
-        yield return new WaitUntil(() => openInviteTask.IsCompleted); 
+        yield return new WaitUntil(() => openInviteTask.IsCompleted);
 
         var openShareMomentTask = Commands.OpenShareMomentDialog("");
-        yield return new WaitUntil(() => openShareMomentTask.IsCompleted); 
+        yield return new WaitUntil(() => openShareMomentTask.IsCompleted);
 
         var setActTask = Commands.SetActivity(new ActivityBuilder());
-        yield return new WaitUntil(() => setActTask.IsCompleted); 
+        yield return new WaitUntil(() => setActTask.IsCompleted);
 
         var setConfigTask = Commands.SetConfig(true);
-        yield return new WaitUntil(() => setConfigTask.IsCompleted); 
+        yield return new WaitUntil(() => setConfigTask.IsCompleted);
 
         var setOriLockStateTask = Commands.SetOrientationLockState(OrientationLockStateType.Landscape);
-        yield return new WaitUntil(() => setOriLockStateTask.IsCompleted); 
+        yield return new WaitUntil(() => setOriLockStateTask.IsCompleted);
 
         var shareLinkTask = Commands.ShareLink("");
-        yield return new WaitUntil(() => shareLinkTask.IsCompleted); 
+        yield return new WaitUntil(() => shareLinkTask.IsCompleted);
 
         var startPurchaseTask = Commands.StartPurchase(0);
-        yield return new WaitUntil(() => startPurchaseTask.IsCompleted); 
+        yield return new WaitUntil(() => startPurchaseTask.IsCompleted);
 
         var getLocaleTask = Commands.UserSettingsGetLocale();
-        yield return new WaitUntil(() => getLocaleTask.IsCompleted); 
+        yield return new WaitUntil(() => getLocaleTask.IsCompleted);
+        
+        var getRelationshipsTask = Commands.GetRelationships();
+        yield return new WaitUntil(() => getRelationshipsTask.IsCompleted); 
     }
 }
