@@ -20,6 +20,7 @@ function GuidesPage () {
   const [isCopiedPackage, setIsCopiedPackage] = useState(false);
   const [isCopiedRedirect, setIsCopiedRedirect] = useState(false);
   const [isCopiedNpmI, setIsCopiedNpmI] = useState(false);
+  const [isCopiedNpmRunStart, setIsCopiedNpmRunStart] = useState(false);
   const [isCopiedCloudflared, setIsCopiedCloudflared] = useState(false);
 
   return (
@@ -196,6 +197,7 @@ public class MyScript : MonoBehaviour
         <li>Update PUBLIC_CLIENT_ID to your app's Client ID</li>
         <li>Update CLIENT_SECRET to your Client Secret</li>
         <li>Install dependencies with <CopyText text="npm install" stateFunction={setIsCopiedNpmI} stateBool={isCopiedNpmI}/></li>
+        <li>Run the server with <CopyText text="npm run start" stateFunction={setIsCopiedNpmRunStart} stateBool={isCopiedNpmRunStart}/></li>
       </ol>
 
       <p>

@@ -60,6 +60,8 @@ public class MyScript : MonoBehaviour
 
 ## Installation
 
+> You can also install Dissonity via [OpenUPM](https://openupm.com/packages/com.furnyr.dissonity/) or with each `.unitypackage` file found in the [Releases](https://github.com/Furnyr/Dissonity/releases) tab.
+
 1. Create a new Unity project (Unity 2021.3 or later, Unity 6 recommended)
 2. Open the package manager and install the package from this git URL: `https://github.com/Furnyr/Dissonity.git?path=/unity#v2`
 3. Use the pop-up dialog to select a configuration file
@@ -71,7 +73,7 @@ Dissonity is now installed! But you still need to configure a few things:
 ## Configuration
 
 1. Open the configuration file in Assets/Dissonity/DissonityConfiguration.cs
-2. Set your app id in `<SdkConfiguration>.ClientId` (find it [here](https://discord.com/developers/applications))
+2. Set your app id in `<SdkConfiguration>.ClientId` (find it or create a Discord app [here](https://discord.com/developers/applications))
 
 Up and running! If you want to test your activity within Unity:
 
@@ -88,6 +90,9 @@ If there isn't a mock object in the scene, Dissonity will automatically create o
 Dissonity helps in the process to make the game, but you will still need to host the backend that will serve the activity to Discord and handle authentication.
 
 If you're not sure how to continue, read the documentation.
+
+> [!TIP]
+> If you are also using a framework that provides Discord functionality, you should read [Third-party support](http://dissonity.dev/guides/v2/third-party-support).
 
 
 ## Documentation
