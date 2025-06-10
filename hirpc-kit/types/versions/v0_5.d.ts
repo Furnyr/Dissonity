@@ -8,7 +8,7 @@ import type { RpcInputPayload } from "../types";
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-export default class HiRpcV0_4 {
+export default class HiRpcV0_5 {
     #private;
     constructor();
     /**

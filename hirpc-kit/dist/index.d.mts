@@ -59,7 +59,7 @@ type BuildVariables$1 = InstanceType<typeof BuildVariables$2>;
  * - dso_bridge/
  * - dso_proxy_bridge/
  */
-declare class HiRpcV0_4 {
+declare class HiRpcV0_5 {
     #private;
     constructor();
     /**
@@ -221,7 +221,7 @@ declare class HiRpc {
 }
 
 type StartWith<V extends string> = `${V}${string}`;
-type HiRpcShape<V extends string> = V extends StartWith<"0.5"> ? HiRpcV0_4 : V extends StartWith<"0.6"> ? HiRpc : UnknownHiRpc;
+type HiRpcShape<V extends string> = V extends StartWith<"0.5"> ? HiRpcV0_5 : V extends StartWith<"0.6"> ? HiRpc : UnknownHiRpc;
 
 declare enum RpcOpcode {
     Handshake = 0,
