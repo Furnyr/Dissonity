@@ -52,6 +52,9 @@ function main() {
     
         variables.CLIENT_ID = rl(
             required + chalk.yellow("CLIENT_ID (snowflake): "));
+
+        variables.LAZY_HIRPC_LOAD = rl(
+            hasDefault + required + chalk.yellow("LAZY_HIRPC_LOAD (True/False): "));
     
         variables.DISABLE_CONSOLE_LOG_OVERRIDE = rl(
             hasDefault + required + chalk.yellow("DISABLE_CONSOLE_LOG_OVERRIDE (True/False): "));
@@ -76,6 +79,7 @@ function main() {
     else {
         variables.DISABLE_INFO_LOGS = "d";
         variables.CLIENT_ID = "123456789987654321";
+        variables.LAZY_HIRPC_LOAD = "d";
         variables.DISABLE_CONSOLE_LOG_OVERRIDE = "d";
         variables.MAPPINGS = "";
         variables.PATCH_URL_MAPPINGS_CONFIG = "d";
@@ -96,6 +100,7 @@ function main() {
 
         //? Default value
         if (variables[key].toLowerCase() == "d") {
+            if (key == "LAZY_HIRPC_LOAD") variables[key] = "True";
             if (key == "DISABLE_INFO_LOGS") variables[key] = "False";
             if (key == "DISABLE_CONSOLE_LOG_OVERRIDE") variables[key] = "True";
             if (key == "PATCH_URL_MAPPINGS_CONFIG") variables[key] = '{"patchFetch":true,"patchWebSocket":true,"patchXhr":true,"patchSrcAttributes":false}';

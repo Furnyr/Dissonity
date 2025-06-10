@@ -45,6 +45,6 @@ export type MultiEvent = {
     response: string;
 };
 export type RpcSource = {
-    source: Window;
+    source: Window | null;
     sourceOrigin: string;
 };

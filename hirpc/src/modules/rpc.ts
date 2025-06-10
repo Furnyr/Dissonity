@@ -293,7 +293,7 @@ export class Rpc {
 
         const { source, sourceOrigin } = this.#source;
 
-        source.postMessage([opcode, payload], sourceOrigin);
+        source!.postMessage([opcode, payload], sourceOrigin);
     }
 
     getNonce() {
@@ -320,6 +320,8 @@ export class Rpc {
     }
 
     #getRpcSource(): RpcSource {
+
+        if (typeof window == "undefined") return { source: null, sourceOrigin: "*" };
 
         // The hiRPC needs to work inside a nested iframe. So it can be two iframes in the Discord client.
 
