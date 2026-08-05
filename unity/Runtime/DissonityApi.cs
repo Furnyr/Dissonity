@@ -1007,7 +1007,7 @@ namespace Dissonity
             /// <summary>
             /// Returns the current user's relationships. <br/> <br/>
             /// Scopes required: <c> relationships.read </c> <br/> <br/>
-            /// <c> relationships.read </c> requires approval from Discord. <br/>
+            /// <c> relationships.read </c> is available under the <see href="https://support-dev.discord.com/hc/en-us/articles/30225844245271-Discord-Social-SDK-Terms">Social SDK Terms</see>. You can submit for access <see href="https://discord.com/developers/applications/select/social-sdk/getting-started">here</see>. <br/>
             /// ---------------------- <br/>
             /// ✅ | Web <br/>
             /// ✅ | iOS <br/>
@@ -1766,7 +1766,7 @@ namespace Dissonity
             /// <summary>
             /// Received when a relationship of the current user is updated. <br/> <br/>
             /// Scopes required: <c> relationships.read </c> <br/> <br/>
-            /// <c> relationships.read </c> requires approval from Discord. <br/>
+            /// <c> relationships.read </c> is available under the <see href="https://support-dev.discord.com/hc/en-us/articles/30225844245271-Discord-Social-SDK-Terms">Social SDK Terms</see>. You can submit for access <see href="https://discord.com/developers/applications/select/social-sdk/getting-started">here</see>. <br/>
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>

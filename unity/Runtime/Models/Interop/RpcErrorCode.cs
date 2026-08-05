@@ -11,6 +11,7 @@ namespace Dissonity.Models.Interop
         InvalidPermissions = 4006,
         InvalidClientId = 4007,
         InvalidOrigin = 4008,
-        InvalidToken = 4009
+        InvalidToken = 4009,
+        InvalidUser = 4010
     }
 }
