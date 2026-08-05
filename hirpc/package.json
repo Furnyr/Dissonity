@@ -1,6 +1,6 @@
 {
   "name": "@dissonity/hirpc",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Discord RPC library for activities made in game engines",
   "scripts": {
     "lint": "eslint",
@@ -23,5 +23,6 @@
     "webpack": "^5.109.2",
     "webpack-cli": "^6.0.1"
   },
+  "type": "module",
   "private": true
 }

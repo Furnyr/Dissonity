@@ -1,6 +1,6 @@
 {
   "name": "@dissonity/hirpc-kit",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Types and utilities for the Dissonity hiRPC",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/Furnyr/Dissonity#readme",
   "devDependencies": {
-    "@types/node": "^24.6.1",
+    "@types/node": "^26.1.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   }

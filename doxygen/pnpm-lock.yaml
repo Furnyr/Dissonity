@@ -15,7 +15,7 @@ importers:
 packages:
 
   '@jothepro/doxygen-awesome-css@https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea':
-    resolution: {tarball: https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea}
+    resolution: {gitHosted: true, integrity: sha512-MCRf7dz0qKFfn4XzcQCg07wrjvTXygbbg+9DD5jpPO7JS/M/9aKbO5X7HFDX8Jg97I6B1RIO25sV2C1xbCinUw==, tarball: https://codeload.github.com/jothepro/doxygen-awesome-css/tar.gz/568f56cde6ac78b6dfcc14acd380b2e745c301ea}
     version: 2.3.4
 
 snapshots:
