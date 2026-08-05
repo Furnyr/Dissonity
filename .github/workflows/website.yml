@@ -38,17 +38,13 @@ jobs:
         working-directory: "./website"
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - name: Install pnpm and Node.js
+        uses: pnpm/setup@v2
         with:
-          node-version: 20
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
+          version: 11
+          runtime: node@26
 
       - name: Install Dependencies
         run: pnpm install
@@ -74,13 +70,13 @@ jobs:
         run: pnpm build
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: "website/dist"
           
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
