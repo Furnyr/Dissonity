@@ -16,7 +16,6 @@ interface Window {
 }
 interface SessionStorage {
     dso_outside_discord: "true" | "false" | null;
-    dso_needs_prefix: "true" | "false" | null;
     dso_connected: "true" | "false" | null;
     dso_authenticated: "true" | "false" | null;
     dso_instance_id: string | null;

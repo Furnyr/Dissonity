@@ -23,7 +23,7 @@ function GuidesPage () {
       <p>
         Discord activities are applications that are executed inside the Discord client, and are available everywhere on Discord. 
         Under the hood, they are just <a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe">Iframes</a> that
-        load a website through the <a target="_blank" href="https://discord.com/developers/docs/activities/development-guides#activity-proxy-considerations">Discord Proxy</a>.
+        load a website through the <a target="_blank" href="https://docs.discord.com/developers/activities/development-guides/networking#activity-proxy-considerations">Discord Proxy</a>.
       </p>
 
       <p>

@@ -121,6 +121,15 @@ export default class HiRpc {
         //\ Ready to request hash
         this.#state.loaded = true;
         this.#state.maxAccessCount = maxAccessCount;
+
+        //? Proxy domain
+        if (window.location.hostname.endsWith(".discordsays.com")) {
+            sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
+
+        else {
+            sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+        }
         
         return new Promise(async (resolve, reject) => {
 
@@ -279,18 +288,19 @@ export default class HiRpc {
     }
 
     //# UTILS - - - - -
-    patchUrlMappings(hash: string, mappings: Mapping[], config?: PatchUrlMappingsConfig): void {
-
-        if (!this.#hashes.verifyHash(hash)) return;
+    patchUrlMappings(mappings: Mapping[], config?: PatchUrlMappingsConfig): void {
 
         this.#utils.patchUrlMappings(mappings, config);
     }
 
-    formatPrice(hash: string, price: {amount: number; currency: string}, locale?: string): string | undefined {
-
-        if (!this.#hashes.verifyHash(hash)) return;
+    formatPrice(price: {amount: number; currency: string}, locale?: string): string | undefined {
 
         return this.#utils.formatPrice(price, locale);
+    }
+
+    utilsBinding(): OfficialUtils {
+
+        return this.#utils;
     }
 
     //# API - - - - -

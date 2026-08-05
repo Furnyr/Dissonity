@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/Furnyr/Dissonity#readme",
   "devDependencies": {
-    "@types/node": "^22.10.2",
-    "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "@types/node": "^24.6.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
   }
 }

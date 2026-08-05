@@ -58,7 +58,7 @@ function DocsPage () {
         <h2 id="introduction">Introduction <HashLink link="/?/docs/v2/internals/hirpc#introduction" /></h2>
 
         <p>
-          hiRPC is the name given to the internal implementation of the <a href="https://discord.com/developers/docs/activities/how-activities-work#how-activities-work" target="_blank">Discord RPC protocol</a> used by Dissonity. Not only does it allow an application to interact with Discord, but it also allows <a href="#protocol">interoperation</a> with any non-JavaScript coded app. hiRPC takes the form of portable files that are served directly with the game build, without relying on external dependencies.
+          hiRPC is the name given to the internal implementation of the <a href="https://docs.discord.com/developers/activities/how-activities-work" target="_blank">Discord RPC protocol</a> used by Dissonity. Not only does it allow an application to interact with Discord, but it also allows <a href="#protocol">interoperation</a> with any non-JavaScript coded app. hiRPC takes the form of portable files that are served directly with the game build, without relying on external dependencies.
         </p>
 
         <h2 id="what-it-does">What it does <HashLink link="/?/docs/v2/internals/hirpc#what-it-does" /></h2>

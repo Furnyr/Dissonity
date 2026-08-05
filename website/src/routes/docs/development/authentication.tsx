@@ -19,7 +19,7 @@ function DocsPage () {
         <h1>Authentication <HashLink link="/?/docs/v2/development/authentication"/></h1> 
 
         <p>
-          Dissonity automatically begins the <a href="https://discord.com/developers/docs/activities/how-activities-work#activity-lifecycle" target="_blank">Authorization and Authentication</a> process when the activity is launched based on your configuration file. This is why you don't have to call commands manually to start this process.
+          Dissonity automatically begins the <a href="https://docs.discord.com/developers/activities/how-activities-work#activity-lifecycle" target="_blank">Authorization and Authentication</a> process when the activity is launched based on your configuration file. This is why you don't have to call commands manually to start this process.
         </p>
 
         <p>
@@ -77,8 +77,8 @@ function DocsPage () {
         <h2>External links</h2>
 
         <ul>
-          <li><a href="https://discord.com/developers/docs/activities/how-activities-work#sample-code-and-activity-lifecycle-diagram" target="_blank">Client reference</a></li>
-          <li><a href="https://discord.com/developers/docs/activities/building-an-activity#step-5-authorizing-authenticating-users" target="_blank">Server reference</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/how-activities-work#sample-code-and-activity-lifecycle-diagram" target="_blank">Client reference</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/building-an-activity#step-5-authorizing-&-authenticating-users" target="_blank">Server reference</a></li>
         </ul>
 
         <Footer />

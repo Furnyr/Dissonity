@@ -76,7 +76,7 @@ mergeInto(LibraryManager.library, {
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        hiRpc.patchUrlMappings(app_hash, mappings, config);
+        hiRpc.patchUrlMappings(mappings, config);
 
         const payload: DissonityChannelPayload = {
             nonce
@@ -95,7 +95,7 @@ mergeInto(LibraryManager.library, {
 
         const hiRpc = window.dso_hirpc as HiRpcModule;
 
-        const formattedPrice = hiRpc.formatPrice(app_hash, {
+        const formattedPrice = hiRpc.formatPrice({
             amount,
             currency
         }, locale);

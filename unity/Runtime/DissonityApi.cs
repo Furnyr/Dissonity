@@ -1043,12 +1043,12 @@ namespace Dissonity
             //todo Not documented but well-known functionality
             /// <summary>
             /// Returns a user. <br/> <br/>
-            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk <br/> <br/>
+            /// Available in the official SDK but not documented in https://docs.discord.com/developers/developer-tools/embedded-app-sdk <br/> <br/>
             /// Consider contributing.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="CommandException"></exception>
-            private static async Task<User?> GetUser(long userId)
+            public static async Task<User?> GetUser(long userId)
             {
                 if (!_ready) throw new InvalidOperationException("Tried to use a command without being ready");
 
@@ -1067,7 +1067,7 @@ namespace Dissonity
             //todo Not documented
             /// <summary>
             /// Invite a user. <br/> <br/>
-            /// Available in the official SDK but not documented in https://discord.com/developers/docs/developer-tools/embedded-app-sdk <br/> <br/>
+            /// Available in the official SDK but not documented in https://docs.discord.com/developers/developer-tools/embedded-app-sdk <br/> <br/>
             /// Consider contributing.
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -1088,6 +1088,17 @@ namespace Dissonity
 
                 await SendCommand<InviteUserEmbedded, NoResponse>(new(userId.ToString(), content));
             }
+        
+            //todo Commands that won't be published for now because I can't figure out what they do without docs:
+            // shareInteraction (just appeared one day in the schemas)
+            // inviteUserEmbedded IS implemented, just private
+            // getQuestEnrollmentStatus
+            // questStartTimer
+            // getUser kinda?
+
+            //todo ditto with events but here too for organization's sake
+            // ACTIVITY_JOIN
+            // ENTITLEMENT_CREATE kinda?
         }
 
         //# PROXY - - - - -
@@ -1572,9 +1583,10 @@ namespace Dissonity
             }
 
 
-            //todo Also not documented yet
+            //todo Not documented but well-known functionality
             /// <summary>
             /// Received when an entitlement is created for a SKU. <br/> <br/>
+            /// Available in the official SDK but not documented in https://docs.discord.com/developers/developer-tools/embedded-app-sdk <br/> <br/>
             /// No scopes required
             /// </summary>
             /// <exception cref="InvalidOperationException"></exception>
@@ -2253,7 +2265,7 @@ namespace Dissonity
         /// <summary>
         /// Use this method to easily access external resources. <br/> <br/>
         /// If you need to use it before initialization, consider using <c> Mappings </c> and <c> PatchUrlMappingsConfig </c> from the <c> DissonityConfig </c> instead. <br/> <br/>
-        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// https://docs.discord.com/developers/activities/development-guides/networking#using-external-resources
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
         public static Task PatchUrlMappings(MappingBuilder[] mappings, PatchUrlMappingsConfigBuilder? config = null)

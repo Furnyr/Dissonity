@@ -40,7 +40,7 @@ namespace Dissonity
         public abstract long ClientId { get; }
 
         /// <summary>
-        /// The OAuth2 scopes your app needs. <br/> <br/> https://discord.com/developers/docs/topics/oauth2
+        /// The OAuth2 scopes your app needs. <br/> <br/> https://docs.discord.com/developers/topics/oauth2
         /// </summary>
         public abstract string[] OauthScopes { get; }
 
@@ -52,7 +52,7 @@ namespace Dissonity
 
         //# OPTIONAL - - - - -
         /// <summary>
-        /// https://discord.com/developers/docs/activities/development-guides#disabling-logging <br/> <br/>
+        /// https://docs.discord.com/developers/activities/development-guides/local-development#disabling-logging <br/> <br/>
         /// Defaults to true.
         /// </summary>
         public virtual bool DisableConsoleLogOverride { get; } = true;
@@ -71,13 +71,13 @@ namespace Dissonity
 
         /// <summary>
         /// Mappings to patch before initialization. <br/> <br/>
-        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// https://docs.discord.com/developers/activities/development-guides/networking#using-external-resources
         /// </summary>
         public virtual MappingBuilder[] Mappings { get; } = {};
 
         /// <summary>
         /// Patch url mappings configuration. <br/> <br/>
-        /// https://discord.com/developers/docs/activities/development-guides#using-external-resources
+        /// https://docs.discord.com/developers/activities/development-guides/networking#using-external-resources
         /// </summary>
         public virtual PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig { get; } = new()
         {

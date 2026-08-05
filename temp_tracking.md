@@ -1,0 +1,9 @@
+- RpcErrorCode
+- Activity (+Builder, Mock) now has details_url and state_url (original 2.1.0)
+- ActivityAssets (+Mock) now has details_url and state_url (original 2.1.0)
+- API: GetUser (needs testing, might be privated again in favor of SyncedUser)
+- Updated links to the new format of the Discord documentation
+- Updated TS config in hirpc and hirpc-interface
+- Improved hirpc domain checking
+- Removed hash checking for official methods
+- Removed checks in the hirpc kit (needs testing)

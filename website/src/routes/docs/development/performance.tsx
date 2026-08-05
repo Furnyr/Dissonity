@@ -48,7 +48,7 @@ function DocsPage () {
         <h2>External links</h2>
 
         <ul>
-          <li><a href="https://discord.com/developers/docs/activities/design-patterns#technical-considerations" target="_blank">Discord Technical considerations</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/design-patterns#technical-considerations" target="_blank">Discord Technical considerations</a></li>
           <li><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/webgl-technical-overview.html" target="_blank">Unity WebGL Technical limitations</a></li>
         </ul>
 

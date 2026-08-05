@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace Dissonity.Models.Builders
 {
     /// <summary>
-    /// More information about rich presence: https://discord.com/developers/docs/rich-presence/using-with-the-embedded-app-sdk#custom-rich-presence-data
+    /// More information about rich presence: https://docs.discord.com/developers/rich-presence/using-with-the-embedded-app-sdk#custom-rich-presence-data
     /// </summary>
     [Serializable]
     public class ActivityBuilder
@@ -20,8 +20,14 @@ namespace Dissonity.Models.Builders
         [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
         public string? Details { get; set; }
 
+        [JsonProperty("details_url", NullValueHandling = NullValueHandling.Ignore)]
+        public string? DetailsUrl { get; set; }
+
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
         public string? State { get; set; }
+
+        [JsonProperty("state_url", NullValueHandling = NullValueHandling.Ignore)]
+        public string? StateUrl { get; set; }
         
         [JsonProperty("party", NullValueHandling = NullValueHandling.Ignore)]
         public ActivityParty? Party { get; set; }
@@ -43,7 +49,9 @@ namespace Dissonity.Models.Builders
                 Type = Type,
                 Timestamps = Timestamps,
                 Details = Details,
+                DetailsUrl = DetailsUrl,
                 State = State,
+                StateUrl = StateUrl,
                 Party = Party,
                 Assets = Assets,
                 Secrets = Secrets,

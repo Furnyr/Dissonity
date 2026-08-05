@@ -29,8 +29,14 @@ namespace Dissonity.Models
         [JsonProperty("details")]
         public string? Details { get; set; }
 
+        [JsonProperty("details_url")]
+        public string? DetailsUrl { get; set; }
+
         [JsonProperty("state")]
         public string? State { get; set; }
+
+        [JsonProperty("state_url")]
+        public string? StateUrl { get; set; }
         
         [JsonProperty("emoji")]
         public Emoji? Emoji { get; set; }

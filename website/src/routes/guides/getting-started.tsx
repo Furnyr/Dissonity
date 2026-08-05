@@ -43,7 +43,7 @@ function GuidesPage () {
         </ul>
 
       <p>
-        This article is equivalent to the official <a href="https://discord.com/developers/docs/activities/building-an-activity" target="_blank">Quickstart guide</a>.
+        This article is equivalent to the official <a href="https://docs.discord.com/developers/activities/building-an-activity" target="_blank">Quickstart guide</a>.
       </p>
 
       <h2 id="enable-developer-mode">0. Enable Developer Mode <HashLink link="/?/guides/v2/getting-started#enable-developer-mode"/></h2>
@@ -97,7 +97,7 @@ function GuidesPage () {
           down to <b>Activities</b> and <b>Enable Activities</b> in the settings
         </li>
         <li>
-          Choose <a href="https://discord.com/developers/docs/activities/building-an-activity#choose-installation-contexts" target="_blank">installation context</a> (user, servers or both)
+          Choose <a href="https://docs.discord.com/developers/activities/building-an-activity#choose-installation-contexts" target="_blank">installation context</a> (user, servers or both)
         </li>
         <li>
           Go to <b>OAuth2</b> and add a placeholder <b>Redirect</b>: <CopyText text="http://127.0.0.1" stateFunction={setIsCopiedRedirect} stateBool={isCopiedRedirect}/>
@@ -237,7 +237,7 @@ public class MyScript : MonoBehaviour
 
       <p>
         Dissonity covers 100% of the official SDK, so if you can do something with the Embedded App SDK, you can do it with Dissonity.
-        For example, use <code>Dissonity.Api.Commands</code> to send <a href="https://discord.com/developers/docs/developer-tools/embedded-app-sdk#sdk-commands" target="_blank">commands</a> or <code>Dissonity.Api.Subscribe</code> to receive <a href="https://discord.com/developers/docs/developer-tools/embedded-app-sdk#sdk-events" target="_blank">events</a>.
+        For example, use <code>Dissonity.Api.Commands</code> to send <a href="https://docs.discord.com/developers/developer-tools/embedded-app-sdk#sdk-commands" target="_blank">commands</a> or <code>Dissonity.Api.Subscribe</code> to receive <a href="https://docs.discord.com/developers/developer-tools/embedded-app-sdk#sdk-events" target="_blank">events</a>.
       </p>
 
       <p>

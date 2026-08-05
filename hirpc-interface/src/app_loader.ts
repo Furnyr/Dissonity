@@ -93,9 +93,27 @@ async function handleHiRpc() {
     const isNested = window.parent != window.parent.parent;
     if (isNested && typeof window.parent?.dso_hirpc == "object") {
 
-        //\ Add shallow references to this window to use later
+        const module = window.parent.dso_hirpc as HiRpcModule;
+
+        // Create proxy in order to maintain the context for patchUrlMappings
+        const proxy = new Proxy(module, {
+            get: (target, key) => {
+
+                // Assuring the method exists in the TS source
+                const patchUrlMappings: keyof HiRpcModule = "patchUrlMappings";
+
+                if (key == patchUrlMappings) {
+                    const localFunction = module.utilsBinding().patchUrlMappings.bind(window);
+                    return localFunction;
+                }
+
+                return target[key as keyof typeof target];
+            }
+        });
+
+        //\ Add shallow reference within proxy to this window to use later
         Object.defineProperty(window, "dso_hirpc", {
-            value: window.parent.dso_hirpc,
+            value: proxy,
             writable: false,
             configurable: false
         });

@@ -16,7 +16,7 @@
 
 [Dissonity](https://github.com/Furnyr/Dissonity/) is a Unity SDK that allows you to easily make Discord activities!
 
-It is a C# implementation of the [Embedded App SDK](https://discord.com/developers/docs/developer-tools/embedded-app-sdk).
+It is a C# implementation of the [Embedded App SDK](https://docs.discord.com/developers/developer-tools/embedded-app-sdk).
 
 ## Example
 
@@ -97,7 +97,7 @@ If you're not sure how to continue, read the documentation.
 
 ## Documentation
 
-- **Activities**: https://discord.com/developers/docs/activities/overview
+- **Activities**: https://docs.discord.com/developers/activities/overview
 - **Dissonity**: https://dissonity.dev/
 
 ## Contact

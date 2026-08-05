@@ -30,89 +30,13 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
             return;   
         }
 
-        //? Not outside Discord
-        let skipPrefixCheck = false;
-        let useProxyImport = false;
-        if (window.location.hostname.endsWith(".discordsays.com")) {
-            sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-
-        else {
-            skipPrefixCheck = true;
-            sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-
-        //? Doesn't need prefix
-        if (skipPrefixCheck || window.location.pathname.startsWith("/.proxy")) {
-            sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-        }
-
-        else {
-            useProxyImport = true;
-            sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-        }
-
-        // Begin importing
-        if (useProxyImport) {
-
-            tryProxyImport()
-            .then(module => {
-                resolve(module as HiRpcShape<V>)
-            })
-            .catch(() => {
-
-                tryDirectImport()
-                .then(module => {
-                    resolve(module as HiRpcShape<V>)
-                })
-                .catch(err => {
-                    reject(err);
-                })
-            })
-        }
-
-        else {
-            tryDirectImport()
-            .then(module => {
-                resolve(module as HiRpcShape<V>)
-            })
-            .catch(() => {
-
-                tryProxyImport()
-                .then(module => {
-                    resolve(module as HiRpcShape<V>)
-                })
-                .catch(err => {
-                    reject(err);
-                })
-            })
-        }
-
-        function tryProxyImport() {
-
-            return new Promise((resolve, reject) => {
-
-                import("dso_proxy_bridge/dissonity_hirpc.js" as string)
-                .then(() => {
-    
-                    import("dso_proxy_bridge/dissonity_build_variables.js" as string)
-                    .then(() => {
-    
-                        sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-    
-                        mountInstance();
-                    
-                        resolve(window.dso_hirpc as HiRpcShape<V>);
-                    })
-                    .catch(err => {
-                        reject(err);
-                    })
-                })
-                .catch(err => {
-                    reject(err);
-                });
-            })
-        }
+        tryDirectImport()
+        .then(module => {
+            resolve(module as HiRpcShape<V>)
+        })
+        .catch(err => {
+            reject(err);
+        })
 
         function tryDirectImport() {
 
@@ -124,8 +48,6 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
                     import("dso_bridge/dissonity_build_variables.js" as string)
                     .then(() => {
     
-                        sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-                        
                         mountInstance();
                     
                         resolve(window.dso_hirpc as HiRpcShape<V>);
@@ -170,11 +92,6 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
  * Load an HTML file as the activity iframe.
  */
 export function loadIframe(src: string, id: string) {
-
-    const confirmedNeedsPrefix = sessionStorage.getItem("dso_needs_prefix") as SessionStorage["dso_needs_prefix"] == "true";
-    if (confirmedNeedsPrefix && !src.startsWith("./") && !src.startsWith(".proxy/")) {
-        src = ".proxy/" + src;
-    }
 
     const iframe = document.createElement("iframe");
 

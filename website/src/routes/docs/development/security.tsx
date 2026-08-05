@@ -65,7 +65,7 @@ function DocsPage () {
         <h2>External links</h2>
 
         <ul>
-          <li><a href="https://discord.com/developers/docs/activities/development-guides#security-considerations" target="_blank">Security considerations</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/development-guides/networking#security-considerations" target="_blank">Security considerations</a></li>
         </ul>
 
         <Footer />

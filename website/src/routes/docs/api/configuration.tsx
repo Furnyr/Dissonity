@@ -124,7 +124,7 @@ public class DissonityConfiguration : SdkConfiguration<ServerTokenRequest, Serve
         <h2 id="logs">Logs <HashLink link="/?/docs/v2/api/config#logs"/></h2>
 
         <p>
-          You can enable <a href="https://discord.com/developers/docs/activities/development-guides#disabling-logging" target="_blank">Console Log Override</a> setting <code>DisableConsoleLogOverride</code> to false. It is disabled by default, unlike the official SDK.
+          You can enable <a href="https://docs.discord.com/developers/activities/development-guides/local-development#disabling-logging" target="_blank">Console Log Override</a> setting <code>DisableConsoleLogOverride</code> to false. It is disabled by default, unlike the official SDK.
         </p>
 
         <p>
@@ -170,7 +170,7 @@ public override PatchUrlMappingsConfigBuilder PatchUrlMappingsConfig => new()
         <h2>External links</h2>
 
         <ul>
-          <li><a href="https://discord.com/developers/docs/activities/overview" target="_blank">Overview of Activities</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/overview" target="_blank">Overview of Activities</a></li>
         </ul>
 
         <Footer />

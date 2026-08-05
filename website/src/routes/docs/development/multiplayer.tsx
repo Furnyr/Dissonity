@@ -128,8 +128,8 @@ public class ExampleScript : MonoBehaviour
         <h2>External links</h2>
 
         <ul>
-          <li><a href="https://discord.com/developers/docs/activities/development-guides#networking" target="_blank">Networking</a></li>
-          <li><a href="https://discord.com/developers/docs/activities/development-guides#multiplayer-experience" target="_blank">Multiplayer Experience</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/development-guides#networking" target="_blank">Networking</a></li>
+          <li><a href="https://docs.discord.com/developers/activities/development-guides#multiplayer-experience" target="_blank">Multiplayer Experience</a></li>
         </ul>
         <Footer />
     </div>

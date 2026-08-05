@@ -18,7 +18,7 @@ export class OfficialUtils {
   ) {
     // Bail out if we're not in a browser
     if (typeof window === 'undefined') return;
-  
+
     if (patchFetch) {
       const fetchImpl = window.fetch;
       // fetch is a duplex, but this is consistent
@@ -38,14 +38,14 @@ export class OfficialUtils {
               console.warn(`Remapping fetch request key "${value}" failed`, ex);
             }
           });
-  
+
           return new Promise((resolve, reject) => {
             try {
               input.blob().then((blob) => {
                 if (input.method.toUpperCase() !== 'HEAD' && input.method.toUpperCase() !== 'GET' && blob.size > 0) {
                   newInit.body = blob;
                 }
-  
+
                 resolve(fetchImpl(new Request(newUrl, newInit)));
               });
             } catch (ex) {
@@ -53,7 +53,7 @@ export class OfficialUtils {
             }
           });
         }
-  
+
         // Assuming a generic url or string
         const remapped = attemptRemap({url: input instanceof URL ? input : absoluteURL(input), mappings});
         return fetchImpl(remapped, init);
@@ -68,7 +68,7 @@ export class OfficialUtils {
       }
       window.WebSocket = WebSocketProxy;
     }
-  
+
     if (patchXhr) {
       const openImpl = XMLHttpRequest.prototype.open;
       // @ts-expect-error - the ts interface exports two 'open' methods
@@ -83,7 +83,7 @@ export class OfficialUtils {
         openImpl.apply(this, [method, remapped, async, username, password]);
       };
     }
-  
+
     if (patchSrcAttributes) {
       const callback: MutationCallback = function (mutationsList) {
         for (const mutation of mutationsList) {
@@ -97,7 +97,7 @@ export class OfficialUtils {
           }
         }
       };
-  
+
       const observer = new MutationObserver(callback);
       const config: MutationObserverInit = {
         attributeFilter: ['src'],
@@ -105,7 +105,7 @@ export class OfficialUtils {
         subtree: true,
       };
       observer.observe(window.document, config);
-  
+
       window.document.querySelectorAll('[src]').forEach((node) => {
         attemptSetNodeSrc(node, mappings);
       });
@@ -500,7 +500,6 @@ function convertToMajorCurrencyUnits(minorUnitValue: number, currency: CurrencyC
 
 //# PATCH URL MAPPINGS - - - - -
 const SUBSTITUTION_REGEX = /\{([a-z]+)\}/g;
-const PROXY_PREFIX = '/.proxy';
 
 function recursivelyRemapChildNodes(node: Node, mappings: Mapping[]) {
     if (node.hasChildNodes()) {
@@ -549,13 +548,6 @@ function attemptRecreateScriptNode(node: HTMLElement, {url, mappings}: RemapInpu
 
 function attemptRemap({url, mappings}: RemapInput): URL {
     const newURL = new URL(url.toString());
-    if (
-      (newURL.hostname.includes('discordsays.com') || newURL.hostname.includes('discordsez.com')) &&
-      // Only apply proxy prefix once
-      !newURL.pathname.startsWith(PROXY_PREFIX)
-    ) {
-      newURL.pathname = PROXY_PREFIX + newURL.pathname;
-    }
     for (const mapping of mappings) {
       const mapped = matchAndRewriteURL({
         originalURL: newURL,
@@ -595,16 +587,11 @@ function matchAndRewriteURL({originalURL, prefix, prefixHost, target}: MatchAndR
       if (replaceValue == null) throw new Error('Misconfigured route.');
       return replaceValue;
     });
-  
+
     // Append the original path
-    newURL.pathname += newURL.pathname === '/' ? originalURL.pathname.slice(1) : originalURL.pathname;
-    // prepend /.proxy/ to path if using discord activities proxy
-    if (
-      (newURL.hostname.includes('discordsays.com') || newURL.hostname.includes('discordsez.com')) &&
-      !newURL.pathname.startsWith(PROXY_PREFIX)
-    ) {
-      newURL.pathname = PROXY_PREFIX + newURL.pathname;
-    }
+    const pathToAppend = originalURL.pathname.startsWith('/') ? originalURL.pathname.slice(1) : originalURL.pathname;
+    newURL.pathname += newURL.pathname.endsWith('/') ? pathToAppend : '/' + pathToAppend;
+
     // Remove the target's path from the new url path
     newURL.pathname = newURL.pathname.replace(targetURL.pathname, '');
     // Add a trailing slash if original url had it, and if it doesn't already have one or if matches filename regex

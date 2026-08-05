@@ -21,7 +21,11 @@ namespace Dissonity.Models.Mock
         
         new public string Details = "Mock details";
 
+        new public string DetailsUrl = "Mock details url";
+
         new public string State = "Mock state";
+
+        new public string StateUrl = "Mock state url";
         
         new public MockEmoji Emoji = new();
         
@@ -46,7 +50,9 @@ namespace Dissonity.Models.Mock
                 Timestamps = Timestamps.ToActivityTimestamps(),
                 ApplicationId = ApplicationId,
                 Details = Details,
+                DetailsUrl = DetailsUrl,
                 State = State,
+                StateUrl = StateUrl,
                 Emoji = Emoji.ToEmoji(),
                 Party = Party.ToActivityParty(),
                 Assets = Assets.ToActivityAssets(),
