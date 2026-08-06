@@ -1,13 +1,14 @@
-import { Opcode } from "./enums.js";
-import type { Mapping, PatchUrlMappingsConfig } from "./official_types.js";
-import type { BuildVariables, RpcInputPayload } from "./types.js";
+import { Opcode } from "../enums";
+import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
+import type { BuildVariables, RpcInputPayload } from "../types";
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  *
  * Imports that must be defined:
  * - dso_bridge/
+ * - dso_proxy_bridge/
  */
-export default class HiRpc {
+export default class HiRpcV0_6 {
     #private;
     constructor();
     /**
@@ -26,11 +27,11 @@ export default class HiRpc {
      */
     load(maxAccessCount?: number): Promise<void>;
     getBuildVariables(): BuildVariables;
-    patchUrlMappings: (mappings: Mapping[], config?: PatchUrlMappingsConfig) => void;
-    formatPrice: (price: {
+    patchUrlMappings(hash: string, mappings: Mapping[], config?: PatchUrlMappingsConfig): void;
+    formatPrice(hash: string, price: {
         amount: number;
         currency: string;
-    }, locale?: string) => string | undefined;
+    }, locale?: string): string | undefined;
     getQueryObject(): Record<string, string>;
     getNonce(): string;
     getVersions(): {

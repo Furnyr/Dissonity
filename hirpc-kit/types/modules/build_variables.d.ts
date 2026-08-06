@@ -1,4 +1,4 @@
-import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
+import type { Mapping, PatchUrlMappingsConfig } from "../official_types.js";
 /**
  * This class is bundled separately.
  *

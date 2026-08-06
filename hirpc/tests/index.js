@@ -5,14 +5,14 @@
 
 //todo: It would be ideal to have browser tests in the future.
 
-const { test } = require("uvu");
-const assert = require("uvu/assert");
-const BuildVariables = require("../ci/src/modules/build_variables");
-const HiRpc = require("../ci/src/index");
+import { test } from "uvu";
+import * as assert from 'uvu/assert';
+import BuildVariables from "../ci/src/modules/build_variables.js";
+import HiRpc from "../ci/src/index.js";
 
 test("build variables", () => {
 
-    const buildVariables = new BuildVariables.default();
+    const buildVariables = new BuildVariables();
 
     assert.is(buildVariables.DISABLE_INFO_LOGS, false);
     assert.is(buildVariables.CLIENT_ID, "123456789987654321");
@@ -26,7 +26,7 @@ test("build variables", () => {
 
 test("fail load", async () => {
 
-    const hiRpc = new HiRpc.default();
+    const hiRpc = new HiRpc();
 
     let loaded = false;
 

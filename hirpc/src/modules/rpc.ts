@@ -1,11 +1,11 @@
-import { CLOSE_NORMAL, HANDSHAKE_UNKNOWN_VERSION_NUMBER } from "../constants";
-import { Opcode, RpcCommands, RpcEvents, StateCode } from "../enums";
-import { InteropMessage, RpcMessage, RpcSource } from "../types";
+import { CLOSE_NORMAL, HANDSHAKE_UNKNOWN_VERSION_NUMBER } from "../constants.js";
+import { Opcode, RpcCommands, RpcEvents, StateCode } from "../enums.js";
+import { InteropMessage, RpcMessage, RpcSource } from "../types.js";
 
-import { State } from "./state";
-import { BuildVariables } from "../types";
-import { log, logError } from "../logger";
-import { OfficialUtils } from "./official_utils";
+import { State } from "./state.js";
+import { BuildVariables } from "../types.js";
+import { log, logError } from "../logger.js";
+import { patchUrlMappings } from "./official_utils.js";
 
 /**
  * Handles communication with the Discord RPC.
@@ -14,7 +14,6 @@ export class Rpc {
 
     #state: State;
     #source: RpcSource;
-    #utils: OfficialUtils;
     #allowedOrigins = new Set([
         typeof window != "undefined"
             ? window.location.origin
@@ -31,10 +30,9 @@ export class Rpc {
         "null"
     ]);
 
-    constructor(state: State, utils: OfficialUtils) {
+    constructor(state: State) {
         this.#state = state;
         this.#source = this.#getRpcSource();
-        this.#utils = utils;
 
         // Ensure the class context is preserved in the message event
         this.receive = this.receive.bind(this);
@@ -132,7 +130,7 @@ export class Rpc {
 
                             if (!buildVariables.DISABLE_INFO_LOGS) log(`Patching url mappings... (${mappings.length})`);
 
-                            this.#utils.patchUrlMappings(mappings, patchUrlMappingsConfig);
+                            patchUrlMappings(mappings, patchUrlMappingsConfig);
                         }
 
                     } catch (err) {
@@ -238,7 +236,7 @@ export class Rpc {
                 }
 
                 //\ Send token request
-                const response = await fetch(`/.proxy${tokenRequestPath}`, {
+                const response = await fetch(tokenRequestPath, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"

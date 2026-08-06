@@ -2,13 +2,11 @@
     - Move the Unity folder in the repository to your local Unity project
 */
 
-const fs = require("fs");
-const chalk = require("chalk");
-const { config } = require("dotenv");
-const prompt = require("prompt-sync");
-const { getLocalPath } = require("./utils.js");
-
-config();
+import fs from "fs";
+import chalk from "chalk";
+import "dotenv/config";
+import prompt from "prompt-sync";
+import { getLocalPath } from "./utils.js";
 
 function main() {
 

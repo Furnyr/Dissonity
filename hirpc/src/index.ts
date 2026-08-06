@@ -1,37 +1,34 @@
-import { log, logError } from "./logger";
-import { Opcode, Platform, RpcCommands, StateCode } from "./enums";
-import PackageJson from "../package.json";
+import { log, logError } from "./logger.js";
+import { Opcode, Platform, RpcCommands, StateCode } from "./enums.js";
+import PackageJson from "../package.json" with { type: "json" };
 import { AUTHORIZE_PROMPT, AUTHORIZE_RESPONSE_TYPE, DISSONITY_CHANNEL, HANDSHAKE_ENCODING, HANDSHAKE_SDK_MINIMUM_MOBILE_VERSION,
-    HANDSHAKE_VERSION, SDK_VERSION } from "./constants";
+    HANDSHAKE_VERSION, SDK_VERSION } from "./constants.js";
 
-import { HashGenerator } from "./modules/hash_generator";
-import { State } from "./modules/state";
-import { OfficialUtils } from "./modules/official_utils";
-import { Rpc } from "./modules/rpc";
+import { HashGenerator } from "./modules/hash_generator.js";
+import { State } from "./modules/state.js";
+import { patchUrlMappings, formatPrice } from "./modules/official_utils.js";
+import { Rpc } from "./modules/rpc.js";
 
-import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types";
-import type { BuildVariables, DissonityChannelError, DissonityChannelHandshake, InteropMessage, RpcInputPayload } from "./types";
+import type { HandshakePayload, Mapping, PatchUrlMappingsConfig } from "./official_types.js";
+import type { BuildVariables, DissonityChannelError, DissonityChannelHandshake, InteropMessage, RpcInputPayload } from "./types.js";
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  * 
  * Imports that must be defined:
  * - dso_bridge/
- * - dso_proxy_bridge/
  */ 
 export default class HiRpc {
 
     #state: State;
     #hashes: HashGenerator;
-    #utils: OfficialUtils;
     #rpc: Rpc;
 
     constructor() {
 
         this.#state = new State();
         this.#hashes = new HashGenerator(this.#state);
-        this.#utils = new OfficialUtils();
-        this.#rpc = new Rpc(this.#state, this.#utils);
+        this.#rpc = new Rpc(this.#state);
 
         this.#state.readyPromise = new Promise(resolve => {
             this.#state.dispatchReady = resolve;
@@ -140,6 +137,7 @@ export default class HiRpc {
                 // For browser-only environments, returning at this point provides basic hiRPC functionality
                 
                 this.#state.stateCode = StateCode.OutsideDiscord;
+                window.removeEventListener("message", this.#rpc.receive);
     
                 resolve();
                 return;
@@ -151,6 +149,7 @@ export default class HiRpc {
             if (!query.frame_id || !query.instance_id || !query.platform) {
                 
                 this.#state.stateCode = StateCode.OutsideDiscord;
+                window.removeEventListener("message", this.#rpc.receive);
     
                 resolve();
                 return;
@@ -288,20 +287,9 @@ export default class HiRpc {
     }
 
     //# UTILS - - - - -
-    patchUrlMappings(mappings: Mapping[], config?: PatchUrlMappingsConfig): void {
+    patchUrlMappings: (mappings: Mapping[], config?: PatchUrlMappingsConfig) => void = patchUrlMappings;
 
-        this.#utils.patchUrlMappings(mappings, config);
-    }
-
-    formatPrice(price: {amount: number; currency: string}, locale?: string): string | undefined {
-
-        return this.#utils.formatPrice(price, locale);
-    }
-
-    utilsBinding(): OfficialUtils {
-
-        return this.#utils;
-    }
+    formatPrice: (price: {amount: number; currency: string}, locale?: string) => string | undefined = formatPrice;
 
     //# API - - - - -
     getQueryObject(): Record<string, string> {

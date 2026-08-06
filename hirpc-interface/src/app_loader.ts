@@ -26,12 +26,10 @@ let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`
 if (!baseUrl.endsWith("/")) baseUrl += "/";
 
 let outsideDiscord = false;
-let needsProxyPrefix = false;
 
-let loaderPath = "Build/{{{ LOADER_FILENAME }}}"; 
+let loaderPath = baseUrl + "Build/{{{ LOADER_FILENAME }}}"; 
 
-const proxyBridgeImport = "dso_proxy_bridge/";
-const normalBridgeImport = "dso_bridge/";
+const bridgeImport = "dso_bridge/";
 const hirpcFileName = "dissonity_hirpc.js";
 const buildVariablesFileName = "dissonity_build_variables.js";
 
@@ -41,48 +39,17 @@ let initialWidth = window.innerWidth;
 let initialHeight = window.innerHeight;
 
 // Set up paths before anything
-async function initialize() {
-
-    async function updatePaths() {
+function envCheck() {
         
-        //? Not outside Discord
-        if (window.location.hostname.endsWith(".discordsays.com")) {
-            sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-
-        else {
-            outsideDiscord = true;
-            sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-
-        //? Doesn't need prefix
-        if (outsideDiscord || window.location.pathname.startsWith("/.proxy")) {
-            sessionStorage.setItem("dso_needs_prefix", "false" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-        }
-
-        else {
-            needsProxyPrefix = true;
-            sessionStorage.setItem("dso_needs_prefix", "true" as NonNullable<SessionStorage["dso_needs_prefix"]>);
-        }
-    
-        // Add .proxy
-        if (needsProxyPrefix) {
-            loaderPath = ".proxy/" + loaderPath;
-        }
-
-        // Mark as outside Discord
-        if (outsideDiscord) {
-            window.sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-
-        else {
-            window.sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
-        }
-    
-        loaderPath = baseUrl + loaderPath;
+    //? Inside Discord
+    if (window.location.hostname.endsWith(".discordsays.com")) {
+        sessionStorage.setItem("dso_outside_discord", "false" as NonNullable<SessionStorage["dso_outside_discord"]>);
     }
 
-    await updatePaths();
+    else {
+        outsideDiscord = true;
+        sessionStorage.setItem("dso_outside_discord", "true" as NonNullable<SessionStorage["dso_outside_discord"]>);
+    }
 }
 
 // Set up the hiRPC module
@@ -103,7 +70,7 @@ async function handleHiRpc() {
                 const patchUrlMappings: keyof HiRpcModule = "patchUrlMappings";
 
                 if (key == patchUrlMappings) {
-                    const localFunction = module.utilsBinding().patchUrlMappings.bind(window);
+                    const localFunction = module.patchUrlMappings.bind(window);
                     return localFunction;
                 }
 
@@ -138,29 +105,16 @@ async function handleHiRpc() {
     // The instance will be available in window.dso_hirpc after this promise resolution
     await new Promise(async (resolve, _) => {
 
-        if (needsProxyPrefix) {
-            await import(`${proxyBridgeImport}${hirpcFileName}`);
-            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
-            
-            load();
-        }
+        //\ Imports
+        await import(`${bridgeImport}${hirpcFileName}`);
+        await import(`${bridgeImport}${buildVariablesFileName}`);
+        
+        //\ Load
+        const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule; // window.dso_hirpc is defined after this line
 
-        else {
-            await import(`${normalBridgeImport}${hirpcFileName}`);
-            await import(`${normalBridgeImport}${buildVariablesFileName}`);
-            
-            load();
-        }
+        await initialize(hiRpc, hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
 
-        async function load() {
-
-            // window.dso_hirpc is defined after this line
-            const hiRpc = new window.Dissonity.HiRpc.default() as HiRpcModule;
-
-            await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
-
-            resolve(hiRpc);
-        }
+        resolve(hiRpc);
     });
 
     async function initialize(hiRpc: HiRpcModule, loaded: boolean) {
@@ -320,9 +274,7 @@ async function handleUnityBuild() {
 
     let background = "{{{ BACKGROUND_FILENAME ? 'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
     if (background != "#000000") {
-        background = needsProxyPrefix
-        ? "url('.proxy/" + background
-        : "url('" + background;
+        background = "url('" + background;
     }
     canvas.style.background = background;
 
@@ -337,12 +289,12 @@ async function handleUnityBuild() {
     const SYMBOLS_FILENAME = /true|1/i.test("{{{ SYMBOLS_FILENAME }}}");
 
     // Configuration - - - - -
-    const dataUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ DATA_FILENAME }}}` : `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
-    const frameworkUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ FRAMEWORK_FILENAME }}}` : `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
-    let workerUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ WORKER_FILENAME }}}` : `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
-    let codeUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ CODE_FILENAME }}}` : `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
-    let memoryUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ MEMORY_FILENAME }}}` : `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
-    let symbolsUrl: string | undefined = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ SYMBOLS_FILENAME }}}` : `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
+    const dataUrl = `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
+    const frameworkUrl = `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
+    let workerUrl: string | undefined = `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
+    let codeUrl: string | undefined = `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
+    let memoryUrl: string | undefined = `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
+    let symbolsUrl: string | undefined = `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
 
     if (!USE_THREADS) workerUrl = undefined;
     if (!USE_WASM) codeUrl = undefined;
@@ -371,7 +323,7 @@ async function handleUnityBuild() {
 
 (async () => {
 
-    await initialize();
+    envCheck();
 
     await handleHiRpc();
 

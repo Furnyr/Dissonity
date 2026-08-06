@@ -2,8 +2,8 @@
     - Move build files to the Unity WebGL Template
 */
 
-const fs = require("fs");
-const chalk = require("chalk");
+import fs from "fs";
+import chalk from "chalk";
 
 function main() {
     

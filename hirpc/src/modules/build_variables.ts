@@ -1,6 +1,6 @@
 
-import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
-import type { ParseVariableType } from "../types";
+import type { Mapping, PatchUrlMappingsConfig } from "../official_types.js";
+import type { ParseVariableType } from "../types.js";
 
 /**
  * This class is bundled separately.

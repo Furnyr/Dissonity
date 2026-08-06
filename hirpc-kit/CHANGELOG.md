@@ -2,6 +2,8 @@
 
 All notable changes to this package will be documented in this file.
 
+## [0.2.0] - TBD
+
 ## [0.1.5] - 2025-06-10
 
 ### Added

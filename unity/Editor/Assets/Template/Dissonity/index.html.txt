@@ -37,8 +37,7 @@
     <script type="importmap">
       {
         "imports": {
-          "dso_bridge/": "./Bridge/",
-          "dso_proxy_bridge/": "./.proxy/Bridge/"
+          "dso_bridge/": "./Bridge/"
         }
       }
     </script>

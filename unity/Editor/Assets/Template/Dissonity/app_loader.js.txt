@@ -17,49 +17,38 @@ let baseUrl = `${window.location.protocol}//${window.location.host}${getPath()}`
 if (!baseUrl.endsWith("/"))
     baseUrl += "/";
 let outsideDiscord = false;
-let needsProxyPrefix = false;
-let loaderPath = "Build/{{{ LOADER_FILENAME }}}";
-const proxyBridgeImport = "dso_proxy_bridge/";
-const normalBridgeImport = "dso_bridge/";
+let loaderPath = baseUrl + "Build/{{{ LOADER_FILENAME }}}";
+const bridgeImport = "dso_bridge/";
 const hirpcFileName = "dissonity_hirpc.js";
 const buildVariablesFileName = "dissonity_build_variables.js";
 const MOBILE = "mobile";
 let initialWidth = window.innerWidth;
 let initialHeight = window.innerHeight;
-async function initialize() {
-    async function updatePaths() {
-        if (window.location.hostname.endsWith(".discordsays.com")) {
-            sessionStorage.setItem("dso_outside_discord", "false");
-        }
-        else {
-            outsideDiscord = true;
-            sessionStorage.setItem("dso_outside_discord", "true");
-        }
-        if (outsideDiscord || window.location.pathname.startsWith("/.proxy")) {
-            sessionStorage.setItem("dso_needs_prefix", "false");
-        }
-        else {
-            needsProxyPrefix = true;
-            sessionStorage.setItem("dso_needs_prefix", "true");
-        }
-        if (needsProxyPrefix) {
-            loaderPath = ".proxy/" + loaderPath;
-        }
-        if (outsideDiscord) {
-            window.sessionStorage.setItem("dso_outside_discord", "true");
-        }
-        else {
-            window.sessionStorage.setItem("dso_outside_discord", "false");
-        }
-        loaderPath = baseUrl + loaderPath;
+function envCheck() {
+    if (window.location.hostname.endsWith(".discordsays.com")) {
+        sessionStorage.setItem("dso_outside_discord", "false");
     }
-    await updatePaths();
+    else {
+        outsideDiscord = true;
+        sessionStorage.setItem("dso_outside_discord", "true");
+    }
 }
 async function handleHiRpc() {
     const isNested = window.parent != window.parent.parent;
     if (isNested && typeof window.parent?.dso_hirpc == "object") {
+        const module = window.parent.dso_hirpc;
+        const proxy = new Proxy(module, {
+            get: (target, key) => {
+                const patchUrlMappings = "patchUrlMappings";
+                if (key == patchUrlMappings) {
+                    const localFunction = module.patchUrlMappings.bind(window);
+                    return localFunction;
+                }
+                return target[key];
+            }
+        });
         Object.defineProperty(window, "dso_hirpc", {
-            value: window.parent.dso_hirpc,
+            value: proxy,
             writable: false,
             configurable: false
         });
@@ -74,21 +63,11 @@ async function handleHiRpc() {
         return;
     }
     await new Promise(async (resolve, _) => {
-        if (needsProxyPrefix) {
-            await import(`${proxyBridgeImport}${hirpcFileName}`);
-            await import(`${proxyBridgeImport}${buildVariablesFileName}`);
-            load();
-        }
-        else {
-            await import(`${normalBridgeImport}${hirpcFileName}`);
-            await import(`${normalBridgeImport}${buildVariablesFileName}`);
-            load();
-        }
-        async function load() {
-            const hiRpc = new window.Dissonity.HiRpc.default();
-            await initialize(hiRpc, false || hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
-            resolve(hiRpc);
-        }
+        await import(`${bridgeImport}${hirpcFileName}`);
+        await import(`${bridgeImport}${buildVariablesFileName}`);
+        const hiRpc = new window.Dissonity.HiRpc.default();
+        await initialize(hiRpc, hiRpc.getBuildVariables().LAZY_HIRPC_LOAD);
+        resolve(hiRpc);
     });
     async function initialize(hiRpc, loaded) {
         hiRpc.lockHashAccess();
@@ -205,9 +184,7 @@ async function handleUnityBuild() {
     }
     let background = "{{{ BACKGROUND_FILENAME ? 'Build/' + BACKGROUND_FILENAME.replace(/'/g, '%27') + '\') center / cover' : '#000000' }}}";
     if (background != "#000000") {
-        background = needsProxyPrefix
-            ? "url('.proxy/" + background
-            : "url('" + background;
+        background = "url('" + background;
     }
     canvas.style.background = background;
     await loadUnityBuild();
@@ -216,12 +193,12 @@ async function handleUnityBuild() {
     const USE_WASM = /true|1/i.test("{{{ USE_WASM }}}");
     const MEMORY_FILENAME = /true|1/i.test("{{{ MEMORY_FILENAME }}}");
     const SYMBOLS_FILENAME = /true|1/i.test("{{{ SYMBOLS_FILENAME }}}");
-    const dataUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ DATA_FILENAME }}}` : `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
-    const frameworkUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ FRAMEWORK_FILENAME }}}` : `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
-    let workerUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ WORKER_FILENAME }}}` : `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
-    let codeUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ CODE_FILENAME }}}` : `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
-    let memoryUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ MEMORY_FILENAME }}}` : `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
-    let symbolsUrl = needsProxyPrefix ? `${baseUrl}.proxy/Build/{{{ SYMBOLS_FILENAME }}}` : `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
+    const dataUrl = `${baseUrl}Build/{{{ DATA_FILENAME }}}`;
+    const frameworkUrl = `${baseUrl}Build/{{{ FRAMEWORK_FILENAME }}}`;
+    let workerUrl = `${baseUrl}Build/{{{ WORKER_FILENAME }}}`;
+    let codeUrl = `${baseUrl}Build/{{{ CODE_FILENAME }}}`;
+    let memoryUrl = `${baseUrl}Build/{{{ MEMORY_FILENAME }}}`;
+    let symbolsUrl = `${baseUrl}Build/{{{ SYMBOLS_FILENAME }}}`;
     if (!USE_THREADS)
         workerUrl = undefined;
     if (!USE_WASM)
@@ -248,7 +225,7 @@ async function handleUnityBuild() {
     });
 }
 (async () => {
-    await initialize();
+    envCheck();
     await handleHiRpc();
     await handleUnityBuild();
 })();

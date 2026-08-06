@@ -1,5 +1,5 @@
-import { HASH_RANDOM_BYTES } from "../constants";
-import { State } from "./state";
+import { HASH_RANDOM_BYTES } from "../constants.js";
+import { State } from "./state.js";
 
 /**
  * General hash functionality.

@@ -2,9 +2,9 @@
     - Add the version file
 */
 
-const fs = require("fs");
-const chalk = require("chalk");
-const { version } = require("../package.json");
+import fs from "fs";
+import chalk from "chalk";
+import packageJson from "../package.json" with { type: "json" };
 
 function main() {
     
@@ -18,8 +18,8 @@ function main() {
     const versionJsFile = `./dist/version.js`;
     const versionTsFile = `./dist/version.d.ts`;
 
-    fs.writeFileSync(versionJsFile, `export const version = "${version}";`);
-    fs.writeFileSync(versionTsFile, `export declare const version = "${version}";`);
+    fs.writeFileSync(versionJsFile, `export const version = "${packageJson.version}";`);
+    fs.writeFileSync(versionTsFile, `export declare const version = "${packageJson.version}";`);
 
     console.log(chalk.green(`Added ${versionJsFile} successfully!`));
     console.log(chalk.green(`Added ${versionTsFile} successfully!`));

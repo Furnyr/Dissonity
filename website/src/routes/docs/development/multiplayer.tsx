@@ -36,7 +36,7 @@ function DocsPage () {
         <h1>Multiplayer <HashLink link="/?/docs/v2/development/multiplayer"/></h1> 
 
         <p>
-          To make a multiplayer activity you need a way to connect different clients. In a normal activity, this can only be done through the <b>Discord Proxy</b> (<code>https://your-app-id.discordsays.com/.proxy</code>).
+          To make a multiplayer activity you need a way to connect different clients. In a normal activity, this can only be done through the <b>Discord Proxy</b> (<code>https://your-app-id.discordsays.com/</code>).
           This means you can't establish a <b>Peer to Peer</b> connection between players. Instead, you need to use a <b>Client-Server</b> design.
         </p>
 

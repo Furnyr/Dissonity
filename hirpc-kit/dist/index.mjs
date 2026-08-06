@@ -15,61 +15,15 @@ async function setupHiRpc(_hiRpcVersion) {
       resolve(window.dso_hirpc);
       return;
     }
-    let skipPrefixCheck = false;
-    let useProxyImport = false;
-    if (window.location.hostname.endsWith(".discordsays.com")) {
-      sessionStorage.setItem("dso_outside_discord", "false");
-    } else {
-      skipPrefixCheck = true;
-      sessionStorage.setItem("dso_outside_discord", "true");
-    }
-    if (skipPrefixCheck || window.location.pathname.startsWith("/.proxy")) {
-      sessionStorage.setItem("dso_needs_prefix", "false");
-    } else {
-      useProxyImport = true;
-      sessionStorage.setItem("dso_needs_prefix", "true");
-    }
-    if (useProxyImport) {
-      tryProxyImport().then((module) => {
-        resolve(module);
-      }).catch(() => {
-        tryDirectImport().then((module) => {
-          resolve(module);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
-    } else {
-      tryDirectImport().then((module) => {
-        resolve(module);
-      }).catch(() => {
-        tryProxyImport().then((module) => {
-          resolve(module);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
-    }
-    function tryProxyImport() {
-      return new Promise((resolve2, reject2) => {
-        import("dso_proxy_bridge/dissonity_hirpc.js").then(() => {
-          import("dso_proxy_bridge/dissonity_build_variables.js").then(() => {
-            sessionStorage.setItem("dso_needs_prefix", "true");
-            mountInstance();
-            resolve2(window.dso_hirpc);
-          }).catch((err) => {
-            reject2(err);
-          });
-        }).catch((err) => {
-          reject2(err);
-        });
-      });
-    }
+    tryDirectImport().then((module) => {
+      resolve(module);
+    }).catch((err) => {
+      reject(err);
+    });
     function tryDirectImport() {
       return new Promise((resolve2, reject2) => {
         import("dso_bridge/dissonity_hirpc.js").then(() => {
           import("dso_bridge/dissonity_build_variables.js").then(() => {
-            sessionStorage.setItem("dso_needs_prefix", "false");
             mountInstance();
             resolve2(window.dso_hirpc);
           }).catch((err) => {
@@ -97,10 +51,6 @@ async function setupHiRpc(_hiRpcVersion) {
   });
 }
 function loadIframe(src, id) {
-  const confirmedNeedsPrefix = sessionStorage.getItem("dso_needs_prefix") == "true";
-  if (confirmedNeedsPrefix && !src.startsWith("./") && !src.startsWith(".proxy/")) {
-    src = ".proxy/" + src;
-  }
   const iframe = document.createElement("iframe");
   iframe.id = id;
   iframe.src = src;

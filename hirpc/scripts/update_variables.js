@@ -2,9 +2,9 @@
     - Update build variables in the dist or ci folder
 */
 
-const prompt = require("prompt-sync");
-const fs = require("fs");
-const chalk = require("chalk");
+import prompt from "prompt-sync";
+import fs from "fs";
+import chalk from "chalk";
 
 const VARIABLE_SEPARATOR = "§"; // (alt 21 win) (\u00A7)
 

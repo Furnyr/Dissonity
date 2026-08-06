@@ -41,7 +41,7 @@ mergeInto(LibraryManager.library, {
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const { mappings, config } = data;
         const hiRpc = window.dso_hirpc;
-        hiRpc.patchUrlMappings(app_hash, mappings, config);
+        hiRpc.patchUrlMappings(mappings, config);
         const payload = {
             nonce
         };
@@ -51,7 +51,7 @@ mergeInto(LibraryManager.library, {
         const { nonce, data, app_hash } = JSON.parse(UTF8ToString(stringifiedMessage));
         const { amount, currency, locale } = data;
         const hiRpc = window.dso_hirpc;
-        const formattedPrice = hiRpc.formatPrice(app_hash, {
+        const formattedPrice = hiRpc.formatPrice({
             amount,
             currency
         }, locale);

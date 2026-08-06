@@ -1,13 +1,12 @@
-import { Opcode } from "../enums";
-import { RpcMessage } from "../types";
-import { State } from "./state";
-import { OfficialUtils } from "./official_utils";
+import { Opcode } from "../enums.js";
+import { RpcMessage } from "../types.js";
+import { State } from "./state.js";
 /**
  * Handles communication with the Discord RPC.
  */
 export declare class Rpc {
     #private;
-    constructor(state: State, utils: OfficialUtils);
+    constructor(state: State);
     parseMajorMobileVersion(mobileAppVersion: string): number;
     receive(message: MessageEvent<RpcMessage>): Promise<void>;
     authentication(message: MessageEvent<RpcMessage>): Promise<void>;

@@ -1,5 +1,5 @@
-import { StateCode } from "../enums";
-import { MultiEvent } from "../types";
+import { StateCode } from "../enums.js";
+import { MultiEvent } from "../types.js";
 /**
  * Holds general runtime data.
  *

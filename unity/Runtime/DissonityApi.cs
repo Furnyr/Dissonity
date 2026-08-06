@@ -1267,9 +1267,7 @@ namespace Dissonity
                         ? path
                         : $"/{path}";
 
-                    uri = path.StartsWith("/.proxy/")
-                        ? $"https://{_clientId}.{ProxyDomain}{path}"
-                        : $"https://{_clientId}.{ProxyDomain}/.proxy{path}";
+                    uri = $"https://{_clientId}.{ProxyDomain}{path}";
                 }
                 else
                 {

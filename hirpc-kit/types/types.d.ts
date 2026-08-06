@@ -1,5 +1,5 @@
-import { Opcode, StateCode } from "./enums";
-import IBuildVariables from "./modules/build_variables";
+import { Opcode, StateCode } from "./enums.js";
+import IBuildVariables from "./modules/build_variables.js";
 export type RpcMessage = [Opcode, RpcPayload];
 export type RpcPayload = {
     evt?: string;

@@ -1,8 +1,6 @@
-const chalk = require("chalk");
-const { config } = require("dotenv");
-const { getLocalPath } = require("./utils.js");
-
-config();
+import chalk from "chalk";
+import "dotenv/config";
+import { getLocalPath } from"./utils.js";
 
 function main() {
 

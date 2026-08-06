@@ -129,7 +129,7 @@ function DocsPage () {
         <h3 className="h3-margin" id="responding-to-the-environment">Responding to the environment <HashLink link="/?/docs/v2/internals/hirpc#responding-to-the-environment" /></h3>
 
         <p>
-          The hiRPC module can recognize its environment via the query parameters and the presence of the <code>.proxy</code> path prefix. It is also designed to be able to work alongside the official SDK. If it detects the RPC <code>READY</code> event, it skips sending the RPC handshake.
+          The hiRPC module can recognize its environment via the query parameters and the presence of the Discord Proxy domain <code>discordsays.com</code>. It is also designed to be able to work alongside the official SDK. If it detects the RPC <code>READY</code> event, it skips sending the RPC handshake.
         </p>
 
         <p>
@@ -300,8 +300,7 @@ end`}/>
     <script type="importmap">
       {
         "imports": {
-          "dso_bridge/": "./Unity/Bridge/",
-          "dso_proxy_bridge/": "./.proxy/Unity/Bridge/"
+          "dso_bridge/": "./Unity/Bridge/"
         }
       }
     </script>

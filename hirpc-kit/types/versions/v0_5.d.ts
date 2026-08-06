@@ -1,6 +1,6 @@
-import { Opcode } from "../enums";
-import type { Mapping, PatchUrlMappingsConfig } from "../official_types";
-import type { RpcInputPayload } from "../types";
+import { Opcode } from "../../../hirpc/src/enums";
+import type { Mapping, PatchUrlMappingsConfig } from "../../../hirpc/src/official_types";
+import type { RpcInputPayload } from "../../../hirpc/src/types";
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
  *

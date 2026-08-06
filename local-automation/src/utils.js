@@ -1,8 +1,8 @@
 
-const fs = require("fs");
-const chalk = require("chalk");
+import fs from "fs";
+import chalk from "chalk";
 
-module.exports.getLocalPath = () => {
+export function getLocalPath() {
 
     //? Path set in .env
     if (!process.env.UNITY_PROJECT_PATH || process.env.UNITY_PROJECT_PATH == "") {
