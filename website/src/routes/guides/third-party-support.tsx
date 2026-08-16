@@ -47,7 +47,7 @@ function GuidesPage () {
       <ol>
         <li>Install @dissonity/hirpc-kit in your client</li>
         <li>Move your Unity build to a folder (for example, <code>/Unity</code>)</li>
-        <li>Add an <Link to="/docs/v2/internals/hirpc#initializing-hirpc">import map</Link> referencing the hiRPC files in the build to your index.html</li>
+        <li>Use <Link to="/docs/v2/internals/hirpc#initializing-hirpc">sessionStorage</Link> to reference the hiRPC files in the build</li>
         <li>Add an index.js (or index.ts if you're using TypeScript) where you'll configure both the third-party library and Dissonity:</li>
       </ol>
 

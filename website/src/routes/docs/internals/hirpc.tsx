@@ -285,7 +285,7 @@ end`}/>
         </p>
 
         <p>
-          But before accessing hiRPC, you must indicate where the files are using an import map in your top index.html:
+          Before accessing hiRPC, you must indicate where the files are via <code>sessionStorage</code> using a script in your top index.html:
         </p>
 
         <CodeBlock language="xml">{`<html>
@@ -297,18 +297,15 @@ end`}/>
         padding: 0px;
       }
     </style>
-    <script type="importmap">
-      {
-        "imports": {
-          "dso_bridge/": "./Unity/Bridge/"
-        }
-      }
-    </script>
+    <script src="bridge_locator.js"></script>
     <script src="index.js"></script>
   </head>
 </html>`}</CodeBlock>
 
-        <i>Example import map, where Unity/Bridge contains dissonity_hirpc.js and other hiRPC files.</i>
+        <CodeBlock language="js">{`// bridge_locator.js
+sessionStorage.setItem("dso_bridge", "./Unity/Bridge/")`}</CodeBlock>
+
+        <i>Example index.html and bridge locator script, where Unity/Bridge contains dissonity_hirpc.js and other hiRPC files.</i>
 
         <p>
           Then, you need to check whether the module has been created. If not, you need to <b>mount</b> and <b>load</b> it.
