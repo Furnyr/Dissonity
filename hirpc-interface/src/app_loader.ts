@@ -74,8 +74,15 @@ async function handleHiRpc() {
                 // Assuring the method exists in the TS source
                 const patchUrlMappings: keyof HiRpcModule = "patchUrlMappings";
 
+                // So the correct context is used
                 if (key == patchUrlMappings) {
                     const localFunction = module.patchUrlMappings.bind(window);
+                    return localFunction;
+                }
+
+                // So private members work
+                else if (typeof target[key as keyof typeof target] == "function") {
+                    const localFunction = module[key as keyof typeof target].bind(module);
                     return localFunction;
                 }
 

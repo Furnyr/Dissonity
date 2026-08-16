@@ -243,10 +243,10 @@ export class Rpc {
                     },
                     body: this.serializePayload(body)
                 });
-    
+
                 //\ Parse data
                 const json = await response.json();
-    
+
                 //? No token
                 if (!json.token) {
 

@@ -45,6 +45,10 @@ async function handleHiRpc() {
                     const localFunction = module.patchUrlMappings.bind(window);
                     return localFunction;
                 }
+                else if (typeof target[key] == "function") {
+                    const localFunction = module[key].bind(module);
+                    return localFunction;
+                }
                 return target[key];
             }
         });
