@@ -28,6 +28,9 @@ This library can be included in the game build files. Allows communication betwe
 
 You may need to install [pnpm](https://pnpm.io).
 
+> [!IMPORTANT]
+> Unlike other Dissonity modules, each import in the hiRPC files must contain a file extension.
+
 ### 1. 🛠️ Build the library
 ```
 pnpm build

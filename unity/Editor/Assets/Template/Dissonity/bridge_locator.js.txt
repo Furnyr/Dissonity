@@ -1,0 +1,1 @@
+sessionStorage.setItem("dso_bridge", "./Bridge/");

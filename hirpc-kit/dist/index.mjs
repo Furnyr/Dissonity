@@ -6,7 +6,7 @@ var RpcOpcode = /* @__PURE__ */ ((RpcOpcode2) => {
   RpcOpcode2[RpcOpcode2["Hello"] = 3] = "Hello";
   return RpcOpcode2;
 })(RpcOpcode || {});
-async function setupHiRpc(_hiRpcVersion) {
+async function setupHiRpc(_hiRpcVersion, bridgePath) {
   if (typeof window == "undefined") {
     throw new Error("Cannot load hiRPC Module outside of a web environment");
   }
@@ -21,9 +21,13 @@ async function setupHiRpc(_hiRpcVersion) {
       reject(err);
     });
     function tryDirectImport() {
+      const bridgeImport = bridgePath ?? sessionStorage.getItem("dso_bridge");
+      if (!bridgeImport) {
+        throw new Error("You must specify a bridge path using the 'bridgePath' parameter or the 'dso_bridge' session storage item.");
+      }
       return new Promise((resolve2, reject2) => {
-        import("dso_bridge/dissonity_hirpc.js").then(() => {
-          import("dso_bridge/dissonity_build_variables.js").then(() => {
+        import(`${bridgeImport}dissonity_hirpc.js`).then(() => {
+          import(`${bridgeImport}dissonity_build_variables.js`).then(() => {
             mountInstance();
             resolve2(window.dso_hirpc);
           }).catch((err) => {

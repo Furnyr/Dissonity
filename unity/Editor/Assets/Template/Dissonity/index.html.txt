@@ -34,13 +34,7 @@
   </head>
   <body style="text-align: center; border: 0; margin: 0;">
     <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1" style="width: 100vw; height: 100vh; background: #000000"></canvas>
-    <script type="importmap">
-      {
-        "imports": {
-          "dso_bridge/": "./Bridge/"
-        }
-      }
-    </script>
+    <script type="module" src="bridge_locator.js"></script>
     <script type="module" src="app_loader.js"></script>
   </body>
 </html>

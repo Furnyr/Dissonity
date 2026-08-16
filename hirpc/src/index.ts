@@ -14,9 +14,6 @@ import type { BuildVariables, DissonityChannelError, DissonityChannelHandshake, 
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
- * 
- * Imports that must be defined:
- * - dso_bridge/
  */ 
 export default class HiRpc {
 
@@ -276,7 +273,7 @@ export default class HiRpc {
 
         else {
 
-            const errorMessage = "Unable to access build variables. Import them through <import map>/dissonity_build_variables.js";
+            const errorMessage = "Unable to access build variables. Import them through <bridge location>/dissonity_build_variables.js";
             logError(errorMessage);
 
             this.#state.stateCode = StateCode.Errored;

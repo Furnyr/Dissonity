@@ -5,30 +5,52 @@ interface UnknownHiRpc {
 /**
  * Discord RPC Opcode
  */
-declare enum Opcode$1 {
+declare enum Opcode {
     Handshake = 0,
     Frame = 1,
     Close = 2,
     Hello = 3
 }
 
-interface Mapping$1 {
+interface Mapping {
     prefix: string;
     target: string;
 }
-interface PatchUrlMappingsConfig$1 {
+interface PatchUrlMappingsConfig {
     patchFetch?: boolean;
     patchWebSocket?: boolean;
     patchXhr?: boolean;
     patchSrcAttributes?: boolean;
 }
 
-type RpcInputPayload$1 = {
+/**
+ * This class is bundled separately.
+ *
+ * Its contents will be overwritten by the game engine post-processing the game build.
+ *
+ * Each variable is separated by § (alt 21 win) (\u00A7)
+ */
+declare class BuildVariables$2 {
+    #private;
+    DISABLE_INFO_LOGS: boolean;
+    LAZY_HIRPC_LOAD: boolean;
+    CLIENT_ID: string;
+    DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
+    MAPPINGS: Mapping[];
+    PATCH_URL_MAPPINGS_CONFIG: PatchUrlMappingsConfig;
+    OAUTH_SCOPES: string[];
+    TOKEN_REQUEST_PATH: string;
+    SERVER_REQUEST: string;
+    constructor();
+}
+
+type RpcInputPayload = {
     evt?: string;
     cmd?: string;
     nonce?: string;
     args?: unknown;
 };
+type BuildVariables$1 = InstanceType<typeof BuildVariables$2>;
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
@@ -55,8 +77,8 @@ declare class HiRpcV0_5 {
      * ```
      */
     load(maxAccessCount?: number): Promise<void>;
-    getBuildVariables(): BuildVariables$2;
-    patchUrlMappings(hash: string, mappings: Mapping$1[], config?: PatchUrlMappingsConfig$1): void;
+    getBuildVariables(): BuildVariables;
+    patchUrlMappings(hash: string, mappings: Mapping[], config?: PatchUrlMappingsConfig): void;
     formatPrice(hash: string, price: {
         amount: number;
         currency: string;
@@ -76,7 +98,7 @@ declare class HiRpcV0_5 {
     /**
      * Send data to Discord through RPC.
      */
-    sendToRpc(hash: string, opcode: Opcode$1 | undefined, payload: RpcInputPayload$1): Promise<void>;
+    sendToRpc(hash: string, opcode: Opcode | undefined, payload: RpcInputPayload): Promise<void>;
     /**
      * **Only used inside the game build.**
      *
@@ -112,49 +134,6 @@ declare class _BuildVariables {
     DISABLE_INFO_LOGS: boolean;
     CLIENT_ID: string;
     DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
-    MAPPINGS: Mapping$1[];
-    PATCH_URL_MAPPINGS_CONFIG: PatchUrlMappingsConfig$1;
-    OAUTH_SCOPES: string[];
-    TOKEN_REQUEST_PATH: string;
-    SERVER_REQUEST: string;
-    constructor();
-}
-type BuildVariables$2 = InstanceType<typeof _BuildVariables>;
-
-/**
- * Discord RPC Opcode
- */
-declare enum Opcode {
-    Handshake = 0,
-    Frame = 1,
-    Close = 2,
-    Hello = 3
-}
-
-interface Mapping {
-    prefix: string;
-    target: string;
-}
-interface PatchUrlMappingsConfig {
-    patchFetch?: boolean;
-    patchWebSocket?: boolean;
-    patchXhr?: boolean;
-    patchSrcAttributes?: boolean;
-}
-
-/**
- * This class is bundled separately.
- *
- * Its contents will be overwritten by the game engine post-processing the game build.
- *
- * Each variable is separated by § (alt 21 win) (\u00A7)
- */
-declare class BuildVariables$1 {
-    #private;
-    DISABLE_INFO_LOGS: boolean;
-    LAZY_HIRPC_LOAD: boolean;
-    CLIENT_ID: string;
-    DISABLE_CONSOLE_LOG_OVERRIDE: boolean;
     MAPPINGS: Mapping[];
     PATCH_URL_MAPPINGS_CONFIG: PatchUrlMappingsConfig;
     OAUTH_SCOPES: string[];
@@ -162,14 +141,7 @@ declare class BuildVariables$1 {
     SERVER_REQUEST: string;
     constructor();
 }
-
-type RpcInputPayload = {
-    evt?: string;
-    cmd?: string;
-    nonce?: string;
-    args?: unknown;
-};
-type BuildVariables = InstanceType<typeof BuildVariables$1>;
+type BuildVariables = InstanceType<typeof _BuildVariables>;
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
@@ -196,7 +168,7 @@ declare class HiRpcV0_6 {
      * ```
      */
     load(maxAccessCount?: number): Promise<void>;
-    getBuildVariables(): BuildVariables;
+    getBuildVariables(): BuildVariables$1;
     patchUrlMappings(hash: string, mappings: Mapping[], config?: PatchUrlMappingsConfig): void;
     formatPrice(hash: string, price: {
         amount: number;
@@ -250,9 +222,6 @@ declare class HiRpcV0_6 {
 
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
- *
- * Imports that must be defined:
- * - dso_bridge/
  */
 declare class HiRpc {
     #private;
@@ -272,7 +241,7 @@ declare class HiRpc {
      * ```
      */
     load(maxAccessCount?: number): Promise<void>;
-    getBuildVariables(): BuildVariables;
+    getBuildVariables(): BuildVariables$1;
     patchUrlMappings: (mappings: Mapping[], config?: PatchUrlMappingsConfig) => void;
     formatPrice: (price: {
         amount: number;
@@ -338,7 +307,7 @@ declare enum RpcOpcode {
  *
  * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
  */
-declare function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpcShape<V>>;
+declare function setupHiRpc<V extends string>(_hiRpcVersion: V, bridgePath?: string): Promise<HiRpcShape<V>>;
 /**
  * Load an HTML file as the activity iframe.
  */

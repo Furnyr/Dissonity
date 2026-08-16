@@ -18,13 +18,14 @@ if (!baseUrl.endsWith("/"))
     baseUrl += "/";
 let outsideDiscord = false;
 let loaderPath = baseUrl + "Build/{{{ LOADER_FILENAME }}}";
-const bridgeImport = "dso_bridge/";
+const bridgeImport = sessionStorage.getItem("dso_bridge");
 const hirpcFileName = "dissonity_hirpc.js";
 const buildVariablesFileName = "dissonity_build_variables.js";
 const MOBILE = "mobile";
 let initialWidth = window.innerWidth;
 let initialHeight = window.innerHeight;
 function envCheck() {
+    sessionStorage.removeItem("dso_bridge");
     if (window.location.hostname.endsWith(".discordsays.com")) {
         sessionStorage.setItem("dso_outside_discord", "false");
     }
@@ -62,7 +63,10 @@ async function handleHiRpc() {
         initialize(window.dso_hirpc, true);
         return;
     }
-    await new Promise(async (resolve, _) => {
+    await new Promise(async (resolve, reject) => {
+        if (!bridgeImport) {
+            reject("You must specify a bridge path using the 'dso_bridge' session storage item.");
+        }
         await import(`${bridgeImport}${hirpcFileName}`);
         await import(`${bridgeImport}${buildVariablesFileName}`);
         const hiRpc = new window.Dissonity.HiRpc.default();

@@ -29,7 +29,7 @@ let outsideDiscord = false;
 
 let loaderPath = baseUrl + "Build/{{{ LOADER_FILENAME }}}"; 
 
-const bridgeImport = "dso_bridge/";
+const bridgeImport = sessionStorage.getItem("dso_bridge");
 const hirpcFileName = "dissonity_hirpc.js";
 const buildVariablesFileName = "dissonity_build_variables.js";
 
@@ -40,6 +40,11 @@ let initialHeight = window.innerHeight;
 
 // Set up paths before anything
 function envCheck() {
+
+    //\ Reset bridge path
+    // The dso_bridge item should be read for the last time in the app loader.
+    // Resetting the bridge path here allows for a clean boot every time the page is reloaded.
+    sessionStorage.removeItem("dso_bridge");
         
     //? Inside Discord
     if (window.location.hostname.endsWith(".discordsays.com")) {
@@ -103,7 +108,11 @@ async function handleHiRpc() {
 
     //\ Create module
     // The instance will be available in window.dso_hirpc after this promise resolution
-    await new Promise(async (resolve, _) => {
+    await new Promise(async (resolve, reject) => {
+
+        if (!bridgeImport) {
+            reject("You must specify a bridge path using the 'dso_bridge' session storage item.");
+        }
 
         //\ Imports
         await import(`${bridgeImport}${hirpcFileName}`);

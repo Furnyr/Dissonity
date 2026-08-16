@@ -18,6 +18,8 @@
 - Upgraded to ESNext instead of ES2022
 - Removed everything related to the .proxy prefix
 - hiRPC imports need file extensions to use NodeNext in the tests
+- hiRPC initialization requires the JS Kit or a session storage item (website docs)
+- Added new parameter to hiRPC Kit function setupHiRpc
 
 There's some functionality that I cannot maintain if there's no official documentation
 Changelogs are TODOes

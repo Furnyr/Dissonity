@@ -3,9 +3,6 @@ import type { Mapping, PatchUrlMappingsConfig } from "./official_types.js";
 import type { BuildVariables, RpcInputPayload } from "./types.js";
 /**
  * Main hiRPC class. After instantiation, the instance will be located in window.dso_hirpc.
- *
- * Imports that must be defined:
- * - dso_bridge/
  */
 export default class HiRpc {
     #private;

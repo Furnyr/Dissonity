@@ -14,7 +14,7 @@ export enum RpcOpcode {
  * 
  * Call this as soon as possible, since hiRPC needs to listen to RPC activity from the beginning of the process to provide functionality.
  */
-export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<HiRpcShape<V>> {
+export async function setupHiRpc<V extends string>(_hiRpcVersion: V, bridgePath?: string): Promise<HiRpcShape<V>> {
 
     //? Web environment
     if (typeof window == "undefined") {
@@ -40,12 +40,19 @@ export async function setupHiRpc<V extends string>(_hiRpcVersion: V): Promise<Hi
 
         function tryDirectImport() {
 
+            // Hierarchy of preferences: Kit input > Session storage
+            const bridgeImport = bridgePath ?? sessionStorage.getItem("dso_bridge");
+
+            if (!bridgeImport) {
+                throw new Error("You must specify a bridge path using the 'bridgePath' parameter or the 'dso_bridge' session storage item.");
+            }
+
             return new Promise((resolve, reject) => {
 
-                import("dso_bridge/dissonity_hirpc.js" as string)
+                import(`${bridgeImport}dissonity_hirpc.js` as string)
                 .then(() => {
     
-                    import("dso_bridge/dissonity_build_variables.js" as string)
+                    import(`${bridgeImport}dissonity_build_variables.js` as string)
                     .then(() => {
     
                         mountInstance();
